@@ -22,6 +22,7 @@ import httpx
 
 from ..gateway_api import GatewayApiClient
 from ..gateway_api.models.domain import GatewayTransport
+from ..gateway_api.models.dto import ServersListPayloadDTO
 from ..schemas.core import (
     McpServerRef,
     McpTool,
@@ -87,10 +88,12 @@ class GatewayMcpStrategy(StrategyCommonMixin, SyncStrategy):
         Returns:
             Iterable of `McpServerRef` discovered via the Gateway API.
         """
-        servers = self._gateway.list_servers()
-        for s in servers:
-            # Use model conversion to centralize mapping to domain ref
-            yield s.to_server_ref(self._gateway.base_url)
+        # Query admin registry and map the raw payload to domain servers
+        payload = self._gateway.admin.gateway.list()
+        servers_list = ServersListPayloadDTO.model_validate(payload)
+        for dto in servers_list.items:
+            server = dto.to_gateway_server()
+            yield server.to_server_ref(self._gateway.base_url)
 
     def list_tools(self, server_id: str) -> Iterable[McpTool]:
         """Return tools for a Gateway server, honoring per-server cache.
