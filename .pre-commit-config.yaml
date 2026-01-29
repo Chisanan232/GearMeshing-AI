@@ -11,39 +11,17 @@ repos:
       - id: trailing-whitespace
       - id: detect-private-key
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 6.0.1
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version
+    rev: v0.14.14
     hooks:
-      - id: isort
-        args: # arguments to configure black
-          - --profile=black
-
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v2.3.1
-    hooks:
-      - id: autoflake
-        args:
-          - --remove-all-unused-imports
-          - --ignore-init-module-imports
-          - --in-place
-
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
-    hooks:
-      - id: black
-        args: # arguments to configure black
-          - --line-length=120
-          # these folders won't be formatted by black
-          - --exclude="""\.git |
-            \.__pycache__|
-            \**.egg-info|
-            \.mypy_cache|
-            \.pytest_cache|
-            \.tox|
-            \.venv|
-            _build|
-            build|
-            dist"""
+      # Run the linter
+      - id: ruff
+        types_or: [ python, pyi ]
+        args: [--fix]
+      # Run the formatter
+      - id: ruff-format
+        types_or: [ python, pyi ]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.16.0
