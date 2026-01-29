@@ -3,7 +3,7 @@ name: Docs-only auto-approve & automerge
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-    branches: [<your_base_branch>]
+    branches: [master]
 
 permissions:
   contents: write
@@ -27,7 +27,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           filters: |
             code:
-              - '<your_package_name>/**'
+              - 'gearmeshing_ai/**'
               - 'examples/**'
               - 'scripts/**'
               - 'test/**'

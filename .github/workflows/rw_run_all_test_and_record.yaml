@@ -45,7 +45,7 @@ jobs:
       test_type: unit-test
       upload-to-codecov: true
       codecov_flags: unit-test  # Required if 'upload-to-codecov' is true
-      codecov_name: <your_package_name>  # Required if 'upload-to-codecov' is true
+      codecov_name: gearmeshing_ai  # Required if 'upload-to-codecov' is true
 
   integration-test_codecov_finish:
 #    name: Organize and generate the testing report and upload it to Codecov
@@ -64,7 +64,7 @@ jobs:
       test_type: integration-test
       upload-to-codecov: true
       codecov_flags: integration-test  # Required if 'upload-to-codecov' is true
-      codecov_name: <your_package_name>  # Required if 'upload-to-codecov' is true
+      codecov_name: gearmeshing_ai  # Required if 'upload-to-codecov' is true
 
   e2e-test_codecov_finish:
 #    name: Organize and generate the testing report and upload it to Codecov
@@ -84,7 +84,7 @@ jobs:
       test_type: e2e-test
       upload-to-codecov: true
       codecov_flags: e2e-test  # Required if 'upload-to-codecov' is true
-      codecov_name: <your_package_name>  # Required if 'upload-to-codecov' is true
+      codecov_name: gearmeshing_ai  # Required if 'upload-to-codecov' is true
 
   contract-test_codecov_finish:
 #    name: Organize and generate the testing report and upload it to Codecov
@@ -103,7 +103,7 @@ jobs:
       test_type: contract-test
       upload-to-codecov: true
       codecov_flags: contract-test  # Required if 'upload-to-codecov' is true
-      codecov_name: <your_package_name>  # Required if 'upload-to-codecov' is true
+      codecov_name: gearmeshing_ai  # Required if 'upload-to-codecov' is true
 
   all-test_codecov_finish:
 #    name: Organize and generate the testing report and upload it to Codecov
@@ -122,7 +122,7 @@ jobs:
       test_type: all-test
       upload-to-codecov: true
       codecov_flags: all-test  # Required if 'upload-to-codecov' is true
-      codecov_name: <your_package_name>  # Required if 'upload-to-codecov' is true
+      codecov_name: gearmeshing_ai  # Required if 'upload-to-codecov' is true
 
   sonarcloud_finish:
 #    name: SonarCloud Scan
