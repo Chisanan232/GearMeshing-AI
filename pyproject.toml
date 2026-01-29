@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "gearmeshing-ai"
 version = "0.0.0"
-description = "🐍 Just a template of Python project be managed by UV."
+description = "🤖 Enterprise AI bases development team."
 authors = [{ name = "Chisanan232", email = "chi10211201@cycu.org.tw" }]
 requires-python = ">=3.12,<4.0"
 readme = "README.md"
