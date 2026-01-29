@@ -55,7 +55,6 @@ dev = [
 pre-commit-ci = [
     "mypy>=1.17.1",
     "pre-commit>=4.3.0",
-    "pylint>=3.3.8",
     "ruff>=0.14.14",
 ]
 
