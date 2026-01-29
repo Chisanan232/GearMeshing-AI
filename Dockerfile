@@ -38,8 +38,11 @@ WORKDIR /app
 # Copy virtual environment from builder stage
 COPY --from=builder /app/.venv /app/.venv
 
-# Copy application code
+# Copy application code (will be overridden by volume mount in development)
 COPY . .
+
+# Ensure startup script is executable
+RUN chmod +x scripts/docker/run-server.sh
 
 # Create a non-root user to run the app and set permissions
 RUN groupadd -r appuser && \
