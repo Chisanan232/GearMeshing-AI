@@ -196,7 +196,7 @@ Update these links to point to your project's documentation:
 
 **Common Documentation:**
 - [Quick Reference Guide](../../TYPE_CHECKING_GUIDE.md)
-- [Types Module README](../../src/types.README.md) *(if you create one)*
+- [Types Module README](../../gearmeshing_ai/types.README.md) *(if you create one)*
 
 > **Note**: Child projects should update these paths to match their documentation structure.
 

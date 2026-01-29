@@ -1,11 +1,11 @@
 [run]
 parallel = True
 relative_files = True
-include=./src
+include=./gearmeshing_ai
 
 omit =
 #    */__init__.py
-    ./src/__main__.py
+    ./gearmeshing_ai/__main__.py
 
 
 [report]

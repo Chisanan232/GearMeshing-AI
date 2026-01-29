@@ -66,11 +66,11 @@ default-groups = [
 ]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/"]
-packages = ["src"]
-#artifacts = ["slack_mcp/py.typed"]
+include = ["gearmeshing_ai/"]
+packages = ["gearmeshing_ai"]
+artifacts = ["gearmeshing_ai/py.typed"]
 
 [tool.hatch.build.targets.wheel]
-include = ["src/"]
-packages = ["src"]
-#artifacts = ["slack_mcp/py.typed"]
+include = ["gearmeshing_ai/"]
+packages = ["gearmeshing_ai"]
+artifacts = ["gearmeshing_ai/py.typed"]
