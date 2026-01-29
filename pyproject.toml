@@ -70,6 +70,9 @@ dev = [
     "coverage>=7.10.6",
     "testcontainers>=4.14.0",
 ]
+monitoring = [
+    "logfire[fastapi,sqlalchemy]>=4.21.0",
+]
 pre-commit-ci = [
     "mypy>=1.17.1",
     "pre-commit>=4.3.0",
