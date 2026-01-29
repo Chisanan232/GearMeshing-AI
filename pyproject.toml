@@ -42,6 +42,12 @@ dependencies = [
     # Data validation for web framework
     "pydantic>=2.12.5",
     "pydantic-settings>=2.12.0",
+    # MCP SDK
+    "mcp>=1.26.0",
+    # MCP Contextforge Gateway for MCP servers
+    "mcp-contextforge-gateway>=0.9.0",
+    # HTTP client
+    "httpx>=0.28.1",
 ]
 
 [project.urls]
