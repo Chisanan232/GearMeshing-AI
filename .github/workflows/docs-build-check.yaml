@@ -7,27 +7,27 @@ on:
       - ".github/workflows/docs-build-check.yaml"
       - ".github/workflows/documentation.yaml"
       # Documentation dependencies
-      - "docs_with_docusarus/package.json"
-      - "docs_with_docusarus/pnpm-lock.yaml"
+      - "docs/package.json"
+      - "docs/pnpm-lock.yaml"
       # Docusaurus configuration
-      - "docs_with_docusarus/docusaurus.config.ts"
-      - "docs_with_docusarus/tsconfig.json"
+      - "docs/docusaurus.config.ts"
+      - "docs/tsconfig.json"
       # Documentation content
-      - "docs_with_docusarus/**/*.md"
-      - "docs_with_docusarus/**/*.mdx"
-      - "docs_with_docusarus/**/*.ts"
-      - "docs_with_docusarus/**/*.tsx"
-      - "docs_with_docusarus/**/*.js"
-      - "docs_with_docusarus/**/*.jsx"
-      - "docs_with_docusarus/**/*.css"
-      - "docs_with_docusarus/**/*.json"
+      - "docs/**/*.md"
+      - "docs/**/*.mdx"
+      - "docs/**/*.ts"
+      - "docs/**/*.tsx"
+      - "docs/**/*.js"
+      - "docs/**/*.jsx"
+      - "docs/**/*.css"
+      - "docs/**/*.json"
       # Docusaurus versioning
-      - "docs_with_docusarus/*_versions.json"
-      - "docs_with_docusarus/*_versioned_docs/**"
-      - "docs_with_docusarus/*_versioned_sidebars/**"
+      - "docs/*_versions.json"
+      - "docs/*_versioned_docs/**"
+      - "docs/*_versioned_sidebars/**"
       # Static assets
-      - "docs_with_docusarus/static/**"
-      - "docs_with_docusarus/src/**"
+      - "docs/static/**"
+      - "docs/src/**"
 
 permissions:
   contents: read

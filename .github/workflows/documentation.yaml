@@ -11,22 +11,22 @@ on:
       - ".github/workflows/documentation.yaml"
       - "scripts/ci/**documentation**.sh"
 #     Doc - Font-End config
-      - "docs_with_docusarus/package.json"
-      - "docs_with_docusarus/pnpm-lock.yaml"
+      - "docs/package.json"
+      - "docs/pnpm-lock.yaml"
 #     Doc - Docusaurus config
-      - "docs_with_docusarus/docusaurus.config.ts"
+      - "docs/docusaurus.config.ts"
 #     Doc - Content
-      - "docs_with_docusarus/**/*.md"
-      - "docs_with_docusarus/**/*.mdx"
-      - "docs_with_docusarus/**/*.ts"
-      - "docs_with_docusarus/**/*.tsx"
-      - "docs_with_docusarus/**/*.js"
-      - "docs_with_docusarus/**/*.jsx"
-      - "docs_with_docusarus/**/*.css"
+      - "docs/**/*.md"
+      - "docs/**/*.mdx"
+      - "docs/**/*.ts"
+      - "docs/**/*.tsx"
+      - "docs/**/*.js"
+      - "docs/**/*.jsx"
+      - "docs/**/*.css"
 #     Doc - versioning (Docusaurus versioned content)
-      - "docs_with_docusarus/*_versions.json"
-      - "docs_with_docusarus/*_versioned_docs/**"
-      - "docs_with_docusarus/*_versioned_sidebars/**"
+      - "docs/*_versions.json"
+      - "docs/*_versioned_docs/**"
+      - "docs/*_versioned_sidebars/**"
   workflow_run:
     workflows: ["release"]
     types: [completed]
