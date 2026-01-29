@@ -62,6 +62,7 @@ Repository = "https://github.com/Chisanan232/GearMeshing-AI"
 "Project Management" = "https://app.clickup.com/9018752317/v/f/90185307863/90182761188"
 
 [dependency-groups]
+# Dependencies for the development
 dev = [
     "pytest>=8.4.2",
     "pytest-asyncio>=1.1.0",
@@ -70,13 +71,15 @@ dev = [
     "coverage>=7.10.6",
     "testcontainers>=4.14.0",
 ]
-monitoring = [
-    "logfire[fastapi,sqlalchemy]>=4.21.0",
-]
+# Dependencies for the pre-commit CI in development environment
 pre-commit-ci = [
     "mypy>=1.17.1",
     "pre-commit>=4.3.0",
     "ruff>=0.14.14",
+]
+# Optional monitoring and observability
+monitoring = [
+    "logfire[fastapi,sqlalchemy]>=4.21.0",
 ]
 
 [tool.uv]
