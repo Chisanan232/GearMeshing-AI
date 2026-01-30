@@ -1,0 +1,244 @@
+# Ruff configuration for GearMeshing-AI
+# This file consolidates all ruff settings from pyproject.toml
+
+# Exclude a variety of commonly ignored directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    # Custom excludes
+    "docs/",
+    ".github/",
+]
+
+# Same as Black
+line-length = 120
+indent-width = 4
+
+# Assume Python 3.12
+target-version = "py312"
+
+[lint]
+# Enable comprehensive rule set
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # pep8-naming
+    "N",
+    # flake8-return
+    "RET",
+    # flake8-raise
+    "RSE",
+    # flake8-logging
+    "LOG",
+    # flake8-slots
+    "SLOT",
+    # flake8-comprehensions
+    "C4",
+    # flake8-import-conventions
+    "ICN",
+    # flake8-pytest-style
+    "PT",
+    # flake8-quotes
+    "Q",
+    # flake8-debugger
+    "T10",
+    # flake8-errmsg
+    "EM",
+    # flake8-todos
+    "TD",
+    # flake8-datetimez
+    "DTZ",
+    # flake8-bandit (security)
+    "S",
+    # flake8-builtins
+    "A",
+    # flake8-annotations
+    "ANN",
+    # flake8-docstrings
+    "D",
+    # flake8-self
+    "SLF",
+    # flake8-async
+    "ASYNC",
+    # ruff-specific rules
+    "RUF",
+]
+
+ignore = [
+    # Allow unused variables when underscore-prefixed
+    "F841",
+    # Allow star imports (common in __init__.py)
+    "F403",
+    # Allow unused star imports
+    "F405",
+    # Allow missing docstrings for tests and private functions
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    # Allow complex if expressions
+    "SIM103",
+    # Allow implicit string concatenation
+    "ISC001",
+    # Allow too many arguments
+    "ARG001",
+    "ARG002",
+    # Allow magic values
+    "S105",
+    "S106",
+    "S107",
+    # Allow TODO comments without issue
+    "TD001",
+    "TD002",
+    "TD003",
+    # Allow assert statements
+    "S101",
+    # Allow print statements (remove in production)
+    "T201",
+    "T203",
+    # Allow exec (remove in production)
+    "S102",
+    # Allow hardcoded tmp dirs
+    "S108",
+    # Allow try-except-pass
+    "S110",
+    # Allow try-except-continue
+    "S112",
+    # Allow subprocess calls
+    "S307",
+    # Allow pickle
+    "S301",
+    "S303",
+    # Allow YAML loads
+    "S506",
+    # Allow SQL without string building
+    "S608",
+    # Allow datetime without timezone
+    "DTZ001",
+    "DTZ002",
+    "DTZ003",
+    "DTZ005",
+    # Allow missing type annotations for self/cls (deprecated rules)
+    "ANN204",
+    # Allow any type
+    "ANN401",
+    # Allow unused arguments in methods
+    "ARG001",
+    "ARG002",
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+# Like Black, use double quotes for strings
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs
+indent-style = "space"
+
+# Like Black, respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending
+line-ending = "auto"
+
+[lint.isort]
+known-first-party = ["gearmeshing_ai"]
+known-third-party = ["pytest", "testcontainers", "httpx", "pydantic", "sqlalchemy"]
+split-on-trailing-comma = true
+force-single-line = false
+
+[lint.per-file-ignores]
+# Tests can have more relaxed rules
+"test/**/*.py" = [
+    "S101",  # assert statements
+    "S106",  # hardcoded passwords
+    "S108",  # hardcoded tmp dirs
+    "S311",  # random generators
+    "S607",  # start a process with a partial path
+    "ANN001",  # missing type annotation
+    "ANN002",  # missing type annotation for *args
+    "ANN003",  # missing type annotation for **kwargs
+    "ANN201",  # missing return type annotation
+    "ANN202",  # missing return type annotation
+    "D",  # missing docstrings
+    "SLF001",  # private member access
+    "PT001",  # pytest fixture rules
+    "PT011",  # pytest raises
+    "PT012",  # pytest raises with multiple exceptions
+    "PT013",  # pytest incorrect import
+    "PT015",  # pytest assertion always true
+    "PT017",  # pytest assertion in nested block
+    "PT018",  # pytest composite assertion
+]
+
+# Scripts can have more relaxed rules
+"scripts/**/*.py" = [
+    "S101",  # assert statements
+    "S607",  # start a process with a partial path
+    "ANN001",  # missing type annotation
+    "ANN002",  # missing type annotation for *args
+    "ANN003",  # missing type annotation for **kwargs
+    "ANN201",  # missing return type annotation
+    "ANN202",  # missing return type annotation
+    "D",  # missing docstrings
+]
+
+# __init__.py files can have star imports
+"**/__init__.py" = [
+    "F401",  # unused imports
+    "F403",  # star imports
+    "F405",  # unused star imports
+]
+
+# Migration scripts can have more relaxed rules
+"alembic/**/*.py" = [
+    "D",  # missing docstrings
+    "ANN001",  # missing type annotation
+    "ANN201",  # missing return type annotation
+]
+
+# Documentation generation scripts
+"docs/**/*.py" = [
+    "D",  # missing docstrings
+    "ANN001",  # missing type annotation
+    "ANN201",  # missing return type annotation
+]
