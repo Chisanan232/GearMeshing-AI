@@ -55,6 +55,9 @@ dependencies = [
     "langgraph>=1.0.7",
 ]
 
+[project.scripts]
+gearmeshing-ai = "gearmeshing_ai.command_line.app:main_entry"
+
 [project.urls]
 Homepage = "https://github.com/Chisanan232/GearMeshing-AI"
 #Documentation = "https://chisanan232.github.io/GearMeshing-AI/intro"
