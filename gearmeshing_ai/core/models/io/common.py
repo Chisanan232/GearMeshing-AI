@@ -8,7 +8,7 @@ serialization, and clear documentation.
 from datetime import datetime
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_serializer
 from enum import Enum
 
 
@@ -22,6 +22,9 @@ class HealthStatus(str, Enum):
     HEALTHY = "healthy"
     UNHEALTHY = "unhealthy"
     DEGRADED = "degraded"
+    
+    def __str__(self) -> str:
+        return self.value
 
 
 class SimpleHealthStatus(str, Enum):
@@ -29,6 +32,9 @@ class SimpleHealthStatus(str, Enum):
     
     OK = "ok"
     ERROR = "error"
+    
+    def __str__(self) -> str:
+        return self.value
 
 
 class ReadinessStatus(str, Enum):
@@ -36,12 +42,18 @@ class ReadinessStatus(str, Enum):
     
     READY = "ready"
     NOT_READY = "not_ready"
+    
+    def __str__(self) -> str:
+        return self.value
 
 
 class LivenessStatus(str, Enum):
     """Liveness status enumeration for liveness probes."""
     
     ALIVE = "alive"
+    
+    def __str__(self) -> str:
+        return self.value
 
 
 class BaseResponseModel(BaseModel):
@@ -51,9 +63,6 @@ class BaseResponseModel(BaseModel):
     """
     
     model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.isoformat()
-        },
         populate_by_name=True,
         str_strip_whitespace=True
     )
@@ -62,6 +71,11 @@ class BaseResponseModel(BaseModel):
         default_factory=datetime.utcnow,
         description="Timestamp when the response was generated"
     )
+    
+    @field_serializer('timestamp')
+    def serialize_timestamp(self, value: datetime) -> str:
+        """Serialize datetime to ISO format string."""
+        return value.isoformat()
 
 
 class GlobalResponse(BaseResponseModel, Generic[T]):
@@ -102,6 +116,8 @@ class GlobalResponse(BaseResponseModel, Generic[T]):
 class HealthStatusContent(BaseModel):
     """Content model for health check responses."""
     
+    model_config = ConfigDict(extra='forbid')
+    
     status: HealthStatus = Field(
         description="Health status (healthy, unhealthy, degraded)"
     )
@@ -118,6 +134,8 @@ class HealthStatusContent(BaseModel):
 class SimpleHealthContent(BaseModel):
     """Content model for simple health check responses."""
     
+    model_config = ConfigDict(extra='forbid')
+    
     status: SimpleHealthStatus = Field(
         description="Simple health status (ok, error)"
     )
@@ -125,6 +143,8 @@ class SimpleHealthContent(BaseModel):
 
 class ReadinessContent(BaseModel):
     """Content model for readiness check responses."""
+    
+    model_config = ConfigDict(extra='forbid')
     
     status: ReadinessStatus = Field(
         description="Readiness status (ready, not ready)"
@@ -134,6 +154,8 @@ class ReadinessContent(BaseModel):
 class LivenessContent(BaseModel):
     """Content model for liveness check responses."""
     
+    model_config = ConfigDict(extra='forbid')
+    
     status: LivenessStatus = Field(
         description="Liveness status (alive)"
     )
@@ -142,6 +164,8 @@ class LivenessContent(BaseModel):
 # Information content models
 class WelcomeContent(BaseModel):
     """Content model for welcome endpoint responses."""
+    
+    model_config = ConfigDict(extra='forbid')
     
     message: str = Field(
         description="Welcome message"
@@ -159,6 +183,8 @@ class WelcomeContent(BaseModel):
 
 class ApiInfoContent(BaseModel):
     """Content model for API information responses."""
+    
+    model_config = ConfigDict(extra='forbid')
     
     name: str = Field(
         description="API name"
@@ -181,6 +207,8 @@ class ApiInfoContent(BaseModel):
 class ClientInfoContent(BaseModel):
     """Content model for client information responses."""
     
+    model_config = ConfigDict(extra='forbid')
+    
     client_ip: str = Field(
         description="Client IP address"
     )
@@ -200,6 +228,8 @@ class ClientInfoContent(BaseModel):
 # Error content models
 class ErrorContent(BaseModel):
     """Content model for error responses."""
+    
+    model_config = ConfigDict(extra='forbid')
     
     error_code: Optional[str] = Field(
         default=None,
