@@ -2,6 +2,7 @@
 parallel = True
 relative_files = True
 include=./gearmeshing_ai
+source=./gearmeshing_ai
 
 omit =
 #    */__init__.py
