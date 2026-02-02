@@ -87,7 +87,7 @@ class TestCompleteApiWorkflows:
 
     def test_error_recovery_workflow(self):
         """Test error recovery workflow."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             
             # 1. Service fails
@@ -181,7 +181,7 @@ class TestRealWorldScenarios:
     def test_load_balancer_integration(self):
         """Test load balancer integration scenario."""
         # Load balancers typically use simple health checks
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
@@ -208,7 +208,7 @@ class TestRealWorldScenarios:
 
     def test_kubernetes_integration(self):
         """Test Kubernetes integration scenario."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
@@ -243,7 +243,7 @@ class TestRealWorldScenarios:
 
     def test_monitoring_system_integration(self):
         """Test monitoring system integration scenario."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
@@ -334,7 +334,7 @@ class TestPerformanceAndScalability:
 
     def test_high_frequency_health_checks(self):
         """Test high-frequency health checks scenario."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
@@ -363,7 +363,7 @@ class TestPerformanceAndScalability:
         import threading
         import time
         
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
@@ -425,7 +425,7 @@ class TestPerformanceAndScalability:
         import gc
         import sys
         
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
@@ -478,7 +478,7 @@ class TestErrorScenarios:
 
     def test_network_connectivity_issues(self):
         """Test network connectivity issues scenario."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_create.return_value = mock_service
             
@@ -508,7 +508,7 @@ class TestErrorScenarios:
 
     def test_cascading_failure_scenario(self):
         """Test cascading failure scenario."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_create.return_value = mock_service
             
@@ -596,7 +596,7 @@ class TestLongRunningStability:
 
     def test_extended_operation_stability(self):
         """Test API stability over extended operation."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",

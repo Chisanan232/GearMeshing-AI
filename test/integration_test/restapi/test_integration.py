@@ -70,7 +70,7 @@ class TestRestApiIntegration:
     def test_health_endpoints_integration(self):
         """Test integration between all health endpoints."""
         # Test all health endpoints with mocked healthy service
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
@@ -129,7 +129,7 @@ class TestRestApiIntegration:
 
     def test_api_with_unhealthy_service(self):
         """Test API behavior with unhealthy health service."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "unhealthy",
@@ -161,7 +161,7 @@ class TestRestApiIntegration:
 
     def test_api_error_handling_integration(self):
         """Test API error handling integration."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.side_effect = Exception("Service error")
             mock_create.return_value = mock_service
@@ -359,7 +359,7 @@ class TestIOModelsIntegration:
 
     def test_health_response_models_integration(self):
         """Test health response models integration."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
@@ -383,7 +383,7 @@ class TestIOModelsIntegration:
 
     def test_error_response_models_integration(self):
         """Test error response models integration."""
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.side_effect = Exception("Test error")
             mock_create.return_value = mock_service
@@ -547,7 +547,7 @@ class TestErrorHandlingIntegration:
         """Test handling when services are unavailable."""
         client = TestClient(create_application())
         
-        with patch('gearmeshing_ai.restapi.routers.health.create_default_health_service') as mock_create:
+        with patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service') as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.side_effect = ConnectionError("Service unavailable")
             mock_create.return_value = mock_service

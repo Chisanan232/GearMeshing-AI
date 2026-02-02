@@ -8,7 +8,8 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 
-from gearmeshing_ai.restapi.routers.health import router, get_health_router, get_health_service
+from gearmeshing_ai.restapi.routers.health import router, get_health_router
+from gearmeshing_ai.restapi.dependencies import get_health_service
 from gearmeshing_ai.restapi.service.health import HealthCheckService
 from gearmeshing_ai.restapi.main import create_application
 from gearmeshing_ai.core.models.io import (
@@ -56,7 +57,7 @@ class TestHealthCheckDependency:
         service = get_health_service()
         assert isinstance(service, HealthCheckService)
 
-    @patch('gearmeshing_ai.restapi.routers.health.create_default_health_service')
+    @patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service')
     def test_get_health_service_with_mock(self, mock_create):
         """Test get_health_service with mocked service creation."""
         mock_service = MagicMock(spec=HealthCheckService)
