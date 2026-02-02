@@ -4,7 +4,7 @@ import pytest
 from typer.testing import CliRunner
 from unittest.mock import patch
 
-from gearmeshing_ai.command_line.commands.agent import app
+from gearmeshing_ai.command_line.subcmd.agent import app
 
 runner = CliRunner()
 
@@ -14,7 +14,7 @@ class TestAgentCommands:
 
     def test_agent_list_default(self) -> None:
         """Test agent list command with default parameters."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["list"])
             assert result.exit_code == 0
             assert "Agent List:" in result.stdout
@@ -24,7 +24,7 @@ class TestAgentCommands:
 
     def test_agent_list_with_filters(self) -> None:
         """Test agent list command with filters."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["list", "--status", "running", "--limit", "5"])
             assert result.exit_code == 0
             assert "Status filter: running" in result.stdout
@@ -33,7 +33,7 @@ class TestAgentCommands:
 
     def test_agent_create_minimal(self) -> None:
         """Test agent create command with minimal parameters."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["create", "test-agent"])
             assert result.exit_code == 0
             assert "Creating agent: test-agent" in result.stdout
@@ -43,7 +43,7 @@ class TestAgentCommands:
 
     def test_agent_create_full(self) -> None:
         """Test agent create command with all parameters."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, [
                 "create", "test-agent",
                 "--model", "gpt-3.5-turbo",
@@ -59,7 +59,7 @@ class TestAgentCommands:
 
     def test_agent_run_with_input(self) -> None:
         """Test agent run command with input text."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["run", "test-agent", "--input", "Hello, world!"])
             assert result.exit_code == 0
             assert "Running agent: test-agent" in result.stdout
@@ -68,7 +68,7 @@ class TestAgentCommands:
 
     def test_agent_run_with_file(self) -> None:
         """Test agent run command with input file."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["run", "test-agent", "--file", "/path/to/input.txt"])
             assert result.exit_code == 0
             assert "Running agent: test-agent" in result.stdout
@@ -77,7 +77,7 @@ class TestAgentCommands:
 
     def test_agent_run_interactive(self) -> None:
         """Test agent run command in interactive mode."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["run", "test-agent", "--interactive"])
             assert result.exit_code == 0
             assert "Running agent: test-agent" in result.stdout
@@ -86,7 +86,7 @@ class TestAgentCommands:
 
     def test_agent_run_no_input(self) -> None:
         """Test agent run command with no input (defaults to interactive)."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["run", "test-agent"])
             assert result.exit_code == 0
             assert "Running agent: test-agent" in result.stdout
@@ -95,7 +95,7 @@ class TestAgentCommands:
 
     def test_agent_stop_default(self) -> None:
         """Test agent stop command."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["stop", "test-agent"])
             assert result.exit_code == 0
             assert "Stopping agent: test-agent" in result.stdout
@@ -104,7 +104,7 @@ class TestAgentCommands:
 
     def test_agent_stop_force(self) -> None:
         """Test agent stop command with force flag."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["stop", "test-agent", "--force"])
             assert result.exit_code == 0
             assert "Stopping agent: test-agent" in result.stdout
@@ -113,7 +113,7 @@ class TestAgentCommands:
 
     def test_agent_status_default(self) -> None:
         """Test agent status command."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["status", "test-agent"])
             assert result.exit_code == 0
             assert "Agent Status: test-agent" in result.stdout
@@ -122,7 +122,7 @@ class TestAgentCommands:
 
     def test_agent_status_detailed(self) -> None:
         """Test agent status command with detailed flag."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["status", "test-agent", "--detailed"])
             assert result.exit_code == 0
             assert "Agent Status: test-agent" in result.stdout
@@ -131,7 +131,7 @@ class TestAgentCommands:
 
     def test_agent_delete_with_confirmation(self) -> None:
         """Test agent delete command with confirmation."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             with patch("typer.confirm", return_value=True):
                 result = runner.invoke(app, ["delete", "test-agent"])
                 assert result.exit_code == 0
@@ -147,7 +147,7 @@ class TestAgentCommands:
 
     def test_agent_delete_force(self) -> None:
         """Test agent delete command with force flag."""
-        with patch("gearmeshing_ai.command_line.commands.agent.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
             result = runner.invoke(app, ["delete", "test-agent", "--confirm"])
             assert result.exit_code == 0
             assert "Deleting agent: test-agent" in result.stdout

@@ -3,7 +3,7 @@
 import typer
 from typing import Optional
 
-from .commands import agent, server, system
+from .subcmd import agent, server, system
 from gearmeshing_ai.core.utils.logging_config import get_logger, setup_cli_logging
 
 logger = get_logger(__name__)

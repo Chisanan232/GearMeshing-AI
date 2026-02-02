@@ -4,7 +4,7 @@ import pytest
 from typer.testing import CliRunner
 from unittest.mock import patch
 
-from gearmeshing_ai.command_line.commands.system import app
+from gearmeshing_ai.command_line.subcmd.system import app
 
 runner = CliRunner()
 
@@ -14,7 +14,7 @@ class TestSystemCommands:
 
     def test_system_info(self) -> None:
         """Test system info command."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["info"])
             assert result.exit_code == 0
             assert "System Information:" in result.stdout
@@ -22,7 +22,7 @@ class TestSystemCommands:
 
     def test_system_check(self) -> None:
         """Test system check command."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["check"])
             assert result.exit_code == 0
             assert "System Health Checks:" in result.stdout
@@ -30,7 +30,7 @@ class TestSystemCommands:
 
     def test_system_config_show_only(self) -> None:
         """Test system config command with show only."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["config"])
             assert result.exit_code == 0
             assert "Current Configuration:" in result.stdout
@@ -39,7 +39,7 @@ class TestSystemCommands:
 
     def test_system_config_validate_only(self) -> None:
         """Test system config command with validate only."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["config", "--validate", "--no-show"])
             assert result.exit_code == 0
             assert "Configuration Validation:" in result.stdout
@@ -48,7 +48,7 @@ class TestSystemCommands:
 
     def test_system_config_both(self) -> None:
         """Test system config command with both show and validate."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["config", "--validate"])
             assert result.exit_code == 0
             assert "Current Configuration:" in result.stdout
@@ -57,7 +57,7 @@ class TestSystemCommands:
 
     def test_system_config_with_file(self) -> None:
         """Test system config command with config file."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["config", "--config", "/path/to/config.yaml"])
             assert result.exit_code == 0
             assert "Current Configuration:" in result.stdout
@@ -65,7 +65,7 @@ class TestSystemCommands:
 
     def test_system_logs_default(self) -> None:
         """Test system logs command with default parameters."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["logs"])
             assert result.exit_code == 0
             assert "System Logs:" in result.stdout
@@ -77,7 +77,7 @@ class TestSystemCommands:
 
     def test_system_logs_custom(self) -> None:
         """Test system logs command with custom parameters."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, [
                 "logs",
                 "--component", "server",
@@ -94,7 +94,7 @@ class TestSystemCommands:
 
     def test_system_cleanup_dry_run(self) -> None:
         """Test system cleanup command with dry run."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["cleanup", "--dry-run"])
             assert result.exit_code == 0
             assert "System Cleanup:" in result.stdout
@@ -104,7 +104,7 @@ class TestSystemCommands:
 
     def test_system_cleanup_force(self) -> None:
         """Test system cleanup command with force flag."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["cleanup", "--force"])
             assert result.exit_code == 0
             assert "System Cleanup:" in result.stdout
@@ -114,7 +114,7 @@ class TestSystemCommands:
 
     def test_system_cleanup_with_confirmation(self) -> None:
         """Test system cleanup command with confirmation."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             with patch("typer.confirm", return_value=True):
                 result = runner.invoke(app, ["cleanup"])
                 assert result.exit_code == 0
@@ -132,7 +132,7 @@ class TestSystemCommands:
 
     def test_system_monitor(self) -> None:
         """Test system monitor command."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["monitor"])
             assert result.exit_code == 0
             assert "System Monitor:" in result.stdout
@@ -140,7 +140,7 @@ class TestSystemCommands:
 
     def test_system_version(self) -> None:
         """Test system version command."""
-        with patch("gearmeshing_ai.command_line.commands.system.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
             result = runner.invoke(app, ["version"])
             assert result.exit_code == 0
             assert "GearMeshing-AI Version:" in result.stdout

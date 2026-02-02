@@ -4,7 +4,7 @@ import pytest
 from typer.testing import CliRunner
 from unittest.mock import patch
 
-from gearmeshing_ai.command_line.commands.server import app
+from gearmeshing_ai.command_line.subcmd.server import app
 
 runner = CliRunner()
 
@@ -14,7 +14,7 @@ class TestServerCommands:
 
     def test_server_start_default(self) -> None:
         """Test server start command with default parameters."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, ["start"])
             assert result.exit_code == 0
             assert "Starting GearMeshing-AI server:" in result.stdout
@@ -27,7 +27,7 @@ class TestServerCommands:
 
     def test_server_start_custom(self) -> None:
         """Test server start command with custom parameters."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, [
                 "start",
                 "--host", "127.0.0.1",
@@ -46,7 +46,7 @@ class TestServerCommands:
 
     def test_server_stop_default(self) -> None:
         """Test server stop command."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, ["stop"])
             assert result.exit_code == 0
             assert "Stopping GearMeshing-AI server" in result.stdout
@@ -55,7 +55,7 @@ class TestServerCommands:
 
     def test_server_stop_force(self) -> None:
         """Test server stop command with force flag."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, ["stop", "--force"])
             assert result.exit_code == 0
             assert "Stopping GearMeshing-AI server" in result.stdout
@@ -64,7 +64,7 @@ class TestServerCommands:
 
     def test_server_status(self) -> None:
         """Test server status command."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, ["status"])
             assert result.exit_code == 0
             assert "Server Status:" in result.stdout
@@ -72,7 +72,7 @@ class TestServerCommands:
 
     def test_server_restart_graceful(self) -> None:
         """Test server restart command with graceful flag."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, ["restart", "--graceful"])
             assert result.exit_code == 0
             assert "Restarting GearMeshing-AI server" in result.stdout
@@ -81,7 +81,7 @@ class TestServerCommands:
 
     def test_server_restart_force(self) -> None:
         """Test server restart command without graceful flag."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, ["restart", "--no-graceful"])
             assert result.exit_code == 0
             assert "Restarting GearMeshing-AI server" in result.stdout
@@ -90,7 +90,7 @@ class TestServerCommands:
 
     def test_server_logs_default(self) -> None:
         """Test server logs command with default parameters."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, ["logs"])
             assert result.exit_code == 0
             assert "Server Logs:" in result.stdout
@@ -101,7 +101,7 @@ class TestServerCommands:
 
     def test_server_logs_custom(self) -> None:
         """Test server logs command with custom parameters."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, [
                 "logs",
                 "--follow",
@@ -116,7 +116,7 @@ class TestServerCommands:
 
     def test_server_health(self) -> None:
         """Test server health command."""
-        with patch("gearmeshing_ai.command_line.commands.server.logger") as mock_logger:
+        with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
             result = runner.invoke(app, ["health"])
             assert result.exit_code == 0
             assert "Server Health:" in result.stdout
