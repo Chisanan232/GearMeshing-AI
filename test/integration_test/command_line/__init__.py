@@ -1,0 +1,1 @@
+"""Integration test configuration and fixtures for CLI tests."""
