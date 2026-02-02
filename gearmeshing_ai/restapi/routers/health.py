@@ -23,23 +23,12 @@ from gearmeshing_ai.core.models.io import (
     create_readiness_response,
     create_liveness_response
 )
-from ..service.health import HealthCheckService, create_default_health_service
+from ..service.health import HealthCheckService
+from ..dependencies import get_health_service
 
 
 # Global router instance following FastAPI best practices
 router = APIRouter(prefix="/health", tags=["health"])
-
-
-def get_health_service() -> HealthCheckService:
-    """Dependency function to get health service instance.
-    
-    This follows FastAPI's dependency injection pattern and provides
-    a clean way to inject the health service into endpoints.
-    
-    Returns:
-        HealthCheckService: Health check service instance
-    """
-    return create_default_health_service()
 
 
 @router.get(
