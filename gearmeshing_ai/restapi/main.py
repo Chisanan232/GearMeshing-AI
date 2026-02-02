@@ -94,8 +94,63 @@ class ApplicationFactory:
         health_router = get_health_router()
         app.include_router(health_router)
         
+        # Add main endpoints
+        self._setup_main_endpoints(app)
+        
         # Add other routers here as they are created
         # app.include_router(other_router)
+    
+    def _setup_main_endpoints(self, app: FastAPI) -> None:
+        """Setup main application endpoints.
+        
+        Args:
+            app: FastAPI application instance
+        """
+        
+        @app.get("/", response_model=WelcomeResponseType)
+        async def root() -> WelcomeResponseType:
+            """Root endpoint for the API.
+            
+            This endpoint provides basic information about the API
+            and serves as a welcome page using the global response structure.
+            
+            Returns:
+                WelcomeResponseType: API welcome information with global structure
+            """
+            return create_welcome_response(
+                message="Welcome to GearMeshing-AI API",
+                version="0.0.0",
+                docs="/docs",
+                health="/health"
+            )
+
+        @app.get("/info", response_model=ApiInfoResponseType)
+        async def info() -> ApiInfoResponseType:
+            """Information endpoint for the API.
+            
+            This endpoint provides detailed information about the API
+            including available endpoints and features using the global response structure.
+            
+            Returns:
+                ApiInfoResponseType: Detailed API information with global structure
+            """
+            return create_api_info_response(
+                name="GearMeshing-AI API",
+                version="0.0.0",
+                description="Enterprise AI agents development platform API",
+                endpoints=[
+                    "/",
+                    "/info",
+                    "/health",
+                    "/health/simple",
+                    "/health/ready",
+                    "/health/live"
+                ],
+                documentation={
+                    "swagger": "/docs",
+                    "redoc": "/redoc"
+                }
+            )
     
     def _create_lifespan(self) -> callable:
         """Create application lifespan context manager.
@@ -172,53 +227,6 @@ def create_application(**kwargs) -> FastAPI:
 
 # Create the main application instance
 app = create_application()
-
-
-@app.get("/", response_model=WelcomeResponseType)
-async def root() -> WelcomeResponseType:
-    """Root endpoint for the API.
-    
-    This endpoint provides basic information about the API
-    and serves as a welcome page using the global response structure.
-    
-    Returns:
-        WelcomeResponseType: API welcome information with global structure
-    """
-    return create_welcome_response(
-        message="Welcome to GearMeshing-AI API",
-        version="0.0.0",
-        docs="/docs",
-        health="/health"
-    )
-
-
-@app.get("/info", response_model=ApiInfoResponseType)
-async def info() -> ApiInfoResponseType:
-    """Information endpoint for the API.
-    
-    This endpoint provides detailed information about the API
-    including available endpoints and features using the global response structure.
-    
-    Returns:
-        ApiInfoResponseType: Detailed API information with global structure
-    """
-    return create_api_info_response(
-        name="GearMeshing-AI API",
-        version="0.0.0",
-        description="Enterprise AI agents development platform API",
-        endpoints=[
-            "/",
-            "/info",
-            "/health",
-            "/health/simple",
-            "/health/ready",
-            "/health/live"
-        ],
-        documentation={
-            "swagger": "/docs",
-            "redoc": "/redoc"
-        }
-    )
 
 
 # Note: Run the application using uvicorn command:
