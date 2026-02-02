@@ -23,10 +23,10 @@ jobs:
   build-and-test:
 #    name: Run all tests and organize all test reports
     uses: ./.github/workflows/rw_build_and_test.yaml
-    with:
-      run_e2e: ${{ inputs.run_e2e }}
-    secrets:
-      e2e_test_api_token: ${{ secrets.e2e_test_api_token }}
+#    with:
+#      run_e2e: ${{ inputs.run_e2e }}
+#    secrets:
+#      e2e_test_api_token: ${{ secrets.e2e_test_api_token }}
 
   unit-test_codecov_finish:
 #    name: Organize and generate the testing report and upload it to Codecov

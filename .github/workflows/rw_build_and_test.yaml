@@ -36,7 +36,7 @@ jobs:
 
   run_e2e-test:
 #    name: Run all end-to-end test items
-    if: ${{ inputs.run_e2e == true }}
+#    if: ${{ inputs.run_e2e == true }}
     uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_uv_run_test.yaml@master
     with:
       test_type: e2e-test
