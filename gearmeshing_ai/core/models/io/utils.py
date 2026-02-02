@@ -4,6 +4,7 @@ This module provides utility functions that work with the I/O models,
 creating a cohesive package for data handling and validation.
 """
 
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 from .common import (
@@ -24,9 +25,10 @@ from .common import (
 
 
 def create_global_response(
-    success: bool, 
-    message: str, 
-    content: Optional[Any] = None
+    success: bool = True, 
+    message: str = "Operation completed", 
+    content: Optional[Any] = None,
+    timestamp: Optional[datetime] = None
 ) -> GlobalResponse:
     """Create a standardized global response.
     
@@ -37,26 +39,34 @@ def create_global_response(
         success: Whether the operation was successful
         message: Human-readable message
         content: Response content (varies by scenario)
+        timestamp: Custom timestamp for the response
         
     Returns:
         GlobalResponse: Standardized global response
     """
-    return GlobalResponse(
-        success=success,
-        message=message,
-        content=content
-    )
+    kwargs = {
+        "success": success,
+        "message": message,
+        "content": content
+    }
+    if timestamp is not None:
+        kwargs["timestamp"] = timestamp
+    
+    return GlobalResponse(**kwargs)
 
 
-def create_success_response(content: Any, message: str = "Success") -> GlobalResponse:
+def create_success_response(
+    message: str = "Operation successful", 
+    content: Optional[Any] = None
+) -> GlobalResponse:
     """Create a standardized success response.
     
     This utility function creates consistent success responses
     using the global response structure.
     
     Args:
-        content: Response content
         message: Success message
+        content: Response content
         
     Returns:
         GlobalResponse: Standardized success response
@@ -69,10 +79,11 @@ def create_success_response(content: Any, message: str = "Success") -> GlobalRes
 
 
 def create_error_response(
-    message: str, 
+    message: str = "An error occurred", 
     status_code: int = 500, 
     details: Optional[Dict[str, Any]] = None,
-    error_code: Optional[str] = None
+    error_code: Optional[str] = None,
+    stack_trace: Optional[str] = None
 ) -> GlobalResponse:
     """Create a standardized error response.
     
@@ -84,13 +95,18 @@ def create_error_response(
         status_code: HTTP status code
         details: Additional error details
         error_code: Machine-readable error code
+        stack_trace: Stack trace (development only)
         
     Returns:
         GlobalResponse: Standardized error response
     """
+    # Use status_code as error_code if not provided
+    final_error_code = error_code or str(status_code)
+    
     error_content = ErrorContent(
-        error_code=error_code,
-        details=details
+        error_code=final_error_code,
+        details=details,
+        stack_trace=stack_trace
     )
     
     return GlobalResponse(
@@ -101,10 +117,10 @@ def create_error_response(
 
 
 def create_welcome_response(
-    message: str,
-    version: str,
-    docs: str,
-    health: str
+    message: str = "Welcome to GearMeshing-AI API",
+    version: str = "0.0.0",
+    docs: str = "/docs",
+    health: str = "/health"
 ) -> GlobalResponse:
     """Create a standardized welcome response.
     
@@ -195,7 +211,7 @@ def create_health_response(
     )
 
 
-def create_simple_health_response(status: SimpleHealthStatus) -> GlobalResponse:
+def create_simple_health_response(status: SimpleHealthStatus = SimpleHealthStatus.OK) -> GlobalResponse:
     """Create a standardized simple health response.
     
     Args:
@@ -213,7 +229,7 @@ def create_simple_health_response(status: SimpleHealthStatus) -> GlobalResponse:
     )
 
 
-def create_readiness_response(status: ReadinessStatus) -> GlobalResponse:
+def create_readiness_response(status: ReadinessStatus = ReadinessStatus.READY) -> GlobalResponse:
     """Create a standardized readiness response.
     
     Args:
@@ -262,8 +278,8 @@ def get_client_info(request) -> ClientInfoContent:
         ClientInfoContent: Client information
     """
     return ClientInfoContent(
-        client_ip=request.client.host if request.client else "unknown",
-        user_agent=request.headers.get("user-agent", "unknown"),
+        client_ip=request.client.host if request.client else "",
+        user_agent=request.headers.get("user-agent", ""),
         method=request.method,
         url=str(request.url)
     )
@@ -281,7 +297,26 @@ def sanitize_path(path: str) -> str:
     Returns:
         Sanitized path string
     """
-    # Remove leading/trailing slashes and normalize
-    return path.strip("/").replace("//", "/")
+    if not isinstance(path, str):
+        raise TypeError(f"Path must be a string, got {type(path).__name__}")
+    
+    if path is None:
+        raise TypeError("Path cannot be None")
+    
+    # Strip leading/trailing whitespace
+    path = path.strip()
+    
+    # Remove query parameters and fragments
+    path = path.split('?')[0].split('#')[0]
+    
+    # Strip leading/trailing slashes
+    path = path.strip("/")
+    
+    # Normalize multiple slashes
+    while "//" in path:
+        path = path.replace("//", "/")
+    
+    # Return with leading slash
+    return "/" + path if path else "/"
 
 
