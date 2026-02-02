@@ -5,7 +5,7 @@ data structures used across the entire project, providing validation,
 serialization, and clear documentation.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
 from pydantic import BaseModel, Field, ConfigDict, field_serializer
@@ -68,7 +68,7 @@ class BaseResponseModel(BaseModel):
     )
     
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Timestamp when the response was generated"
     )
     

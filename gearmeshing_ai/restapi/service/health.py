@@ -5,7 +5,7 @@ following duck typing principles for clean, maintainable code.
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Protocol, runtime_checkable
 
 from gearmeshing_ai.core.models.io import HealthStatusContent
@@ -189,7 +189,7 @@ class HealthCheckService:
         
         return {
             "status": overall_status,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "checkers": results
         }
 

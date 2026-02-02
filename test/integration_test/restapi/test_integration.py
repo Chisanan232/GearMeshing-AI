@@ -8,7 +8,7 @@ and utilities working together.
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
-from datetime import datetime
+from datetime import datetime, timezone
 
 from gearmeshing_ai.restapi.main import create_application
 from gearmeshing_ai.restapi.service.health import (
@@ -65,7 +65,7 @@ class TestRestApiIntegration:
             timestamp_str = response["timestamp"]
             timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
             # Should be within last minute
-            assert (datetime.utcnow() - timestamp).total_seconds() < 60
+            assert (datetime.now(timezone.utc) - timestamp).total_seconds() < 60
 
     def test_health_endpoints_integration(self):
         """Test integration between all health endpoints."""

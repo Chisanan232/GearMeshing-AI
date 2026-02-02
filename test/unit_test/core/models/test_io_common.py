@@ -5,7 +5,7 @@ enums, and type aliases used across the project.
 """
 
 import pytest
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List
 from pydantic import ValidationError
 
@@ -124,7 +124,7 @@ class TestBaseResponseModel:
         model = BaseResponseModel()
         
         assert isinstance(model.timestamp, datetime)
-        assert model.timestamp <= datetime.utcnow()
+        assert model.timestamp <= datetime.now(timezone.utc)
 
     def test_base_response_model_custom_timestamp(self):
         """Test BaseResponseModel with custom timestamp."""
@@ -161,7 +161,7 @@ class TestBaseResponseModel:
         model = BaseResponseModel()
         
         # Test populate_by_name
-        model_with_alias = BaseResponseModel(**{"timestamp": datetime.utcnow()})
+        model_with_alias = BaseResponseModel(**{"timestamp": datetime.now(timezone.utc)})
         assert model_with_alias.timestamp is not None
         
         # Test str_strip_whitespace (if applicable)
@@ -579,7 +579,7 @@ class TestModelInheritance:
 
     def test_model_equality(self):
         """Test model equality comparison."""
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(timezone.utc)
         response1 = GlobalResponse(
             success=True,
             message="Test",

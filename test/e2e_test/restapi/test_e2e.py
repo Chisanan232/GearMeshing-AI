@@ -9,7 +9,7 @@ import json
 import time
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
-from datetime import datetime
+from datetime import datetime, timezone
 
 from gearmeshing_ai.restapi.main import create_application
 from gearmeshing_ai.restapi.service.health import (
@@ -119,7 +119,7 @@ class TestCompleteApiWorkflows:
             mock_service.check_all_health.side_effect = None
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "checkers": {}
             }
             
@@ -185,7 +185,7 @@ class TestRealWorldScenarios:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "checkers": {}
             }
             mock_create.return_value = mock_service
@@ -212,7 +212,7 @@ class TestRealWorldScenarios:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "checkers": {}
             }
             mock_create.return_value = mock_service
@@ -247,14 +247,14 @@ class TestRealWorldScenarios:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "checkers": {
                     "database": {
                         "status": "healthy",
                         "details": {
                             "connection_pool": "8/10",
                             "response_time": "12ms",
-                            "last_check": datetime.utcnow().isoformat()
+                            "last_check": datetime.now(timezone.utc).isoformat()
                         }
                     },
                     "application": {
@@ -338,7 +338,7 @@ class TestPerformanceAndScalability:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "checkers": {}
             }
             mock_create.return_value = mock_service
@@ -367,7 +367,7 @@ class TestPerformanceAndScalability:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "checkers": {}
             }
             mock_create.return_value = mock_service
@@ -429,7 +429,7 @@ class TestPerformanceAndScalability:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "checkers": {}
             }
             mock_create.return_value = mock_service
@@ -600,7 +600,7 @@ class TestLongRunningStability:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_service.check_all_health.return_value = {
                 "status": "healthy",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "checkers": {}
             }
             mock_create.return_value = mock_service

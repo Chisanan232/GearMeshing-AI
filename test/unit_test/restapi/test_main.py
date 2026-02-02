@@ -302,7 +302,7 @@ class TestErrorHandling:
         client = TestClient(app)
         response = client.post(
             "/info",
-            data="invalid json",
+            content="invalid json",
             headers={"content-type": "application/json"}
         )
         
