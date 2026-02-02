@@ -4,21 +4,11 @@ This module contains comprehensive tests for the FastAPI application
 factory, lifecycle management, and main endpoints.
 """
 
-import pytest
-from fastapi import FastAPI, testclient
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
 
-from gearmeshing_ai.restapi.main import (
-    ApplicationFactory,
-    create_application,
-    app
-)
-from gearmeshing_ai.core.models.io import (
-    WelcomeResponseType,
-    ApiInfoResponseType,
-    HealthStatus
-)
+from gearmeshing_ai.core.models.io import ApiInfoResponseType, WelcomeResponseType
+from gearmeshing_ai.restapi.main import ApplicationFactory, app, create_application
 
 
 class TestApplicationFactory:
@@ -33,7 +23,7 @@ class TestApplicationFactory:
         """Test creating app with default configuration."""
         factory = ApplicationFactory()
         app = factory.create_app()
-        
+
         assert isinstance(app, FastAPI)
         assert app.title == "GearMeshing-AI API"
         assert app.description == "Enterprise AI agents development platform API"
@@ -43,10 +33,8 @@ class TestApplicationFactory:
     def test_create_app_custom_configuration(self):
         """Test creating app with custom configuration."""
         factory = ApplicationFactory()
-        app = factory.create_app(
-            title="Custom API"
-        )
-        
+        app = factory.create_app(title="Custom API")
+
         assert app.title == "Custom API"
         assert app.description == "Enterprise AI agents development platform API"
 
@@ -54,7 +42,7 @@ class TestApplicationFactory:
         """Test that middleware is properly configured."""
         factory = ApplicationFactory()
         app = factory.create_app()
-        
+
         # Check that middleware is configured
         assert len(app.user_middleware) > 0
 
@@ -62,7 +50,7 @@ class TestApplicationFactory:
         """Test that routers are properly configured."""
         factory = ApplicationFactory()
         app = factory.create_app()
-        
+
         # Check that health router is included
         routes = [route.path for route in app.routes]
         # Health routes may have trailing slash
@@ -74,7 +62,7 @@ class TestApplicationFactory:
         factory = ApplicationFactory()
         app1 = factory.create_app()
         app2 = factory.create_app()
-        
+
         # Both should be FastAPI instances with same configuration
         assert isinstance(app1, FastAPI)
         assert isinstance(app2, FastAPI)
@@ -87,7 +75,7 @@ class TestCreateApplicationFunction:
     def test_create_application_default(self):
         """Test create_application with default parameters."""
         app = create_application()
-        
+
         assert isinstance(app, FastAPI)
         assert app.title == "GearMeshing-AI API"
         assert app.version == "0.0.0"
@@ -95,7 +83,7 @@ class TestCreateApplicationFunction:
     def test_create_application_with_kwargs(self):
         """Test create_application with custom parameters."""
         app = create_application(title="Test API")
-        
+
         assert app.title == "Test API"
         assert app.version == "0.0.0"
 
@@ -110,16 +98,16 @@ class TestMainEndpoints:
     def test_root_endpoint(self):
         """Test the root endpoint (/)."""
         response = self.client.get("/")
-        
+
         assert response.status_code == 200
         data = response.json()
-        
+
         # Verify response structure
         assert "success" in data
         assert "message" in data
         assert "content" in data
         assert "timestamp" in data
-        
+
         # Verify response values
         assert data["success"] is True
         assert data["message"] == "Welcome to GearMeshing-AI API"
@@ -132,7 +120,7 @@ class TestMainEndpoints:
         """Test root endpoint response model validation."""
         response = self.client.get("/")
         data = response.json()
-        
+
         # Validate against response model
         welcome_response = WelcomeResponseType(**data)
         assert welcome_response.success is True
@@ -141,16 +129,16 @@ class TestMainEndpoints:
     def test_info_endpoint(self):
         """Test the info endpoint (/info)."""
         response = self.client.get("/info")
-        
+
         assert response.status_code == 200
         data = response.json()
-        
+
         # Verify response structure
         assert "success" in data
         assert "message" in data
         assert "content" in data
         assert "timestamp" in data
-        
+
         # Verify response values
         assert data["success"] is True
         assert data["content"]["name"] == "GearMeshing-AI API"
@@ -163,7 +151,7 @@ class TestMainEndpoints:
         """Test info endpoint response model validation."""
         response = self.client.get("/info")
         data = response.json()
-        
+
         # Validate against response model
         api_info_response = ApiInfoResponseType(**data)
         assert api_info_response.success is True
@@ -173,10 +161,10 @@ class TestMainEndpoints:
         """Test that info endpoint returns expected endpoints."""
         response = self.client.get("/info")
         data = response.json()
-        
+
         endpoints = data["content"]["endpoints"]
         expected_endpoints = ["/", "/info", "/health", "/health/simple", "/health/ready", "/health/live"]
-        
+
         for endpoint in expected_endpoints:
             assert endpoint in endpoints
 
@@ -184,7 +172,7 @@ class TestMainEndpoints:
         """Test that info endpoint returns documentation links."""
         response = self.client.get("/info")
         data = response.json()
-        
+
         documentation = data["content"]["documentation"]
         assert "swagger" in documentation
         assert "redoc" in documentation
@@ -194,7 +182,7 @@ class TestMainEndpoints:
     def test_openapi_docs_endpoint(self):
         """Test that OpenAPI docs endpoint is available."""
         response = self.client.get("/openapi.json")
-        
+
         assert response.status_code == 200
         data = response.json()
         assert "openapi" in data
@@ -204,14 +192,14 @@ class TestMainEndpoints:
     def test_swagger_docs_endpoint(self):
         """Test that Swagger UI docs endpoint is available."""
         response = self.client.get("/docs")
-        
+
         assert response.status_code == 200
         assert "text/html" in response.headers["content-type"]
 
     def test_redoc_docs_endpoint(self):
         """Test that ReDoc docs endpoint is available."""
         response = self.client.get("/redoc")
-        
+
         assert response.status_code == 200
         assert "text/html" in response.headers["content-type"]
 
@@ -223,14 +211,14 @@ class TestApplicationLifecycle:
         """Test that lifespan context manager is created properly."""
         factory = ApplicationFactory()
         lifespan = factory._create_lifespan()
-        
+
         assert callable(lifespan)
 
     def test_startup_success_logging(self):
         """Test successful startup logging."""
         factory = ApplicationFactory()
         lifespan = factory._create_lifespan()
-        
+
         # Verify lifespan is callable
         assert callable(lifespan)
 
@@ -238,7 +226,7 @@ class TestApplicationLifecycle:
         """Test successful shutdown logging."""
         factory = ApplicationFactory()
         lifespan = factory._create_lifespan()
-        
+
         # Verify lifespan is callable
         assert callable(lifespan)
 
@@ -246,7 +234,7 @@ class TestApplicationLifecycle:
         """Test startup failure logging."""
         factory = ApplicationFactory()
         app = factory.create_app()
-        
+
         # Verify app is created successfully
         assert isinstance(app, FastAPI)
 
@@ -254,7 +242,7 @@ class TestApplicationLifecycle:
         """Test shutdown failure logging."""
         factory = ApplicationFactory()
         app = factory.create_app()
-        
+
         # Verify app is created successfully
         assert isinstance(app, FastAPI)
 
@@ -265,13 +253,14 @@ class TestGlobalAppInstance:
     def test_global_app_instance_exists(self):
         """Test that global app instance is created."""
         from gearmeshing_ai.restapi.main import app
+
         assert isinstance(app, FastAPI)
         assert app.title == "GearMeshing-AI API"
 
     def test_global_app_same_as_created(self):
         """Test that global app is same as created by factory."""
         from gearmeshing_ai.restapi.main import app, create_application
-        
+
         created_app = create_application()
         # Note: These might be different instances due to module-level execution
         # but should have the same configuration
@@ -286,26 +275,22 @@ class TestErrorHandling:
         """Test 404 error handling."""
         client = TestClient(app)
         response = client.get("/nonexistent")
-        
+
         assert response.status_code == 404
 
     def test_method_not_allowed(self):
         """Test method not allowed handling."""
         client = TestClient(app)
         response = client.post("/")
-        
+
         # Should return 405 Method Not Allowed or 422 Validation Error
         assert response.status_code in [405, 422]
 
     def test_invalid_json_request(self):
         """Test handling of invalid JSON requests."""
         client = TestClient(app)
-        response = client.post(
-            "/info",
-            content="invalid json",
-            headers={"content-type": "application/json"}
-        )
-        
+        response = client.post("/info", content="invalid json", headers={"content-type": "application/json"})
+
         # POST on GET endpoint returns 405 or 422
         assert response.status_code in [405, 422]
 
@@ -316,17 +301,17 @@ class TestMiddlewareConfiguration:
     def test_cors_middleware_configuration(self):
         """Test CORS middleware configuration."""
         client = TestClient(app)
-        
+
         # Test preflight request
         response = client.options(
             "/",
             headers={
                 "Origin": "http://localhost:3000",
                 "Access-Control-Request-Method": "GET",
-                "Access-Control-Request-Headers": "Content-Type"
-            }
+                "Access-Control-Request-Headers": "Content-Type",
+            },
         )
-        
+
         # Should allow CORS
         assert response.status_code in [200, 204]
         if response.status_code == 200:
@@ -335,11 +320,8 @@ class TestMiddlewareConfiguration:
     def test_cors_headers_in_response(self):
         """Test CORS headers in actual responses."""
         client = TestClient(app)
-        
-        response = client.get(
-            "/",
-            headers={"Origin": "http://localhost:3000"}
-        )
-        
+
+        response = client.get("/", headers={"Origin": "http://localhost:3000"})
+
         assert response.status_code == 200
         # CORS headers should be present (depending on FastAPI CORS configuration)

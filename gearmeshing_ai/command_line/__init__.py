@@ -8,6 +8,6 @@ Usage:
     main()
 """
 
-from gearmeshing_ai.command_line.app import main, app
+from gearmeshing_ai.command_line.app import app, main
 
-__all__ = ["main", "app"]
+__all__ = ["app", "main"]

@@ -140,10 +140,10 @@ class CustomRouter:
     def __init__(self):
         self.router = APIRouter(prefix="/custom", tags=["custom"])
         self._setup_routes()
-    
+
     def _setup_routes(self):
         self.router.add_api_route("/", self.custom_endpoint, methods=["GET"])
-    
+
     async def custom_endpoint(self):
         return {"message": "Custom endpoint"}
 
@@ -159,7 +159,7 @@ class DatabaseHealthChecker(BaseHealthChecker):
     def __init__(self, db_connection):
         super().__init__("database")
         self.db = db_connection
-    
+
     def _do_check_health(self) -> HealthStatus:
         # Check database connectivity
         return HealthStatus(

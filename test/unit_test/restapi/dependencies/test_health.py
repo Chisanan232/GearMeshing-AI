@@ -4,9 +4,6 @@ This module contains tests for the get_health_service dependency function
 used in FastAPI endpoints.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-
 from gearmeshing_ai.restapi.dependencies import get_health_service
 from gearmeshing_ai.restapi.service.health import HealthCheckService
 
@@ -17,16 +14,16 @@ class TestGetHealthServiceDependency:
     def test_get_health_service_returns_instance(self):
         """Test that get_health_service returns a HealthCheckService instance."""
         service = get_health_service()
-        
+
         assert isinstance(service, HealthCheckService)
 
     def test_get_health_service_creates_default_service(self):
         """Test that get_health_service creates default health service."""
         service = get_health_service()
-        
+
         # Default service should have checkers registered
         assert service is not None
-        assert hasattr(service, 'check_all_health')
+        assert hasattr(service, "check_all_health")
 
     def test_get_health_service_is_callable(self):
         """Test that get_health_service is callable as a dependency."""
@@ -37,7 +34,7 @@ class TestGetHealthServiceDependency:
         """Test that multiple calls to get_health_service return new instances."""
         service1 = get_health_service()
         service2 = get_health_service()
-        
+
         # Each call should return a new instance
         assert service1 is not service2
         assert isinstance(service1, HealthCheckService)
@@ -45,29 +42,28 @@ class TestGetHealthServiceDependency:
 
     def test_get_health_service_with_dependency_injection(self):
         """Test get_health_service works with FastAPI dependency injection."""
-        from fastapi import Depends
+        from fastapi import Depends, FastAPI
         from fastapi.testclient import TestClient
-        from fastapi import FastAPI
-        
+
         app = FastAPI()
-        
+
         @app.get("/test")
         def test_endpoint(service: HealthCheckService = Depends(get_health_service)):
             return {"service": service is not None}
-        
+
         client = TestClient(app)
         response = client.get("/test")
-        
+
         assert response.status_code == 200
         assert response.json()["service"] is True
 
     def test_get_health_service_returns_functional_service(self):
         """Test that returned service is functional."""
         service = get_health_service()
-        
+
         # Service should be able to perform health checks
         result = service.check_all_health()
-        
+
         assert isinstance(result, dict)
         assert "status" in result
         assert "checkers" in result
@@ -77,7 +73,7 @@ class TestGetHealthServiceDependency:
         """Test that default service has expected checkers."""
         service = get_health_service()
         result = service.check_all_health()
-        
+
         # Default service should have at least one checker
         assert len(result["checkers"]) > 0
 
@@ -85,6 +81,6 @@ class TestGetHealthServiceDependency:
         """Test that health service returns valid status values."""
         service = get_health_service()
         result = service.check_all_health()
-        
+
         # Status should be one of the valid values
         assert result["status"] in ["healthy", "degraded", "unhealthy"]

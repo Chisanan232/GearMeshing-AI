@@ -1,10 +1,10 @@
 """Main CLI application entry point."""
 
 import typer
-from typing import Optional
+
+from gearmeshing_ai.core.utils.logging_config import get_logger, setup_cli_logging
 
 from .subcmd import agent, server, system
-from gearmeshing_ai.core.utils.logging_config import get_logger, setup_cli_logging
 
 logger = get_logger(__name__)
 
@@ -25,28 +25,22 @@ app.add_typer(system.app, name="system", help="System utilities and diagnostics"
 
 @app.callback()
 def main(
-    verbose: Optional[bool] = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose logging"
-    ),
-    quiet: Optional[bool] = typer.Option(
-        False, "--quiet", "-q", help="Suppress non-error output"
-    ),
-    config: Optional[str] = typer.Option(
-        None, "--config", "-c", help="Path to configuration file"
-    ),
+    verbose: bool | None = typer.Option(False, "--verbose", "-v", help="Enable verbose logging"),
+    quiet: bool | None = typer.Option(False, "--quiet", "-q", help="Suppress non-error output"),
+    config: str | None = typer.Option(None, "--config", "-c", help="Path to configuration file"),
 ) -> None:
     """GearMeshing-AI CLI - Enterprise AI Agent Management System.
-    
+
     This command line interface provides comprehensive tools for managing
     AI agents, workflows, server operations, and system diagnostics.
-    
+
     Use --help with any command to see detailed usage information.
     """
     # Configure logging based on verbosity
     setup_cli_logging(verbose=verbose, quiet=quiet)
-    
+
     logger.info(f"GearMeshing-AI CLI initialized (verbose={verbose}, quiet={quiet})")
-    
+
     if config:
         logger.info(f"Using config file: {config}")
 

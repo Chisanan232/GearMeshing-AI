@@ -1,8 +1,8 @@
 """Unit tests for system commands."""
 
-import pytest
-from typer.testing import CliRunner
 from unittest.mock import patch
+
+from typer.testing import CliRunner
 
 from gearmeshing_ai.command_line.subcmd.system import app
 
@@ -78,13 +78,9 @@ class TestSystemCommands:
     def test_system_logs_custom(self) -> None:
         """Test system logs command with custom parameters."""
         with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
-            result = runner.invoke(app, [
-                "logs",
-                "--component", "server",
-                "--follow",
-                "--lines", "100",
-                "--level", "DEBUG"
-            ])
+            result = runner.invoke(
+                app, ["logs", "--component", "server", "--follow", "--lines", "100", "--level", "DEBUG"]
+            )
             assert result.exit_code == 0
             assert "Component: server" in result.stdout
             assert "Follow: True" in result.stdout

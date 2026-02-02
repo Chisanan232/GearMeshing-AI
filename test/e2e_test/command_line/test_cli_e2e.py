@@ -4,12 +4,10 @@ This module contains comprehensive end-to-end tests that verify
 complete CLI workflows and real-world usage scenarios.
 """
 
+from unittest.mock import patch
+
 import pytest
-import subprocess
-import sys
-from pathlib import Path
 from typer.testing import CliRunner
-from unittest.mock import patch, MagicMock
 
 from gearmeshing_ai.command_line.app import app, main_entry
 
@@ -101,23 +99,17 @@ class TestCLIBasicWorkflows:
     def test_cli_agent_execution_workflow(self) -> None:
         """Test agent execution workflow with different input modes."""
         # 1. Run agent with text input
-        result = self.runner.invoke(
-            app, ["agent", "run", "test-agent", "--input", "Hello agent"]
-        )
+        result = self.runner.invoke(app, ["agent", "run", "test-agent", "--input", "Hello agent"])
         assert result.exit_code == 0
         assert "Running agent" in result.stdout
 
         # 2. Run agent with file input
-        result = self.runner.invoke(
-            app, ["agent", "run", "test-agent", "--file", "/path/to/input.txt"]
-        )
+        result = self.runner.invoke(app, ["agent", "run", "test-agent", "--file", "/path/to/input.txt"])
         assert result.exit_code == 0
         assert "Running agent" in result.stdout
 
         # 3. Run agent in interactive mode
-        result = self.runner.invoke(
-            app, ["agent", "run", "test-agent", "--interactive"]
-        )
+        result = self.runner.invoke(app, ["agent", "run", "test-agent", "--interactive"])
         assert result.exit_code == 0
         assert "Running agent" in result.stdout
         assert "Interactive" in result.stdout
@@ -138,16 +130,12 @@ class TestCLIBasicWorkflows:
     def test_cli_agent_deletion_workflow(self) -> None:
         """Test agent deletion workflow with confirmation."""
         # 1. Delete agent with confirmation (user confirms)
-        result = self.runner.invoke(
-            app, ["agent", "delete", "test-agent"], input="y\n"
-        )
+        result = self.runner.invoke(app, ["agent", "delete", "test-agent"], input="y\n")
         assert result.exit_code == 0
         assert "Deleting agent" in result.stdout
 
         # 2. Delete agent with confirmation (user cancels)
-        result = self.runner.invoke(
-            app, ["agent", "delete", "test-agent"], input="n\n"
-        )
+        result = self.runner.invoke(app, ["agent", "delete", "test-agent"], input="n\n")
         assert result.exit_code == 0
         assert "Operation cancelled" in result.stdout
 
@@ -183,23 +171,17 @@ class TestCLIServerWorkflows:
         assert "GearMeshing-AI server" in result.stdout
 
         # 2. Start server with custom host and port
-        result = self.runner.invoke(
-            app, ["server", "start", "--host", "0.0.0.0", "--port", "9000"]
-        )
+        result = self.runner.invoke(app, ["server", "start", "--host", "0.0.0.0", "--port", "9000"])
         assert result.exit_code == 0
         assert "GearMeshing-AI server" in result.stdout
 
         # 3. Start server with workers
-        result = self.runner.invoke(
-            app, ["server", "start", "--workers", "4"]
-        )
+        result = self.runner.invoke(app, ["server", "start", "--workers", "4"])
         assert result.exit_code == 0
         assert "GearMeshing-AI server" in result.stdout
 
         # 4. Start server with reload enabled
-        result = self.runner.invoke(
-            app, ["server", "start", "--reload"]
-        )
+        result = self.runner.invoke(app, ["server", "start", "--reload"])
         assert result.exit_code == 0
         assert "GearMeshing-AI server" in result.stdout
 
@@ -391,16 +373,12 @@ class TestCLIGlobalOptionsWorkflows:
     def test_cli_config_flag_workflow(self) -> None:
         """Test config flag workflow."""
         # 1. Agent list with config
-        result = self.runner.invoke(
-            app, ["--config", "/path/to/config.yml", "agent", "list"]
-        )
+        result = self.runner.invoke(app, ["--config", "/path/to/config.yml", "agent", "list"])
         assert result.exit_code == 0
         assert "Agent List" in result.stdout
 
         # 2. Server start with config
-        result = self.runner.invoke(
-            app, ["--config", "/path/to/config.yml", "server", "start"]
-        )
+        result = self.runner.invoke(app, ["--config", "/path/to/config.yml", "server", "start"])
         assert result.exit_code == 0
         assert "GearMeshing-AI server" in result.stdout
 
@@ -526,9 +504,7 @@ class TestCLIRealWorldScenarios:
         assert result.exit_code == 0
 
         # 2. DevOps engineer starts server
-        result = self.runner.invoke(
-            app, ["server", "start", "--host", "0.0.0.0", "--port", "8000"]
-        )
+        result = self.runner.invoke(app, ["server", "start", "--host", "0.0.0.0", "--port", "8000"])
         assert result.exit_code == 0
 
         # 3. DevOps engineer checks server status
@@ -562,7 +538,5 @@ class TestCLIRealWorldScenarios:
         assert result.exit_code == 0
 
         # 5. Monitor lists active agents
-        result = self.runner.invoke(
-            app, ["agent", "list", "--status", "active"]
-        )
+        result = self.runner.invoke(app, ["agent", "list", "--status", "active"])
         assert result.exit_code == 0

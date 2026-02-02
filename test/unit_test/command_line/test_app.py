@@ -1,8 +1,6 @@
 """Unit tests for CLI application."""
 
-import pytest
 from typer.testing import CliRunner
-from unittest.mock import patch, MagicMock
 
 from gearmeshing_ai.command_line.app import app
 

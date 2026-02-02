@@ -1,9 +1,9 @@
 """Integration tests for CLI functionality."""
 
-import pytest
-import subprocess
 import tempfile
 from pathlib import Path
+
+import pytest
 from typer.testing import CliRunner
 
 from gearmeshing_ai.command_line.app import app
@@ -62,7 +62,7 @@ class TestCLIIntegration:
             ["server", "status"],
             ["system", "info"],
         ]
-        
+
         for cmd in commands:
             result = runner.invoke(app, cmd)
             assert result.exit_code == 0
@@ -99,26 +99,20 @@ class TestCLIIntegration:
         """Test CLI operations involving files."""
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
-            
+
             # Test agent create with config file
             config_file = temp_path / "test-config.yaml"
             config_file.write_text("test: config")
-            
-            result = runner.invoke(app, [
-                "agent", "create", "test-agent",
-                "--config", str(config_file)
-            ])
+
+            result = runner.invoke(app, ["agent", "create", "test-agent", "--config", str(config_file)])
             assert result.exit_code == 0
             assert str(config_file) in result.stdout
 
             # Test agent run with input file
             input_file = temp_path / "input.txt"
             input_file.write_text("test input")
-            
-            result = runner.invoke(app, [
-                "agent", "run", "test-agent",
-                "--file", str(input_file)
-            ])
+
+            result = runner.invoke(app, ["agent", "run", "test-agent", "--file", str(input_file)])
             assert result.exit_code == 0
             assert str(input_file) in result.stdout
 
@@ -177,7 +171,7 @@ class TestCLIRealExecution:
         """Test CLI entry point functionality."""
         # Test that the main function can be imported and called
         from gearmeshing_ai.command_line import main
-        
+
         # We can't actually call main() as it would start the CLI
         # But we can verify it's importable and the right type
         assert callable(main)
