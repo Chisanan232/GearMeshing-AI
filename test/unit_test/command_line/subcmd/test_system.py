@@ -1,8 +1,8 @@
 """Unit tests for system commands."""
 
-import pytest
-from typer.testing import CliRunner
 from unittest.mock import patch
+
+from typer.testing import CliRunner
 
 from gearmeshing_ai.command_line.subcmd.system import app
 
@@ -78,13 +78,9 @@ class TestSystemCommands:
     def test_system_logs_custom(self) -> None:
         """Test system logs command with custom parameters."""
         with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
-            result = runner.invoke(app, [
-                "logs",
-                "--component", "server",
-                "--follow",
-                "--lines", "100",
-                "--level", "DEBUG"
-            ])
+            result = runner.invoke(
+                app, ["logs", "--component", "server", "--follow", "--lines", "100", "--level", "DEBUG"]
+            )
             assert result.exit_code == 0
             assert "Component: server" in result.stdout
             assert "Follow: True" in result.stdout
@@ -114,14 +110,16 @@ class TestSystemCommands:
 
     def test_system_cleanup_with_confirmation(self) -> None:
         """Test system cleanup command with confirmation."""
-        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
-            with patch("typer.confirm", return_value=True):
-                result = runner.invoke(app, ["cleanup"])
-                assert result.exit_code == 0
-                assert "System Cleanup:" in result.stdout
-                assert "Dry run: False" in result.stdout
-                assert "Force: False" in result.stdout
-                mock_logger.info.assert_called_with("Running cleanup (dry_run: False, force: False)")
+        with (
+            patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger,
+            patch("typer.confirm", return_value=True),
+        ):
+            result = runner.invoke(app, ["cleanup"])
+            assert result.exit_code == 0
+            assert "System Cleanup:" in result.stdout
+            assert "Dry run: False" in result.stdout
+            assert "Force: False" in result.stdout
+            mock_logger.info.assert_called_with("Running cleanup (dry_run: False, force: False)")
 
     def test_system_cleanup_cancelled(self) -> None:
         """Test system cleanup command when cancelled."""

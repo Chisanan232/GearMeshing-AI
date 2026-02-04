@@ -164,8 +164,26 @@ ignore = [
 fixable = ["ALL"]
 unfixable = []
 
-# Allow unused variables when underscore-prefixed
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[lint.flake8-bugbear]
+# Allow default arguments like FastAPI Depends() and Typer Option()
+extend-immutable-calls = [
+    "Depends",
+    "fastapi.Depends",
+    "Query",
+    "fastapi.Query",
+    "Path",
+    "fastapi.Path",
+    "Body",
+    "fastapi.Body",
+    "Form",
+    "fastapi.Form",
+    "File",
+    "fastapi.File",
+    "Option",
+    "typer.Option",
+    "Argument",
+    "typer.Argument",
+]
 
 [format]
 # Like Black, use double quotes for strings

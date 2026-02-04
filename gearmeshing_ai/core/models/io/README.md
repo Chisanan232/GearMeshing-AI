@@ -79,7 +79,7 @@ The package provides enums for status fields to ensure type safety and maintaina
 - `UNHEALTHY` - Service has critical issues
 - `DEGRADED` - Service is operational but with issues
 
-#### `SimpleHealthStatus` - Basic health check status  
+#### `SimpleHealthStatus` - Basic health check status
 - `OK` - Service is responding correctly
 - `ERROR` - Service has issues
 
@@ -97,7 +97,7 @@ The package provides enums for status fields to ensure type safety and maintaina
 ```python
 {
     "success": boolean,
-    "message": "string", 
+    "message": "string",
     "content": T,  # Generic content type
     "timestamp": datetime
 }
@@ -149,7 +149,7 @@ Sanitize and normalize path strings.
 ```python
 from gearmeshing_ai.core.models.io import (
     HealthStatus,
-    SimpleHealthStatus, 
+    SimpleHealthStatus,
     ReadinessStatus,
     LivenessStatus,
     create_health_response,
@@ -172,7 +172,7 @@ ready = create_readiness_response(
     status=ReadinessStatus.READY  # Type-safe enum value
 )
 
-# Liveness check  
+# Liveness check
 alive = create_liveness_response(
     status=LivenessStatus.ALIVE  # Type-safe enum value
 )
@@ -264,8 +264,8 @@ create_success_response(content=user_data, message="Success")
 
 # Error
 create_error_response(
-    message="Error", 
-    status_code=500, 
+    message="Error",
+    status_code=500,
     details=error_details
 )
 
@@ -327,7 +327,7 @@ Example:
 ```python
 class CustomContent(BaseModel):
     """Custom content for specific use case."""
-    
+
     custom_field: str = Field(description="Custom field description")
     optional_field: Optional[int] = Field(default=None, description="Optional field")
 

@@ -5,19 +5,19 @@ following duck typing principles for clean, maintainable code.
 """
 
 from .health import (
-    HealthChecker,
+    ApplicationHealthChecker,
     BaseHealthChecker,
     DatabaseHealthChecker,
-    ApplicationHealthChecker,
+    HealthChecker,
     HealthCheckService,
-    create_default_health_service
+    create_default_health_service,
 )
 
 __all__ = [
-    "HealthChecker",
+    "ApplicationHealthChecker",
     "BaseHealthChecker",
     "DatabaseHealthChecker",
-    "ApplicationHealthChecker",
     "HealthCheckService",
-    "create_default_health_service"
+    "HealthChecker",
+    "create_default_health_service",
 ]

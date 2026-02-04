@@ -14,6 +14,18 @@ __pycache__
 ## MyPy
 .mypy_cache/
 
+#### Editor and backup files
+## Backup files
+*.bak*
+*.orig
+*.backup*
+## Editor temporary files
+*~
+.#*
+\#*#
+.*.swp
+.*.swo
+
 #### Running result of tools
 ## Docummentation
 site/

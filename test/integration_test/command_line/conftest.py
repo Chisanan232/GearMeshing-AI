@@ -1,17 +1,16 @@
 """Test configuration and fixtures for CLI integration tests."""
 
-import pytest
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock
 
-from gearmeshing_ai.command_line.app import app
+import pytest
 
 
-@pytest.fixture
+@pytest.fixture  # type: ignore[misc]
 def temp_config_file() -> Path:
     """Create a temporary configuration file for testing."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         f.write("""
 # Test configuration
 server:
@@ -29,8 +28,8 @@ logging:
         return Path(f.name)
 
 
-@pytest.fixture
-def mock_agent_service():
+@pytest.fixture  # type: ignore[misc]
+def mock_agent_service() -> Mock:
     """Mock agent service for testing."""
     mock = Mock()
     mock.list_agents.return_value = []
@@ -42,8 +41,8 @@ def mock_agent_service():
     return mock
 
 
-@pytest.fixture
-def mock_server_service():
+@pytest.fixture  # type: ignore[misc]
+def mock_server_service() -> Mock:
     """Mock server service for testing."""
     mock = Mock()
     mock.start_server.return_value = {"status": "started", "port": 8000}
@@ -54,8 +53,8 @@ def mock_server_service():
     return mock
 
 
-@pytest.fixture
-def mock_system_service():
+@pytest.fixture  # type: ignore[misc]
+def mock_system_service() -> Mock:
     """Mock system service for testing."""
     mock = Mock()
     mock.get_system_info.return_value = {"version": "1.0.0", "platform": "linux"}
