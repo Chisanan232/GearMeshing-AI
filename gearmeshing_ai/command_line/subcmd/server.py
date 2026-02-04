@@ -16,7 +16,7 @@ app = typer.Typer(
 )
 
 
-@app.command()
+@app.command()  # type: ignore
 def start(
     host: str = typer.Option("0.0.0.0", "--host", help="Server host"),
     port: int = typer.Option(8000, "--port", "-p", help="Server port"),
@@ -37,7 +37,7 @@ def start(
     typer.echo("  (Server startup functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def stop(
     force: bool = typer.Option(False, "--force", "-f", help="Force stop the server"),
 ) -> None:
@@ -50,7 +50,7 @@ def stop(
     typer.echo("  (Server stopping functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def status() -> None:
     """Get server status."""
     logger.info("Getting server status")
@@ -60,7 +60,7 @@ def status() -> None:
     typer.echo("  (Server status functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def restart(
     graceful: bool = typer.Option(True, "--graceful/--no-graceful", help="Perform graceful restart"),
 ) -> None:
@@ -73,7 +73,7 @@ def restart(
     typer.echo("  (Server restart functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def logs(
     follow: bool = typer.Option(False, "--follow", "-f", help="Follow log output"),
     lines: int = typer.Option(50, "--lines", "-n", help="Number of lines to show"),
@@ -90,7 +90,7 @@ def logs(
     typer.echo("  (Log viewing functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def health() -> None:
     """Check server health."""
     logger.info("Checking server health")
