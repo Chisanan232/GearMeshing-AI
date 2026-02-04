@@ -169,7 +169,7 @@ unfixable = []
 extend-immutable-calls = [
     "Depends",
     "fastapi.Depends",
-    "Query", 
+    "Query",
     "fastapi.Query",
     "Path",
     "fastapi.Path",
@@ -181,7 +181,7 @@ extend-immutable-calls = [
     "fastapi.File",
     "Option",
     "typer.Option",
-    "Argument", 
+    "Argument",
     "typer.Argument",
 ]
 
