@@ -498,7 +498,8 @@ class TestErrorScenarios:
 
             # Multiple components fail
             def failing_health_check() -> None:
-                raise RuntimeError("Multiple components failed")
+                error_msg = "Multiple components failed"
+                raise RuntimeError(error_msg)
 
             mock_service.check_all_health.side_effect = failing_health_check
 
