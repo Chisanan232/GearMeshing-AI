@@ -18,12 +18,12 @@ from gearmeshing_ai.restapi.service.health import HealthCheckService
 class TestCompleteApiWorkflows:
     """End-to-end tests for complete API workflows."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_api_discovery_workflow(self):
+    def test_api_discovery_workflow(self) -> None:
         """Test complete API discovery workflow for new users."""
         # 1. User discovers the API root
         response = self.client.get("/")
@@ -55,7 +55,7 @@ class TestCompleteApiWorkflows:
         response = self.client.get("/health/live")
         assert response.status_code == 200
 
-    def test_health_monitoring_workflow(self):
+    def test_health_monitoring_workflow(self) -> None:
         """Test complete health monitoring workflow."""
         # Test health endpoints without mocking - use real service
         response = self.client.get("/health/")
@@ -74,7 +74,7 @@ class TestCompleteApiWorkflows:
         response = self.client.get("/health/live")
         assert response.status_code == 200
 
-    def test_error_recovery_workflow(self):
+    def test_error_recovery_workflow(self) -> None:
         """Test error recovery workflow."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -122,7 +122,7 @@ class TestCompleteApiWorkflows:
             response = self.client.get("/health/ready")
             assert response.status_code == 200
 
-    def test_api_documentation_workflow(self):
+    def test_api_documentation_workflow(self) -> None:
         """Test API documentation workflow."""
         # 1. User gets API info
         response = self.client.get("/info")
@@ -162,12 +162,12 @@ class TestCompleteApiWorkflows:
 class TestRealWorldScenarios:
     """Tests for real-world usage scenarios."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_load_balancer_integration(self):
+    def test_load_balancer_integration(self) -> None:
         """Test load balancer integration scenario."""
         # Load balancers typically use simple health checks
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
@@ -195,7 +195,7 @@ class TestRealWorldScenarios:
             assert live_data["success"] is True
             assert live_data["content"]["status"] == LivenessStatus.ALIVE
 
-    def test_kubernetes_integration(self):
+    def test_kubernetes_integration(self) -> None:
         """Test Kubernetes integration scenario."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -230,7 +230,7 @@ class TestRealWorldScenarios:
             assert health_data["success"] is True
             assert health_data["content"]["status"] == HealthStatus.HEALTHY
 
-    def test_monitoring_system_integration(self):
+    def test_monitoring_system_integration(self) -> None:
         """Test monitoring system integration scenario."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -276,7 +276,7 @@ class TestRealWorldScenarios:
             assert "uptime" in app_checker["details"]
             assert "memory_usage" in app_checker["details"]
 
-    def test_api_gateway_integration(self):
+    def test_api_gateway_integration(self) -> None:
         """Test API gateway integration scenario."""
         # API gateway needs to discover and route to API
         response = self.client.get("/")
@@ -312,12 +312,12 @@ class TestRealWorldScenarios:
 class TestPerformanceAndScalability:
     """Tests for performance and scalability scenarios."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_high_frequency_health_checks(self):
+    def test_high_frequency_health_checks(self) -> None:
         """Test high-frequency health checks scenario."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -343,7 +343,7 @@ class TestPerformanceAndScalability:
             average_time = total_time / 100
             assert average_time < 0.05  # Average should be less than 50ms
 
-    def test_concurrent_user_simulation(self):
+    def test_concurrent_user_simulation(self) -> None:
         """Test concurrent user simulation scenario."""
         import threading
         import time
@@ -359,7 +359,7 @@ class TestPerformanceAndScalability:
 
             results = []
 
-            def user_workflow():
+            def user_workflow() -> None:
                 try:
                     # User discovers API
                     response = self.client.get("/")
@@ -405,7 +405,7 @@ class TestPerformanceAndScalability:
             total_time = end_time - start_time
             assert total_time < 10.0
 
-    def test_memory_efficiency_under_load(self):
+    def test_memory_efficiency_under_load(self) -> None:
         """Test memory efficiency under load scenario."""
         import gc
 
@@ -444,12 +444,12 @@ class TestPerformanceAndScalability:
 class TestErrorScenarios:
     """Tests for various error scenarios."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_service_degradation_scenario(self):
+    def test_service_degradation_scenario(self) -> None:
         """Test gradual service degradation scenario."""
         # Test without mocking - just verify endpoints respond
         response = self.client.get("/health/")
@@ -460,7 +460,7 @@ class TestErrorScenarios:
         response = self.client.get("/health/simple")
         assert response.status_code in [200, 503]
 
-    def test_network_connectivity_issues(self):
+    def test_network_connectivity_issues(self) -> None:
         """Test network connectivity issues scenario."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -490,14 +490,14 @@ class TestErrorScenarios:
             response = self.client.get("/health/live")
             assert response.status_code == 200
 
-    def test_cascading_failure_scenario(self):
+    def test_cascading_failure_scenario(self) -> None:
         """Test cascading failure scenario."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
             mock_create.return_value = mock_service
 
             # Multiple components fail
-            def failing_health_check():
+            def failing_health_check() -> None:
                 raise RuntimeError("Multiple components failed")
 
             mock_service.check_all_health.side_effect = failing_health_check
@@ -522,12 +522,12 @@ class TestErrorScenarios:
 class TestSecurityAndCompliance:
     """Tests for security and compliance scenarios."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_information_disclosure_prevention(self):
+    def test_information_disclosure_prevention(self) -> None:
         """Test that sensitive information is not disclosed."""
         # Test that 404 responses are handled properly
         response = self.client.get("/nonexistent-endpoint")
@@ -537,7 +537,7 @@ class TestSecurityAndCompliance:
         data = response.json()
         assert isinstance(data, dict)
 
-    def test_request_validation_security(self):
+    def test_request_validation_security(self) -> None:
         """Test request validation for security."""
         client = TestClient(create_application())
 
@@ -554,7 +554,7 @@ class TestSecurityAndCompliance:
         response = self.client.request("TRACE", "/")
         assert response.status_code in [405, 404]
 
-    def test_rate_limiting_behavior(self):
+    def test_rate_limiting_behavior(self) -> None:
         """Test behavior under potential rate limiting scenarios."""
         # Make many rapid requests
         for _ in range(50):
@@ -570,12 +570,12 @@ class TestSecurityAndCompliance:
 class TestLongRunningStability:
     """Tests for long-running stability."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_extended_operation_stability(self):
+    def test_extended_operation_stability(self) -> None:
         """Test API stability over extended operation."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -616,7 +616,7 @@ class TestLongRunningStability:
             response = self.client.get("/health")
             assert response.status_code == 200
 
-    def test_resource_cleanup_verification(self):
+    def test_resource_cleanup_verification(self) -> None:
         """Test that resources are properly cleaned up."""
         # This test verifies that the API doesn't leak resources
         # by making many requests and checking that it still works
