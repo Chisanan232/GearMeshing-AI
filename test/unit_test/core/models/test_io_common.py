@@ -169,7 +169,9 @@ class TestGlobalResponse:
 
     def test_global_response_basic_creation(self) -> None:
         """Test basic GlobalResponse creation."""
-        response: GlobalResponse[dict[str, str]] = GlobalResponse(success=True, message="Test successful", content={"data": "test"})
+        response: GlobalResponse[dict[str, str]] = GlobalResponse(
+            success=True, message="Test successful", content={"data": "test"}
+        )
 
         assert response.success is True
         assert response.message == "Test successful"
@@ -191,7 +193,9 @@ class TestGlobalResponse:
         assert response1.content == "test string"
 
         # Dict content
-        response2: GlobalResponse[dict[str, str]] = GlobalResponse(success=True, message="Dict content", content={"key": "value"})
+        response2: GlobalResponse[dict[str, str]] = GlobalResponse(
+            success=True, message="Dict content", content={"key": "value"}
+        )
         assert response2.content == {"key": "value"}
 
         # List content
@@ -226,7 +230,9 @@ class TestGlobalResponse:
 
     def test_global_response_serialization(self) -> None:
         """Test GlobalResponse serialization."""
-        response: GlobalResponse[dict[str, str]] = GlobalResponse(success=True, message="Test response", content={"data": "test"})
+        response: GlobalResponse[dict[str, str]] = GlobalResponse(
+            success=True, message="Test response", content={"data": "test"}
+        )
 
         # Test dict serialization
         data = response.model_dump()
@@ -498,7 +504,9 @@ class TestModelInheritance:
 
     def test_model_copy(self) -> None:
         """Test model copying functionality."""
-        original: GlobalResponse[dict[str, str]] = GlobalResponse(success=True, message="Test", content={"data": "test"})
+        original: GlobalResponse[dict[str, str]] = GlobalResponse(
+            success=True, message="Test", content={"data": "test"}
+        )
 
         copied = original.model_copy()
 
@@ -510,9 +518,13 @@ class TestModelInheritance:
     def test_model_equality(self) -> None:
         """Test model equality comparison."""
         timestamp = datetime.now(UTC)
-        response1: GlobalResponse[dict[str, str]] = GlobalResponse(success=True, message="Test", content={"data": "test"}, timestamp=timestamp)
+        response1: GlobalResponse[dict[str, str]] = GlobalResponse(
+            success=True, message="Test", content={"data": "test"}, timestamp=timestamp
+        )
 
-        response2: GlobalResponse[dict[str, str]] = GlobalResponse(success=True, message="Test", content={"data": "test"}, timestamp=timestamp)
+        response2: GlobalResponse[dict[str, str]] = GlobalResponse(
+            success=True, message="Test", content={"data": "test"}, timestamp=timestamp
+        )
 
         # Models with same data should be equal
         assert response1.model_dump() == response2.model_dump()
@@ -561,7 +573,9 @@ class TestModelValidationEdgeCases:
         """Test handling of large data in content."""
         large_dict = {f"key_{i}": f"value_{i}" for i in range(1000)}
 
-        response: GlobalResponse[dict[str, str]] = GlobalResponse(success=True, message="Large data test", content=large_dict)
+        response: GlobalResponse[dict[str, str]] = GlobalResponse(
+            success=True, message="Large data test", content=large_dict
+        )
 
         # MyPy: content is guaranteed to be dict[str, str] here
         content: dict[str, str] = response.content  # type: ignore
@@ -630,7 +644,9 @@ class TestModelSerialization:
 
     def test_serialize_only_specific_fields(self) -> None:
         """Test serializing only specific fields."""
-        response: GlobalResponse[dict[str, str]] = GlobalResponse(success=True, message="Test", content={"data": "test"})
+        response: GlobalResponse[dict[str, str]] = GlobalResponse(
+            success=True, message="Test", content={"data": "test"}
+        )
 
         # Test with include parameter
         data = response.model_dump(include={"success", "message"})
@@ -642,7 +658,9 @@ class TestModelSerialization:
 
     def test_exclude_specific_fields(self) -> None:
         """Test excluding specific fields from serialization."""
-        response: GlobalResponse[dict[str, str]] = GlobalResponse(success=True, message="Test", content={"data": "test"})
+        response: GlobalResponse[dict[str, str]] = GlobalResponse(
+            success=True, message="Test", content={"data": "test"}
+        )
 
         # Test with exclude parameter
         data = response.model_dump(exclude={"timestamp"})
