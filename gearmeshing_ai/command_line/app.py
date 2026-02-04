@@ -51,10 +51,10 @@ def main_entry() -> None:
         app()
     except KeyboardInterrupt:
         logger.info("Operation cancelled by user")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     except Exception as e:
         logger.error(f"CLI error: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 if __name__ == "__main__":
