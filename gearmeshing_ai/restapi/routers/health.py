@@ -85,7 +85,7 @@ async def health_check(service: HealthCheckService = Depends(get_health_service)
             detail=create_error_response(
                 message=f"Health check failed: {e!s}", status_code=status.HTTP_503_SERVICE_UNAVAILABLE
             ).model_dump(),
-        )
+        ) from e
 
 
 @router.get(  # type: ignore
@@ -132,7 +132,7 @@ async def simple_health_check(service: HealthCheckService = Depends(get_health_s
             detail=create_error_response(
                 message=f"Health check failed: {e!s}", status_code=status.HTTP_503_SERVICE_UNAVAILABLE
             ).model_dump(),
-        )
+        ) from e
 
 
 @router.get(  # type: ignore
@@ -182,7 +182,7 @@ async def readiness_check(service: HealthCheckService = Depends(get_health_servi
             detail=create_error_response(
                 message=f"Readiness check failed: {e!s}", status_code=status.HTTP_503_SERVICE_UNAVAILABLE
             ).model_dump(),
-        )
+        ) from e
 
 
 @router.get(  # type: ignore
