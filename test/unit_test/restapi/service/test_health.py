@@ -69,7 +69,8 @@ class TestBaseHealthChecker:
                 super().__init__("failing_checker")
 
             def _do_check_health(self) -> HealthStatusContent:
-                raise ValueError("Test error")
+                error_msg = "Test error"
+                raise ValueError(error_msg)
 
         checker = FailingHealthChecker()
         result = checker.check_health()
@@ -144,7 +145,8 @@ class TestDatabaseHealthChecker:
 
         class FailingDatabaseHealthChecker(DatabaseHealthChecker):
             def _do_check_health(self) -> HealthStatusContent:
-                raise ConnectionError("Database connection failed")
+                error_msg = "Database connection failed"
+                raise ConnectionError(error_msg)
 
         checker = FailingDatabaseHealthChecker()
         result = checker.check_health()
@@ -192,7 +194,8 @@ class TestApplicationHealthChecker:
 
         class FailingApplicationHealthChecker(ApplicationHealthChecker):
             def _do_check_health(self) -> HealthStatusContent:
-                raise RuntimeError("Application error")
+                error_msg = "Application error"
+                raise RuntimeError(error_msg)
 
         checker = FailingApplicationHealthChecker()
         result = checker.check_health()
@@ -496,7 +499,7 @@ class TestHealthServiceIntegration:
         checkers = result["checkers"]
         assert len(checkers) == 2
 
-        for checker_name, checker_result in checkers.items():
+        for _checker_name, checker_result in checkers.items():
             assert hasattr(checker_result, "status")
             assert hasattr(checker_result, "details")
             assert checker_result.status in ["healthy", "degraded", "unhealthy"]
@@ -526,7 +529,8 @@ class TestHealthServiceIntegration:
                 super().__init__("failing_checker")
 
             def _do_check_health(self) -> HealthStatusContent:
-                raise RuntimeError("Checker failed")
+                error_msg = "Checker failed"
+                raise RuntimeError(error_msg)
 
         service.register_checker(FailingChecker())
         service.register_checker(ApplicationHealthChecker())
