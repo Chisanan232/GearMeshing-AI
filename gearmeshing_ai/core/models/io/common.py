@@ -65,7 +65,7 @@ class BaseResponseModel(BaseModel):
         default_factory=lambda: datetime.now(UTC), description="Timestamp when the response was generated"
     )
 
-    @field_serializer("timestamp")  # type: ignore[misc]
+    @field_serializer("timestamp")  # type: ignore[untyped-decorator]
     def serialize_timestamp(self, value: datetime) -> str:
         """Serialize datetime to ISO format string."""
         return value.isoformat()
