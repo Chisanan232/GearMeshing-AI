@@ -26,12 +26,12 @@ from gearmeshing_ai.restapi.service.health import (
 class TestRestApiIntegration:
     """Integration tests for the complete REST API."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_complete_api_startup(self):
+    def test_complete_api_startup(self) -> None:
         """Test complete API startup and basic functionality."""
         # Test that the app starts correctly
         response = self.client.get("/")
@@ -43,7 +43,7 @@ class TestRestApiIntegration:
             response = self.client.get(endpoint)
             assert response.status_code in [200, 503]  # 503 if services are unhealthy
 
-    def test_api_endpoints_consistency(self):
+    def test_api_endpoints_consistency(self) -> None:
         """Test consistency across all API endpoints."""
         # Get responses from all endpoints
         root_response = self.client.get("/").json()
@@ -64,7 +64,7 @@ class TestRestApiIntegration:
             # Should be within last minute
             assert (datetime.now(UTC) - timestamp).total_seconds() < 60
 
-    def test_health_endpoints_integration(self):
+    def test_health_endpoints_integration(self) -> None:
         """Test integration between all health endpoints."""
         # Test all health endpoints with mocked healthy service
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
@@ -103,7 +103,7 @@ class TestRestApiIntegration:
             assert ready_data["success"] is True
             assert live_data["success"] is True
 
-    def test_api_with_degraded_service(self):
+    def test_api_with_degraded_service(self) -> None:
         """Test API behavior with degraded health service."""
         # Test health endpoints without mocking - use real service
         health_response = self.client.get("/health/")
@@ -118,7 +118,7 @@ class TestRestApiIntegration:
         ready_response = self.client.get("/health/ready")
         assert ready_response.status_code in [200, 503]
 
-    def test_api_with_unhealthy_service(self):
+    def test_api_with_unhealthy_service(self) -> None:
         """Test API behavior with unhealthy health service."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -147,7 +147,7 @@ class TestRestApiIntegration:
             live_response = self.client.get("/health/live")
             assert live_response.status_code == 200
 
-    def test_api_error_handling_integration(self):
+    def test_api_error_handling_integration(self) -> None:
         """Test API error handling integration."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -178,7 +178,7 @@ class TestRestApiIntegration:
 class TestHealthServiceIntegration:
     """Integration tests for health service with real checkers."""
 
-    def test_default_health_service_integration(self):
+    def test_default_health_service_integration(self) -> None:
         """Test default health service with real checkers."""
         service = create_default_health_service()
 
@@ -204,7 +204,7 @@ class TestHealthServiceIntegration:
             assert hasattr(checker_result, "details")
             assert checker_result.status in ["healthy", "degraded", "unhealthy"]
 
-    def test_health_service_with_database_connection(self):
+    def test_health_service_with_database_connection(self) -> None:
         """Test health service with database connection string."""
         service = HealthCheckService()
 
@@ -218,19 +218,19 @@ class TestHealthServiceIntegration:
         # Database checker should show connection is configured
         assert result["checkers"]["database"].details["connection_configured"] is True
 
-    def test_health_service_failure_scenarios(self):
+    def test_health_service_failure_scenarios(self) -> None:
         """Test health service failure scenarios."""
         service = HealthCheckService()
 
         # Add a failing checker
         class FailingChecker:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.name = "failing_checker"
 
-            def check_health(self):
+            def check_health(self) -> None:
                 raise RuntimeError("Simulated failure")
 
-        service.register_checker(FailingChecker())
+        service.register_checker(FailingChecker())  # type: ignore[arg-type]
         service.register_checker(ApplicationHealthChecker())
 
         result = service.check_all_health()
@@ -245,14 +245,14 @@ class TestHealthServiceIntegration:
         # Application checker should still work
         assert result["checkers"]["application"].status == "healthy"
 
-    def test_health_service_concurrent_access(self):
+    def test_health_service_concurrent_access(self) -> None:
         """Test health service concurrent access."""
         import threading
 
         service = create_default_health_service()
         results = []
 
-        def check_health():
+        def check_health() -> None:
             result = service.check_all_health()
             results.append(result["status"])
 
@@ -278,14 +278,14 @@ class TestHealthServiceIntegration:
 class TestRouterServiceIntegration:
     """Integration tests for router and service interaction."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_health_router_service_dependency(self):
+    def test_health_router_service_dependency(self) -> None:
         """Test health router dependency injection with service."""
-        from gearmeshing_ai.restapi.routers.health import get_health_service
+        from gearmeshing_ai.restapi.dependencies.health import get_health_service
 
         # Test dependency function
         service = get_health_service()
@@ -296,7 +296,7 @@ class TestRouterServiceIntegration:
         assert "status" in result
         assert "checkers" in result
 
-    def test_health_router_with_mock_service(self):
+    def test_health_router_with_mock_service(self) -> None:
         """Test health router with mocked service."""
         # Test health endpoints through the full app
         response = self.client.get("/health/")
@@ -308,7 +308,7 @@ class TestRouterServiceIntegration:
         assert isinstance(data, dict)
         assert "success" in data
 
-    def test_service_error_propagation_to_router(self):
+    def test_service_error_propagation_to_router(self) -> None:
         """Test that service errors are properly handled by router."""
         # Test error handling through the full app
         response = self.client.get("/health/")
@@ -323,12 +323,12 @@ class TestRouterServiceIntegration:
 class TestIOModelsIntegration:
     """Integration tests for I/O models with API responses."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_global_response_model_in_api(self):
+    def test_global_response_model_in_api(self) -> None:
         """Test GlobalResponse model integration in API responses."""
         response = self.client.get("/")
         data = response.json()
@@ -344,7 +344,7 @@ class TestIOModelsIntegration:
         timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
         assert isinstance(timestamp, datetime)
 
-    def test_health_response_models_integration(self):
+    def test_health_response_models_integration(self) -> None:
         """Test health response models integration."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -368,7 +368,7 @@ class TestIOModelsIntegration:
             assert "database" in data["content"]["checkers"]
             assert "application" in data["content"]["checkers"]
 
-    def test_error_response_models_integration(self):
+    def test_error_response_models_integration(self) -> None:
         """Test error response models integration."""
         with patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service") as mock_create:
             mock_service = MagicMock(spec=HealthCheckService)
@@ -384,7 +384,7 @@ class TestIOModelsIntegration:
             assert data["detail"]["success"] is False
             assert "message" in data["detail"]
 
-    def test_content_model_validation_integration(self):
+    def test_content_model_validation_integration(self) -> None:
         """Test content model validation in API responses."""
         response = self.client.get("/info")
         data = response.json()
@@ -405,12 +405,12 @@ class TestIOModelsIntegration:
 class TestMiddlewareIntegration:
     """Integration tests for middleware components."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_cors_middleware_integration(self):
+    def test_cors_middleware_integration(self) -> None:
         """Test CORS middleware integration."""
         # Test preflight request
         response = self.client.options(
@@ -425,14 +425,14 @@ class TestMiddlewareIntegration:
         # Should handle CORS preflight
         assert response.status_code in [200, 204]
 
-    def test_cors_headers_in_responses(self):
+    def test_cors_headers_in_responses(self) -> None:
         """Test CORS headers in actual responses."""
         response = self.client.get("/", headers={"Origin": "http://localhost:3000"})
 
         assert response.status_code == 200
         # CORS headers should be present (depending on configuration)
 
-    def test_request_response_flow(self):
+    def test_request_response_flow(self) -> None:
         """Test complete request-response flow."""
         # Test normal request
         response = self.client.get("/")
@@ -448,7 +448,7 @@ class TestMiddlewareIntegration:
 class TestApplicationLifecycleIntegration:
     """Integration tests for application lifecycle."""
 
-    def test_application_creation_and_usage(self):
+    def test_application_creation_and_usage(self) -> None:
         """Test application creation and immediate usage."""
         app = create_application()
         client = TestClient(app)
@@ -460,7 +460,7 @@ class TestApplicationLifecycleIntegration:
         response = client.get("/info")
         assert response.status_code == 200
 
-    def test_multiple_app_instances(self):
+    def test_multiple_app_instances(self) -> None:
         """Test multiple application instances."""
         app1 = create_application()
         app2 = create_application()
@@ -482,7 +482,7 @@ class TestApplicationLifecycleIntegration:
         assert data1["success"] == data2["success"]
         assert data1["content"]["message"] == data2["content"]["message"]
 
-    def test_app_configuration_consistency(self):
+    def test_app_configuration_consistency(self) -> None:
         """Test that app configuration is consistent."""
         app = create_application()
 
@@ -502,14 +502,14 @@ class TestApplicationLifecycleIntegration:
 class TestErrorHandlingIntegration:
     """Integration tests for comprehensive error handling."""
 
-    def test_404_error_handling(self):
+    def test_404_error_handling(self) -> None:
         """Test 404 error handling across the application."""
         client = TestClient(create_application())
 
         response = client.get("/nonexistent-endpoint")
         assert response.status_code == 404
 
-    def test_method_not_allowed_handling(self):
+    def test_method_not_allowed_handling(self) -> None:
         """Test method not allowed handling."""
         client = TestClient(create_application())
 
@@ -517,7 +517,7 @@ class TestErrorHandlingIntegration:
         response = client.post("/")
         assert response.status_code in [405, 422]
 
-    def test_validation_error_handling(self):
+    def test_validation_error_handling(self) -> None:
         """Test validation error handling."""
         client = TestClient(create_application())
 
@@ -527,7 +527,7 @@ class TestErrorHandlingIntegration:
         # POST on GET endpoint should return 405 or 422
         assert response.status_code in [405, 422]
 
-    def test_service_unavailable_handling(self):
+    def test_service_unavailable_handling(self) -> None:
         """Test handling when services are unavailable."""
         client = TestClient(create_application())
 
@@ -548,7 +548,7 @@ class TestErrorHandlingIntegration:
 class TestPerformanceIntegration:
     """Integration tests for performance characteristics."""
 
-    def test_response_time_performance(self):
+    def test_response_time_performance(self) -> None:
         """Test API response time performance."""
         import time
 
@@ -567,7 +567,7 @@ class TestPerformanceIntegration:
             assert response_time < 1.0
             assert response.status_code == 200
 
-    def test_concurrent_request_handling(self):
+    def test_concurrent_request_handling(self) -> None:
         """Test concurrent request handling."""
         import threading
         import time
@@ -575,7 +575,7 @@ class TestPerformanceIntegration:
         client = TestClient(create_application())
         results = []
 
-        def make_request():
+        def make_request() -> None:
             response = client.get("/")
             results.append(response.status_code)
 
@@ -603,7 +603,7 @@ class TestPerformanceIntegration:
         total_time = end_time - start_time
         assert total_time < 5.0  # Should complete within 5 seconds
 
-    def test_memory_usage_stability(self):
+    def test_memory_usage_stability(self) -> None:
         """Test memory usage stability with repeated requests."""
         import gc
 
