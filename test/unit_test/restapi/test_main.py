@@ -14,12 +14,12 @@ from gearmeshing_ai.restapi.main import ApplicationFactory, app, create_applicat
 class TestApplicationFactory:
     """Test cases for ApplicationFactory class."""
 
-    def test_application_factory_initialization(self):
+    def test_application_factory_initialization(self) -> None:
         """Test ApplicationFactory initialization."""
         factory = ApplicationFactory()
         assert factory._app is None
 
-    def test_create_app_default_configuration(self):
+    def test_create_app_default_configuration(self) -> None:
         """Test creating app with default configuration."""
         factory = ApplicationFactory()
         app = factory.create_app()
@@ -30,7 +30,7 @@ class TestApplicationFactory:
         assert app.version == "0.0.0"
         assert factory._app is app
 
-    def test_create_app_custom_configuration(self):
+    def test_create_app_custom_configuration(self) -> None:
         """Test creating app with custom configuration."""
         factory = ApplicationFactory()
         app = factory.create_app(title="Custom API")
@@ -38,7 +38,7 @@ class TestApplicationFactory:
         assert app.title == "Custom API"
         assert app.description == "Enterprise AI agents development platform API"
 
-    def test_create_app_middleware_setup(self):
+    def test_create_app_middleware_setup(self) -> None:
         """Test that middleware is properly configured."""
         factory = ApplicationFactory()
         app = factory.create_app()
@@ -46,7 +46,7 @@ class TestApplicationFactory:
         # Check that middleware is configured
         assert len(app.user_middleware) > 0
 
-    def test_create_app_router_setup(self):
+    def test_create_app_router_setup(self) -> None:
         """Test that routers are properly configured."""
         factory = ApplicationFactory()
         app = factory.create_app()
@@ -57,7 +57,7 @@ class TestApplicationFactory:
         assert "/health/" in routes or "/health" in routes
         assert "/health/simple" in routes
 
-    def test_multiple_create_app_calls(self):
+    def test_multiple_create_app_calls(self) -> None:
         """Test multiple create_app calls return same instance."""
         factory = ApplicationFactory()
         app1 = factory.create_app()
@@ -72,7 +72,7 @@ class TestApplicationFactory:
 class TestCreateApplicationFunction:
     """Test cases for create_application factory function."""
 
-    def test_create_application_default(self):
+    def test_create_application_default(self) -> None:
         """Test create_application with default parameters."""
         app = create_application()
 
@@ -80,7 +80,7 @@ class TestCreateApplicationFunction:
         assert app.title == "GearMeshing-AI API"
         assert app.version == "0.0.0"
 
-    def test_create_application_with_kwargs(self):
+    def test_create_application_with_kwargs(self) -> None:
         """Test create_application with custom parameters."""
         app = create_application(title="Test API")
 
@@ -91,11 +91,11 @@ class TestCreateApplicationFunction:
 class TestMainEndpoints:
     """Test cases for main application endpoints."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.client = TestClient(app)
 
-    def test_root_endpoint(self):
+    def test_root_endpoint(self) -> None:
         """Test the root endpoint (/)."""
         response = self.client.get("/")
 
@@ -116,7 +116,7 @@ class TestMainEndpoints:
         assert data["content"]["docs"] == "/docs"
         assert data["content"]["health"] == "/health"
 
-    def test_root_endpoint_response_model(self):
+    def test_root_endpoint_response_model(self) -> None:
         """Test root endpoint response model validation."""
         response = self.client.get("/")
         data = response.json()
@@ -124,9 +124,10 @@ class TestMainEndpoints:
         # Validate against response model
         welcome_response = WelcomeResponseType(**data)
         assert welcome_response.success is True
+        assert welcome_response.content is not None
         assert welcome_response.content.message == "Welcome to GearMeshing-AI API"
 
-    def test_info_endpoint(self):
+    def test_info_endpoint(self) -> None:
         """Test the info endpoint (/info)."""
         response = self.client.get("/info")
 
@@ -147,7 +148,7 @@ class TestMainEndpoints:
         assert isinstance(data["content"]["endpoints"], list)
         assert isinstance(data["content"]["documentation"], dict)
 
-    def test_info_endpoint_response_model(self):
+    def test_info_endpoint_response_model(self) -> None:
         """Test info endpoint response model validation."""
         response = self.client.get("/info")
         data = response.json()
@@ -155,9 +156,10 @@ class TestMainEndpoints:
         # Validate against response model
         api_info_response = ApiInfoResponseType(**data)
         assert api_info_response.success is True
+        assert api_info_response.content is not None
         assert api_info_response.content.name == "GearMeshing-AI API"
 
-    def test_info_endpoint_endpoints_list(self):
+    def test_info_endpoint_endpoints_list(self) -> None:
         """Test that info endpoint returns expected endpoints."""
         response = self.client.get("/info")
         data = response.json()
@@ -168,7 +170,7 @@ class TestMainEndpoints:
         for endpoint in expected_endpoints:
             assert endpoint in endpoints
 
-    def test_info_endpoint_documentation(self):
+    def test_info_endpoint_documentation(self) -> None:
         """Test that info endpoint returns documentation links."""
         response = self.client.get("/info")
         data = response.json()
@@ -179,7 +181,7 @@ class TestMainEndpoints:
         assert documentation["swagger"] == "/docs"
         assert documentation["redoc"] == "/redoc"
 
-    def test_openapi_docs_endpoint(self):
+    def test_openapi_docs_endpoint(self) -> None:
         """Test that OpenAPI docs endpoint is available."""
         response = self.client.get("/openapi.json")
 
@@ -189,14 +191,14 @@ class TestMainEndpoints:
         assert "info" in data
         assert "paths" in data
 
-    def test_swagger_docs_endpoint(self):
+    def test_swagger_docs_endpoint(self) -> None:
         """Test that Swagger UI docs endpoint is available."""
         response = self.client.get("/docs")
 
         assert response.status_code == 200
         assert "text/html" in response.headers["content-type"]
 
-    def test_redoc_docs_endpoint(self):
+    def test_redoc_docs_endpoint(self) -> None:
         """Test that ReDoc docs endpoint is available."""
         response = self.client.get("/redoc")
 
@@ -207,14 +209,14 @@ class TestMainEndpoints:
 class TestApplicationLifecycle:
     """Test cases for application lifecycle management."""
 
-    def test_lifespan_context_manager_creation(self):
+    def test_lifespan_context_manager_creation(self) -> None:
         """Test that lifespan context manager is created properly."""
         factory = ApplicationFactory()
         lifespan = factory._create_lifespan()
 
         assert callable(lifespan)
 
-    def test_startup_success_logging(self):
+    def test_startup_success_logging(self) -> None:
         """Test successful startup logging."""
         factory = ApplicationFactory()
         lifespan = factory._create_lifespan()
@@ -222,7 +224,7 @@ class TestApplicationLifecycle:
         # Verify lifespan is callable
         assert callable(lifespan)
 
-    def test_shutdown_success_logging(self):
+    def test_shutdown_success_logging(self) -> None:
         """Test successful shutdown logging."""
         factory = ApplicationFactory()
         lifespan = factory._create_lifespan()
@@ -230,7 +232,7 @@ class TestApplicationLifecycle:
         # Verify lifespan is callable
         assert callable(lifespan)
 
-    def test_startup_failure_logging(self):
+    def test_startup_failure_logging(self) -> None:
         """Test startup failure logging."""
         factory = ApplicationFactory()
         app = factory.create_app()
@@ -238,7 +240,7 @@ class TestApplicationLifecycle:
         # Verify app is created successfully
         assert isinstance(app, FastAPI)
 
-    def test_shutdown_failure_logging(self):
+    def test_shutdown_failure_logging(self) -> None:
         """Test shutdown failure logging."""
         factory = ApplicationFactory()
         app = factory.create_app()
@@ -250,14 +252,14 @@ class TestApplicationLifecycle:
 class TestGlobalAppInstance:
     """Test cases for the global app instance."""
 
-    def test_global_app_instance_exists(self):
+    def test_global_app_instance_exists(self) -> None:
         """Test that global app instance is created."""
         from gearmeshing_ai.restapi.main import app
 
         assert isinstance(app, FastAPI)
         assert app.title == "GearMeshing-AI API"
 
-    def test_global_app_same_as_created(self):
+    def test_global_app_same_as_created(self) -> None:
         """Test that global app is same as created by factory."""
         from gearmeshing_ai.restapi.main import app, create_application
 
@@ -271,14 +273,14 @@ class TestGlobalAppInstance:
 class TestErrorHandling:
     """Test cases for error handling in main application."""
 
-    def test_404_error_handling(self):
+    def test_404_error_handling(self) -> None:
         """Test 404 error handling."""
         client = TestClient(app)
         response = client.get("/nonexistent")
 
         assert response.status_code == 404
 
-    def test_method_not_allowed(self):
+    def test_method_not_allowed(self) -> None:
         """Test method not allowed handling."""
         client = TestClient(app)
         response = client.post("/")
@@ -286,7 +288,7 @@ class TestErrorHandling:
         # Should return 405 Method Not Allowed or 422 Validation Error
         assert response.status_code in [405, 422]
 
-    def test_invalid_json_request(self):
+    def test_invalid_json_request(self) -> None:
         """Test handling of invalid JSON requests."""
         client = TestClient(app)
         response = client.post("/info", content="invalid json", headers={"content-type": "application/json"})
@@ -298,7 +300,7 @@ class TestErrorHandling:
 class TestMiddlewareConfiguration:
     """Test cases for middleware configuration."""
 
-    def test_cors_middleware_configuration(self):
+    def test_cors_middleware_configuration(self) -> None:
         """Test CORS middleware configuration."""
         client = TestClient(app)
 
@@ -317,7 +319,7 @@ class TestMiddlewareConfiguration:
         if response.status_code == 200:
             assert "access-control-allow-origin" in response.headers
 
-    def test_cors_headers_in_response(self):
+    def test_cors_headers_in_response(self) -> None:
         """Test CORS headers in actual responses."""
         client = TestClient(app)
 
