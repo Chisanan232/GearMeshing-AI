@@ -81,10 +81,9 @@ def cleanup(
     """Clean up system resources and temporary files."""
     logger.info(f"Running cleanup (dry_run: {dry_run}, force: {force})")
 
-    if not force and not dry_run:
-        if not typer.confirm("Are you sure you want to run system cleanup?"):
-            typer.echo("Operation cancelled")
-            raise typer.Exit()
+    if not force and not dry_run and not typer.confirm("Are you sure you want to run system cleanup?"):
+        typer.echo("Operation cancelled")
+        raise typer.Exit
 
     # TODO: Implement cleanup logic
     typer.echo("⚙️ System Cleanup:")
