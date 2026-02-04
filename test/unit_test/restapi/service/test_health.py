@@ -5,6 +5,7 @@ including health checkers, service logic, and error handling.
 """
 
 from datetime import datetime
+from typing import Any
 from unittest.mock import MagicMock
 
 from gearmeshing_ai.core.models.io import HealthStatusContent
@@ -21,7 +22,7 @@ from gearmeshing_ai.restapi.service.health import (
 class TestHealthCheckerProtocol:
     """Test cases for HealthChecker protocol."""
 
-    def test_health_checker_protocol_compliance(self):
+    def test_health_checker_protocol_compliance(self) -> None:
         """Test that classes implementing HealthChecker protocol are properly recognized."""
         # Create a mock health checker
         mock_checker = MagicMock(spec=HealthChecker)
@@ -31,7 +32,7 @@ class TestHealthCheckerProtocol:
         result = mock_checker.check_health()
         assert result.status == "healthy"
 
-    def test_health_checker_protocol_with_real_class(self):
+    def test_health_checker_protocol_with_real_class(self) -> None:
         """Test HealthChecker protocol with a real implementation."""
 
         class TestHealthChecker:
@@ -46,12 +47,12 @@ class TestHealthCheckerProtocol:
 class TestBaseHealthChecker:
     """Test cases for BaseHealthChecker class."""
 
-    def test_base_health_checker_initialization(self):
+    def test_base_health_checker_initialization(self) -> None:
         """Test BaseHealthChecker initialization."""
         checker = BaseHealthChecker("test_checker")
         assert checker.name == "test_checker"
 
-    def test_base_health_checker_abstract_method(self):
+    def test_base_health_checker_abstract_method(self) -> None:
         """Test that _do_check_health is abstract."""
         checker = BaseHealthChecker("test_checker")
 
@@ -60,11 +61,11 @@ class TestBaseHealthChecker:
         # Should return unhealthy status when not implemented
         assert result.status == "unhealthy"
 
-    def test_base_health_checker_error_handling(self):
+    def test_base_health_checker_error_handling(self) -> None:
         """Test BaseHealthChecker error handling."""
 
         class FailingHealthChecker(BaseHealthChecker):
-            def __init__(self):
+            def __init__(self) -> None:
                 super().__init__("failing_checker")
 
             def _do_check_health(self) -> HealthStatusContent:
@@ -74,15 +75,16 @@ class TestBaseHealthChecker:
         result = checker.check_health()
 
         assert result.status == "unhealthy"
+        assert result.details is not None
         assert "error" in result.details
         assert result.details["error"] == "Test error"
         assert result.details["checker"] == "failing_checker"
 
-    def test_base_health_checker_success(self):
+    def test_base_health_checker_success(self) -> None:
         """Test BaseHealthChecker with successful check."""
 
         class SuccessHealthChecker(BaseHealthChecker):
-            def __init__(self):
+            def __init__(self) -> None:
                 super().__init__("success_checker")
 
             def _do_check_health(self) -> HealthStatusContent:
@@ -92,13 +94,14 @@ class TestBaseHealthChecker:
         result = checker.check_health()
 
         assert result.status == "healthy"
+        assert result.details is not None
         assert result.details["test"] == "success"
 
 
 class TestDatabaseHealthChecker:
     """Test cases for DatabaseHealthChecker class."""
 
-    def test_database_health_checker_initialization_with_connection_string(self):
+    def test_database_health_checker_initialization_with_connection_string(self) -> None:
         """Test DatabaseHealthChecker initialization with connection string."""
         connection_string = "postgresql://user:pass@localhost:5432/db"
         checker = DatabaseHealthChecker(connection_string)
@@ -106,14 +109,14 @@ class TestDatabaseHealthChecker:
         assert checker.name == "database"
         assert checker.connection_string == connection_string
 
-    def test_database_health_checker_initialization_without_connection_string(self):
+    def test_database_health_checker_initialization_without_connection_string(self) -> None:
         """Test DatabaseHealthChecker initialization without connection string."""
         checker = DatabaseHealthChecker()
 
         assert checker.name == "database"
         assert checker.connection_string is None
 
-    def test_database_health_check_with_connection(self):
+    def test_database_health_check_with_connection(self) -> None:
         """Test database health check with connection configured."""
         connection_string = "postgresql://user:pass@localhost:5432/db"
         checker = DatabaseHealthChecker(connection_string)
@@ -121,20 +124,22 @@ class TestDatabaseHealthChecker:
         result = checker.check_health()
 
         assert result.status == "healthy"
+        assert result.details is not None
         assert result.details["checker"] == "database"
         assert result.details["connection_configured"] is True
 
-    def test_database_health_check_without_connection(self):
+    def test_database_health_check_without_connection(self) -> None:
         """Test database health check without connection configured."""
         checker = DatabaseHealthChecker()
 
         result = checker.check_health()
 
         assert result.status == "healthy"
+        assert result.details is not None
         assert result.details["checker"] == "database"
         assert result.details["connection_configured"] is False
 
-    def test_database_health_checker_error_handling(self):
+    def test_database_health_checker_error_handling(self) -> None:
         """Test DatabaseHealthChecker error handling."""
 
         class FailingDatabaseHealthChecker(DatabaseHealthChecker):
@@ -145,41 +150,44 @@ class TestDatabaseHealthChecker:
         result = checker.check_health()
 
         assert result.status == "unhealthy"
+        assert result.details is not None
         assert "Database connection failed" in result.details["error"]
 
 
 class TestApplicationHealthChecker:
     """Test cases for ApplicationHealthChecker class."""
 
-    def test_application_health_checker_initialization(self):
+    def test_application_health_checker_initialization(self) -> None:
         """Test ApplicationHealthChecker initialization."""
         checker = ApplicationHealthChecker()
 
         assert checker.name == "application"
 
-    def test_application_health_check_success(self):
+    def test_application_health_check_success(self) -> None:
         """Test application health check success."""
         checker = ApplicationHealthChecker()
 
         result = checker.check_health()
 
         assert result.status == "healthy"
+        assert result.details is not None
         assert result.details["checker"] == "application"
         assert result.details["version"] == "0.0.0"
         assert "components" in result.details
         assert isinstance(result.details["components"], list)
 
-    def test_application_health_check_components(self):
+    def test_application_health_check_components(self) -> None:
         """Test application health check includes expected components."""
         checker = ApplicationHealthChecker()
 
         result = checker.check_health()
 
+        assert result.details is not None
         expected_components = ["restapi", "agent_core", "core"]
         for component in expected_components:
             assert component in result.details["components"]
 
-    def test_application_health_checker_error_handling(self):
+    def test_application_health_checker_error_handling(self) -> None:
         """Test ApplicationHealthChecker error handling."""
 
         class FailingApplicationHealthChecker(ApplicationHealthChecker):
@@ -190,20 +198,21 @@ class TestApplicationHealthChecker:
         result = checker.check_health()
 
         assert result.status == "unhealthy"
+        assert result.details is not None
         assert "Application error" in result.details["error"]
 
 
 class TestHealthCheckService:
     """Test cases for HealthCheckService class."""
 
-    def test_health_check_service_initialization(self):
+    def test_health_check_service_initialization(self) -> None:
         """Test HealthCheckService initialization."""
         service = HealthCheckService()
 
         assert service._checkers == []
         assert len(service._checkers) == 0
 
-    def test_register_checker(self):
+    def test_register_checker(self) -> None:
         """Test registering a health checker."""
         service = HealthCheckService()
         checker = MagicMock(spec=HealthChecker)
@@ -214,7 +223,7 @@ class TestHealthCheckService:
         assert len(service._checkers) == 1
         assert service._checkers[0] is checker
 
-    def test_register_multiple_checkers(self):
+    def test_register_multiple_checkers(self) -> None:
         """Test registering multiple health checkers."""
         service = HealthCheckService()
 
@@ -231,7 +240,7 @@ class TestHealthCheckService:
         assert service._checkers[0] is checker1
         assert service._checkers[1] is checker2
 
-    def test_check_all_health_empty(self):
+    def test_check_all_health_empty(self) -> None:
         """Test checking health with no registered checkers."""
         service = HealthCheckService()
 
@@ -241,7 +250,7 @@ class TestHealthCheckService:
         assert "timestamp" in result
         assert result["checkers"] == {}
 
-    def test_check_all_health_all_healthy(self):
+    def test_check_all_health_all_healthy(self) -> None:
         """Test checking health when all checkers are healthy."""
         service = HealthCheckService()
 
@@ -265,7 +274,7 @@ class TestHealthCheckService:
         assert result["checkers"]["checker1"].status == "healthy"
         assert result["checkers"]["checker2"].status == "healthy"
 
-    def test_check_all_health_one_unhealthy(self):
+    def test_check_all_health_one_unhealthy(self) -> None:
         """Test checking health when one checker is unhealthy."""
         service = HealthCheckService()
 
@@ -287,7 +296,7 @@ class TestHealthCheckService:
         assert result["checkers"]["checker1"].status == "healthy"
         assert result["checkers"]["checker2"].status == "unhealthy"
 
-    def test_check_all_health_one_degraded(self):
+    def test_check_all_health_one_degraded(self) -> None:
         """Test checking health when one checker is degraded."""
         service = HealthCheckService()
 
@@ -309,7 +318,7 @@ class TestHealthCheckService:
         assert result["checkers"]["checker1"].status == "healthy"
         assert result["checkers"]["checker2"].status == "degraded"
 
-    def test_check_all_health_mixed_statuses(self):
+    def test_check_all_health_mixed_statuses(self) -> None:
         """Test checking health with mixed statuses."""
         service = HealthCheckService()
 
@@ -336,7 +345,7 @@ class TestHealthCheckService:
         assert result["status"] == "unhealthy"
         assert len(result["checkers"]) == 3
 
-    def test_check_all_health_checker_exception(self):
+    def test_check_all_health_checker_exception(self) -> None:
         """Test checking health when a checker raises exception."""
         service = HealthCheckService()
 
@@ -354,7 +363,7 @@ class TestHealthCheckService:
         assert result["checkers"]["failing_checker"].status == "unhealthy"
         assert "error" in result["checkers"]["failing_checker"].details
 
-    def test_check_all_health_checker_without_name(self):
+    def test_check_all_health_checker_without_name(self) -> None:
         """Test checking health with checker that doesn't have name attribute."""
         service = HealthCheckService()
 
@@ -371,7 +380,7 @@ class TestHealthCheckService:
         assert result["status"] == "healthy"
         assert "NamelessChecker" in result["checkers"]
 
-    def test_check_all_health_timestamp_format(self):
+    def test_check_all_health_timestamp_format(self) -> None:
         """Test that timestamp is in correct format."""
         service = HealthCheckService()
 
@@ -384,7 +393,7 @@ class TestHealthCheckService:
         # Should be parseable as ISO datetime
         datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
 
-    def test_check_all_health_concurrent_safety(self):
+    def test_check_all_health_concurrent_safety(self) -> None:
         """Test that check_all_health is thread-safe."""
         import threading
 
@@ -398,7 +407,7 @@ class TestHealthCheckService:
 
         results = []
 
-        def check_health():
+        def check_health() -> None:
             result = service.check_all_health()
             results.append(result["status"])
 
@@ -424,14 +433,14 @@ class TestHealthCheckService:
 class TestCreateDefaultHealthService:
     """Test cases for create_default_health_service function."""
 
-    def test_create_default_health_service(self):
+    def test_create_default_health_service(self) -> None:
         """Test creating default health service."""
         service = create_default_health_service()
 
         assert isinstance(service, HealthCheckService)
         assert len(service._checkers) == 2
 
-    def test_default_service_checkers(self):
+    def test_default_service_checkers(self) -> None:
         """Test that default service has expected checkers."""
         service = create_default_health_service()
 
@@ -445,7 +454,7 @@ class TestCreateDefaultHealthService:
         assert "application" in checker_names
         assert "database" in checker_names
 
-    def test_default_service_checker_types(self):
+    def test_default_service_checker_types(self) -> None:
         """Test that default service has correct checker types."""
         service = create_default_health_service()
 
@@ -456,7 +465,7 @@ class TestCreateDefaultHealthService:
         assert len(application_checkers) == 1
         assert len(database_checkers) == 1
 
-    def test_default_service_functionality(self):
+    def test_default_service_functionality(self) -> None:
         """Test that default service functions correctly."""
         service = create_default_health_service()
 
@@ -471,7 +480,7 @@ class TestCreateDefaultHealthService:
 class TestHealthServiceIntegration:
     """Integration tests for health service components."""
 
-    def test_full_health_check_workflow(self):
+    def test_full_health_check_workflow(self) -> None:
         """Test complete health check workflow."""
         service = create_default_health_service()
 
@@ -492,7 +501,7 @@ class TestHealthServiceIntegration:
             assert hasattr(checker_result, "details")
             assert checker_result.status in ["healthy", "degraded", "unhealthy"]
 
-    def test_health_service_with_real_checkers(self):
+    def test_health_service_with_real_checkers(self) -> None:
         """Test health service with real checker implementations."""
         service = HealthCheckService()
 
@@ -507,13 +516,13 @@ class TestHealthServiceIntegration:
         assert "application" in result["checkers"]
         assert "database" in result["checkers"]
 
-    def test_health_service_error_propagation(self):
+    def test_health_service_error_propagation(self) -> None:
         """Test error propagation through health service."""
         service = HealthCheckService()
 
         # Add a failing checker
         class FailingChecker(BaseHealthChecker):
-            def __init__(self):
+            def __init__(self) -> None:
                 super().__init__("failing_checker")
 
             def _do_check_health(self) -> HealthStatusContent:
@@ -534,7 +543,7 @@ class TestHealthServiceIntegration:
         # Application checker should still work
         assert result["checkers"]["application"].status == "healthy"
 
-    def test_health_service_performance(self):
+    def test_health_service_performance(self) -> None:
         """Test health service performance with multiple checkers."""
         import time
 
@@ -564,13 +573,13 @@ class TestHealthServiceIntegration:
 class TestHealthServiceEdgeCases:
     """Test cases for edge cases and boundary conditions."""
 
-    def test_health_service_with_none_checker(self):
+    def test_health_service_with_none_checker(self) -> None:
         """Test health service with None checker (should not happen but test safety)."""
         service = HealthCheckService()
 
         # This should not happen in practice, but test for safety
         try:
-            service.register_checker(None)
+            service.register_checker(None)  # type: ignore[arg-type]
             # If this doesn't raise an exception, the service should handle it gracefully
             result = service.check_all_health()
             # Service should return a status
@@ -579,19 +588,19 @@ class TestHealthServiceEdgeCases:
             # Expected behavior - None is not a valid checker
             pass
 
-    def test_health_checker_with_malformed_response(self):
+    def test_health_checker_with_malformed_response(self) -> None:
         """Test health checker that returns malformed response."""
         service = HealthCheckService()
 
         class MalformedChecker:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.name = "malformed_checker"
 
-            def check_health(self):
+            def check_health(self) -> dict[str, Any]:
                 # Return something that's not HealthStatusContent
                 return {"invalid": "response"}
 
-        service.register_checker(MalformedChecker())
+        service.register_checker(MalformedChecker())  # type: ignore[arg-type]
 
         try:
             result = service.check_all_health()
@@ -601,14 +610,14 @@ class TestHealthServiceEdgeCases:
             # Expected behavior for malformed response
             pass
 
-    def test_health_service_with_very_slow_checker(self):
+    def test_health_service_with_very_slow_checker(self) -> None:
         """Test health service with a very slow checker."""
         import time
 
         service = HealthCheckService()
 
         class SlowChecker(BaseHealthChecker):
-            def __init__(self):
+            def __init__(self) -> None:
                 super().__init__("slow_checker")
 
             def _do_check_health(self) -> HealthStatusContent:
@@ -627,7 +636,7 @@ class TestHealthServiceEdgeCases:
         assert execution_time < 2.0
         assert result["status"] == "healthy"
 
-    def test_health_service_memory_usage(self):
+    def test_health_service_memory_usage(self) -> None:
         """Test health service doesn't leak memory with repeated calls."""
         service = create_default_health_service()
 
