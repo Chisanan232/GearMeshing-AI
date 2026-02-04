@@ -138,12 +138,14 @@ class TestAgentCommands:
 
     def test_agent_delete_with_confirmation(self) -> None:
         """Test agent delete command with confirmation."""
-        with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
-            with patch("typer.confirm", return_value=True):
-                result = runner.invoke(app, ["delete", "test-agent"])
-                assert result.exit_code == 0
-                assert "Deleting agent: test-agent" in result.stdout
-                mock_logger.info.assert_called_with("Deleting agent: test-agent")
+        with (
+            patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger,
+            patch("typer.confirm", return_value=True),
+        ):
+            result = runner.invoke(app, ["delete", "test-agent"])
+            assert result.exit_code == 0
+            assert "Deleting agent: test-agent" in result.stdout
+            mock_logger.info.assert_called_with("Deleting agent: test-agent")
 
     def test_agent_delete_cancelled(self) -> None:
         """Test agent delete command when cancelled."""
