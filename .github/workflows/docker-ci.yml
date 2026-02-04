@@ -34,8 +34,8 @@ on:
       - "uv.lock"
 
 env:
-  TEST_TAG: user/<your_project_name>:test
-  TEST_CONTAINER_NAME: <your_project_name>
+  TEST_TAG: user/gearmeshing-ai-restapi:test
+  TEST_CONTAINER_NAME: gearmeshing-ai-restapi
 
 jobs:
   image-check:
