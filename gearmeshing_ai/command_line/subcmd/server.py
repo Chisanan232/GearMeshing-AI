@@ -18,7 +18,7 @@ app = typer.Typer(
 
 @app.command()  # type: ignore
 def start(
-    host: str = typer.Option("0.0.0.0", "--host", help="Server host"),
+    host: str = typer.Option("127.0.0.1", "--host", help="Server host (use 0.0.0.0 to bind to all interfaces)"),
     port: int = typer.Option(8000, "--port", "-p", help="Server port"),
     workers: int = typer.Option(1, "--workers", "-w", help="Number of worker processes"),
     reload: bool = typer.Option(False, "--reload", help="Enable auto-reload"),
