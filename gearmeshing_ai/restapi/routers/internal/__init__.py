@@ -8,4 +8,4 @@ to create a cohesive I/O package. This package is reserved for
 truly internal utilities that don't directly relate to I/O models.
 """
 
-__all__ = []
+__all__: list[str] = []
