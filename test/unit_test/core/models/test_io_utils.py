@@ -42,7 +42,7 @@ from gearmeshing_ai.core.models.io.utils import (
 class TestCreateGlobalResponse:
     """Test cases for create_global_response function."""
 
-    def test_create_global_response_success(self):
+    def test_create_global_response_success(self) -> None:
         """Test create_global_response for success case."""
         content = {"data": "test"}
         response = create_global_response(success=True, message="Operation successful", content=content)
@@ -53,16 +53,17 @@ class TestCreateGlobalResponse:
         assert response.content == content
         assert isinstance(response.timestamp, datetime)
 
-    def test_create_global_response_error(self):
+    def test_create_global_response_error(self) -> None:
         """Test create_global_response for error case."""
         error_content = ErrorContent(error_code="TEST_ERROR", details={"error": "test error"})
         response = create_global_response(success=False, message="Operation failed", content=error_content)
 
         assert response.success is False
         assert response.message == "Operation failed"
+        assert response.content is not None
         assert response.content.error_code == "TEST_ERROR"
 
-    def test_create_global_response_without_content(self):
+    def test_create_global_response_without_content(self) -> None:
         """Test create_global_response without content."""
         response = create_global_response(success=True, message="No content response")
 
@@ -70,14 +71,14 @@ class TestCreateGlobalResponse:
         assert response.message == "No content response"
         assert response.content is None
 
-    def test_create_global_response_with_custom_timestamp(self):
+    def test_create_global_response_with_custom_timestamp(self) -> None:
         """Test create_global_response with custom timestamp."""
         custom_time = datetime(2023, 1, 1, 12, 0, 0)
         response = create_global_response(success=True, message="Test", content=None, timestamp=custom_time)
 
         assert response.timestamp == custom_time
 
-    def test_create_global_response_different_content_types(self):
+    def test_create_global_response_different_content_types(self) -> None:
         """Test create_global_response with different content types."""
         # String content
         response1 = create_global_response(success=True, message="String content", content="test string")
@@ -95,7 +96,7 @@ class TestCreateGlobalResponse:
 class TestCreateSuccessResponse:
     """Test cases for create_success_response function."""
 
-    def test_create_success_response_basic(self):
+    def test_create_success_response_basic(self) -> None:
         """Test create_success_response basic usage."""
         content = {"result": "success"}
         response = create_success_response(message="Operation completed", content=content)
@@ -104,7 +105,7 @@ class TestCreateSuccessResponse:
         assert response.message == "Operation completed"
         assert response.content == content
 
-    def test_create_success_response_without_content(self):
+    def test_create_success_response_without_content(self) -> None:
         """Test create_success_response without content."""
         response = create_success_response("Simple success")
 
@@ -112,7 +113,7 @@ class TestCreateSuccessResponse:
         assert response.message == "Simple success"
         assert response.content is None
 
-    def test_create_success_response_default_message(self):
+    def test_create_success_response_default_message(self) -> None:
         """Test create_success_response with default message."""
         response = create_success_response()
 
@@ -120,7 +121,7 @@ class TestCreateSuccessResponse:
         assert response.message == "Operation successful"
         assert response.content is None
 
-    def test_create_success_response_with_complex_content(self):
+    def test_create_success_response_with_complex_content(self) -> None:
         """Test create_success_response with complex content."""
         content = {
             "user": {"id": 1, "name": "John"},
@@ -137,7 +138,7 @@ class TestCreateSuccessResponse:
 class TestCreateErrorResponse:
     """Test cases for create_error_response function."""
 
-    def test_create_error_response_basic(self):
+    def test_create_error_response_basic(self) -> None:
         """Test create_error_response basic usage."""
         response = create_error_response(message="Operation failed", status_code=400)
 
@@ -146,41 +147,45 @@ class TestCreateErrorResponse:
         assert isinstance(response.content, ErrorContent)
         assert response.content.error_code == str(400)
 
-    def test_create_error_response_with_details(self):
+    def test_create_error_response_with_details(self) -> None:
         """Test create_error_response with details."""
         details = {"field": "username", "error": "required"}
         response = create_error_response(message="Validation error", status_code=422, details=details)
 
+        assert response.content is not None
         assert response.content.details == details
         assert response.content.error_code == "422"
 
-    def test_create_error_response_with_error_code(self):
+    def test_create_error_response_with_error_code(self) -> None:
         """Test create_error_response with custom error code."""
         response = create_error_response(message="Custom error", status_code=500, error_code="INTERNAL_ERROR")
 
+        assert response.content is not None
         assert response.content.error_code == "INTERNAL_ERROR"
 
-    def test_create_error_response_default_values(self):
+    def test_create_error_response_default_values(self) -> None:
         """Test create_error_response with default values."""
         response = create_error_response()
 
         assert response.success is False
         assert response.message == "An error occurred"
+        assert response.content is not None
         assert response.content.error_code == "500"
         assert response.content.details is None
 
-    def test_create_error_response_with_stack_trace(self):
+    def test_create_error_response_with_stack_trace(self) -> None:
         """Test create_error_response with stack trace."""
         stack_trace = "Traceback (most recent call last):..."
         response = create_error_response(message="Server error", status_code=500, stack_trace=stack_trace)
 
+        assert response.content is not None
         assert response.content.stack_trace == stack_trace
 
 
 class TestCreateWelcomeResponse:
     """Test cases for create_welcome_response function."""
 
-    def test_create_welcome_response_basic(self):
+    def test_create_welcome_response_basic(self) -> None:
         """Test create_welcome_response basic usage."""
         response = create_welcome_response(message="Welcome to API", version="1.0.0", docs="/docs", health="/health")
 
@@ -191,21 +196,23 @@ class TestCreateWelcomeResponse:
         assert response.content.docs == "/docs"
         assert response.content.health == "/health"
 
-    def test_create_welcome_response_default_values(self):
+    def test_create_welcome_response_default_values(self) -> None:
         """Test create_welcome_response with default values."""
         response = create_welcome_response()
 
+        assert response.content is not None
         assert response.content.message == "Welcome to GearMeshing-AI API"
         assert response.content.version == "0.0.0"
         assert response.content.docs == "/docs"
         assert response.content.health == "/health"
 
-    def test_create_welcome_response_custom_values(self):
+    def test_create_welcome_response_custom_values(self) -> None:
         """Test create_welcome_response with custom values."""
         response = create_welcome_response(
             message="Custom welcome", version="2.1.0", docs="/api/docs", health="/api/health"
         )
 
+        assert response.content is not None
         assert response.content.message == "Custom welcome"
         assert response.content.version == "2.1.0"
         assert response.content.docs == "/api/docs"
@@ -215,7 +222,7 @@ class TestCreateWelcomeResponse:
 class TestCreateApiInfoResponse:
     """Test cases for create_api_info_response function."""
 
-    def test_create_api_info_response_basic(self):
+    def test_create_api_info_response_basic(self) -> None:
         """Test create_api_info_response basic usage."""
         response = create_api_info_response(
             name="Test API",
@@ -233,7 +240,7 @@ class TestCreateApiInfoResponse:
         assert response.content.endpoints == ["/health", "/info"]
         assert response.content.documentation == {"swagger": "/docs"}
 
-    def test_create_api_info_response_with_full_documentation(self):
+    def test_create_api_info_response_with_full_documentation(self) -> None:
         """Test create_api_info_response with full documentation."""
         documentation = {"swagger": "/docs", "redoc": "/redoc", "openapi": "/openapi.json"}
         response = create_api_info_response(
@@ -244,15 +251,17 @@ class TestCreateApiInfoResponse:
             documentation=documentation,
         )
 
+        assert response.content is not None
         assert response.content.documentation == documentation
         assert len(response.content.documentation) == 3
 
-    def test_create_api_info_response_empty_endpoints(self):
+    def test_create_api_info_response_empty_endpoints(self) -> None:
         """Test create_api_info_response with empty endpoints."""
         response = create_api_info_response(
             name="Empty API", version="1.0.0", description="API with no endpoints", endpoints=[], documentation={}
         )
 
+        assert response.content is not None
         assert response.content.endpoints == []
         assert response.content.documentation == {}
 
@@ -260,7 +269,7 @@ class TestCreateApiInfoResponse:
 class TestCreateHealthResponse:
     """Test cases for create_health_response function."""
 
-    def test_create_health_response_healthy(self):
+    def test_create_health_response_healthy(self) -> None:
         """Test create_health_response for healthy status."""
         checkers = {"database": "ok", "cache": "ok"}
         details = {"uptime": "24h"}
@@ -268,32 +277,36 @@ class TestCreateHealthResponse:
 
         assert response.success is True
         assert isinstance(response.content, HealthStatusContent)
+        assert response.content is not None
         assert response.content.status == HealthStatus.HEALTHY
         assert response.content.checkers == checkers
         assert response.content.details == details
 
-    def test_create_health_response_degraded(self):
+    def test_create_health_response_degraded(self) -> None:
         """Test create_health_response for degraded status."""
         response = create_health_response(
             status=HealthStatus.DEGRADED, checkers={"database": "slow"}, details={"warning": "high latency"}
         )
 
+        assert response.content is not None
         assert response.content.status == HealthStatus.DEGRADED
         assert response.content.checkers == {"database": "slow"}
 
-    def test_create_health_response_unhealthy(self):
+    def test_create_health_response_unhealthy(self) -> None:
         """Test create_health_response for unhealthy status."""
         response = create_health_response(
             status=HealthStatus.UNHEALTHY, checkers={"database": "failed"}, details={"error": "connection timeout"}
         )
 
+        assert response.content is not None
         assert response.content.status == HealthStatus.UNHEALTHY
         assert response.success is False  # Unhealthy should have success=False
 
-    def test_create_health_response_without_checkers_and_details(self):
+    def test_create_health_response_without_checkers_and_details(self) -> None:
         """Test create_health_response without checkers and details."""
         response = create_health_response(status=HealthStatus.HEALTHY)
 
+        assert response.content is not None
         assert response.content.status == HealthStatus.HEALTHY
         assert response.content.checkers is None
         assert response.content.details is None
@@ -302,75 +315,83 @@ class TestCreateHealthResponse:
 class TestCreateSimpleHealthResponse:
     """Test cases for create_simple_health_response function."""
 
-    def test_create_simple_health_response_ok(self):
+    def test_create_simple_health_response_ok(self) -> None:
         """Test create_simple_health_response for OK status."""
         response = create_simple_health_response(status=SimpleHealthStatus.OK)
 
         assert response.success is True
         assert isinstance(response.content, SimpleHealthContent)
+        assert response.content is not None
         assert response.content.status == SimpleHealthStatus.OK
 
-    def test_create_simple_health_response_error(self):
+    def test_create_simple_health_response_error(self) -> None:
         """Test create_simple_health_response for ERROR status."""
         response = create_simple_health_response(status=SimpleHealthStatus.ERROR)
 
         assert response.success is False
+        assert response.content is not None
         assert response.content.status == SimpleHealthStatus.ERROR
 
-    def test_create_simple_health_response_default(self):
+    def test_create_simple_health_response_default(self) -> None:
         """Test create_simple_health_response with default status."""
         response = create_simple_health_response()
 
+        assert response.content is not None
         assert response.content.status == SimpleHealthStatus.OK
 
 
 class TestCreateReadinessResponse:
     """Test cases for create_readiness_response function."""
 
-    def test_create_readiness_response_ready(self):
+    def test_create_readiness_response_ready(self) -> None:
         """Test create_readiness_response for READY status."""
         response = create_readiness_response(status=ReadinessStatus.READY)
 
         assert response.success is True
         assert isinstance(response.content, ReadinessContent)
+        assert response.content is not None
         assert response.content.status == ReadinessStatus.READY
 
-    def test_create_readiness_response_not_ready(self):
+    def test_create_readiness_response_not_ready(self) -> None:
         """Test create_readiness_response for NOT_READY status."""
         response = create_readiness_response(status=ReadinessStatus.NOT_READY)
 
         assert response.success is False
+        assert response.content is not None
         assert response.content.status == ReadinessStatus.NOT_READY
 
-    def test_create_readiness_response_default(self):
+    def test_create_readiness_response_default(self) -> None:
         """Test create_readiness_response with default status."""
         response = create_readiness_response()
 
+        assert response.content is not None
         assert response.content.status == ReadinessStatus.READY
 
 
 class TestCreateLivenessResponse:
     """Test cases for create_liveness_response function."""
 
-    def test_create_liveness_response_alive(self):
+    def test_create_liveness_response_alive(self) -> None:
         """Test create_liveness_response for ALIVE status."""
         response = create_liveness_response(status=LivenessStatus.ALIVE)
 
         assert response.success is True
         assert isinstance(response.content, LivenessContent)
+        assert response.content is not None
         assert response.content.status == LivenessStatus.ALIVE
 
-    def test_create_liveness_response_default(self):
+    def test_create_liveness_response_default(self) -> None:
         """Test create_liveness_response with default status."""
         response = create_liveness_response()
 
+        assert response.content is not None
         assert response.content.status == LivenessStatus.ALIVE
 
 
 class TestGetClientInfo:
     """Test cases for get_client_info function."""
 
-    def test_get_client_info_basic(self):
+    def test_get_client_info_basic(self) -> None:
         """Test get_client_info with basic request info."""
         # Mock request object
         mock_request = MagicMock()
@@ -387,7 +408,7 @@ class TestGetClientInfo:
         assert client_info.method == "POST"
         assert client_info.url == "http://example.com/api/test"
 
-    def test_get_client_info_missing_headers(self):
+    def test_get_client_info_missing_headers(self) -> None:
         """Test get_client_info with missing headers."""
         mock_request = MagicMock()
         mock_request.client.host = "127.0.0.1"
@@ -402,7 +423,7 @@ class TestGetClientInfo:
         assert client_info.method == "GET"
         assert client_info.url == "http://example.com"
 
-    def test_get_client_info_none_client(self):
+    def test_get_client_info_none_client(self) -> None:
         """Test get_client_info with None client."""
         mock_request = MagicMock()
         mock_request.client = None  # No client info
@@ -417,7 +438,7 @@ class TestGetClientInfo:
         assert client_info.method == "GET"
         assert client_info.url == "http://example.com"
 
-    def test_get_client_info_complex_url(self):
+    def test_get_client_info_complex_url(self) -> None:
         """Test get_client_info with complex URL."""
         mock_request = MagicMock()
         mock_request.client.host = "10.0.0.1"
@@ -436,77 +457,77 @@ class TestGetClientInfo:
 class TestSanitizePath:
     """Test cases for sanitize_path function."""
 
-    def test_sanitize_path_basic(self):
+    def test_sanitize_path_basic(self) -> None:
         """Test sanitize_path with basic path."""
         path = "/api/v1/users/123"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1/users/123"
 
-    def test_sanitize_path_with_trailing_slash(self):
+    def test_sanitize_path_with_trailing_slash(self) -> None:
         """Test sanitize_path with trailing slash."""
         path = "/api/v1/users/"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1/users"
 
-    def test_sanitize_path_with_multiple_slashes(self):
+    def test_sanitize_path_with_multiple_slashes(self) -> None:
         """Test sanitize_path with multiple consecutive slashes."""
         path = "/api//v1///users//123"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1/users/123"
 
-    def test_sanitize_path_empty_path(self):
+    def test_sanitize_path_empty_path(self) -> None:
         """Test sanitize_path with empty path."""
         path = ""
         sanitized = sanitize_path(path)
 
         assert sanitized == "/"
 
-    def test_sanitize_path_root_path(self):
+    def test_sanitize_path_root_path(self) -> None:
         """Test sanitize_path with root path."""
         path = "/"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/"
 
-    def test_sanitize_path_with_query_params(self):
+    def test_sanitize_path_with_query_params(self) -> None:
         """Test sanitize_path with query parameters."""
         path = "/api/v1/users?active=true&page=2"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1/users"
 
-    def test_sanitize_path_with_fragment(self):
+    def test_sanitize_path_with_fragment(self) -> None:
         """Test sanitize_path with URL fragment."""
         path = "/api/v1/users#section1"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1/users"
 
-    def test_sanitize_path_with_query_and_fragment(self):
+    def test_sanitize_path_with_query_and_fragment(self) -> None:
         """Test sanitize_path with both query and fragment."""
         path = "/api/v1/users?active=true#section1"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1/users"
 
-    def test_sanitize_path_with_special_characters(self):
+    def test_sanitize_path_with_special_characters(self) -> None:
         """Test sanitize_path with special characters."""
         path = "/api/v1/users/user-name_123"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1/users/user-name_123"
 
-    def test_sanitize_path_with_encoded_characters(self):
+    def test_sanitize_path_with_encoded_characters(self) -> None:
         """Test sanitize_path with URL encoded characters."""
         path = "/api/v1/users/user%20name"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1/users/user%20name"  # Should preserve encoding
 
-    def test_sanitize_path_very_long_path(self):
+    def test_sanitize_path_very_long_path(self) -> None:
         """Test sanitize_path with very long path."""
         long_segment = "a" * 1000
         path = f"/api/v1/users/{long_segment}"
@@ -514,35 +535,35 @@ class TestSanitizePath:
 
         assert sanitized == path  # Should preserve long paths
 
-    def test_sanitize_path_with_dots(self):
+    def test_sanitize_path_with_dots(self) -> None:
         """Test sanitize_path with path segments containing dots."""
         path = "/api/v1.0/users/123.json"
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1.0/users/123.json"
 
-    def test_sanitize_path_with_leading_trailing_spaces(self):
+    def test_sanitize_path_with_leading_trailing_spaces(self) -> None:
         """Test sanitize_path with leading/trailing whitespace."""
         path = "  /api/v1/users/123  "
         sanitized = sanitize_path(path)
 
         assert sanitized == "/api/v1/users/123"
 
-    def test_sanitize_path_none_input(self):
+    def test_sanitize_path_none_input(self) -> None:
         """Test sanitize_path with None input."""
         with pytest.raises(TypeError):
-            sanitize_path(None)
+            sanitize_path(None)  # type: ignore[arg-type]
 
-    def test_sanitize_path_non_string_input(self):
+    def test_sanitize_path_non_string_input(self) -> None:
         """Test sanitize_path with non-string input."""
         with pytest.raises(TypeError):
-            sanitize_path(123)
+            sanitize_path(123)  # type: ignore[arg-type]
 
 
 class TestUtilityIntegration:
     """Integration tests for utility functions."""
 
-    def test_response_creation_chain(self):
+    def test_response_creation_chain(self) -> None:
         """Test chaining multiple response creation functions."""
         # Create success response
         success = create_success_response(message="Operation completed", content={"result": "success"})
@@ -556,7 +577,7 @@ class TestUtilityIntegration:
         assert success.success is True
         assert error.success is False
 
-    def test_health_response_consistency(self):
+    def test_health_response_consistency(self) -> None:
         """Test consistency across health response functions."""
         # Create all types of health responses
         health = create_health_response(status=HealthStatus.HEALTHY)
@@ -576,7 +597,7 @@ class TestUtilityIntegration:
         assert readiness.success is True
         assert liveness.success is True
 
-    def test_utility_functions_with_real_data(self):
+    def test_utility_functions_with_real_data(self) -> None:
         """Test utility functions with realistic data."""
         # Test welcome response
         welcome = create_welcome_response(
@@ -600,12 +621,15 @@ class TestUtilityIntegration:
         )
 
         # Verify realistic data
+        assert welcome.content is not None
         assert welcome.content.docs.startswith("https://")
         assert welcome.content.health.startswith("https://")
+        assert api_info.content is not None
         assert len(api_info.content.endpoints) == 5
+        assert api_info.content.documentation is not None
         assert len(api_info.content.documentation) == 3
 
-    def test_error_response_with_realistic_error(self):
+    def test_error_response_with_realistic_error(self) -> None:
         """Test error response with realistic error scenario."""
         error_response = create_error_response(
             message="Validation failed",
@@ -616,11 +640,13 @@ class TestUtilityIntegration:
         )
 
         assert error_response.success is False
+        assert error_response.content is not None
         assert error_response.content.error_code == "VALIDATION_ERROR"
+        assert error_response.content.details is not None
         assert "email" in error_response.content.details
         assert error_response.content.stack_trace is not None
 
-    def test_client_info_with_real_request(self):
+    def test_client_info_with_real_request(self) -> None:
         """Test get_client_info with realistic request data."""
         # Simulate a realistic web request
         mock_request = MagicMock()
@@ -640,7 +666,7 @@ class TestUtilityIntegration:
         assert client_info.method == "POST"
         assert "users" in client_info.url
 
-    def test_path_sanitization_real_world_examples(self):
+    def test_path_sanitization_real_world_examples(self) -> None:
         """Test sanitize_path with real-world path examples."""
         test_cases = [
             ("/api/v1/users/", "/api/v1/users"),
