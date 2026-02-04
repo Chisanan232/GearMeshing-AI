@@ -199,7 +199,7 @@ class TestHealthServiceIntegration:
         assert "database" in result["checkers"]
 
         # Verify checker results are valid
-        for checker_name, checker_result in result["checkers"].items():
+        for _checker_name, checker_result in result["checkers"].items():
             assert hasattr(checker_result, "status")
             assert hasattr(checker_result, "details")
             assert checker_result.status in ["healthy", "degraded", "unhealthy"]
@@ -228,7 +228,8 @@ class TestHealthServiceIntegration:
                 self.name = "failing_checker"
 
             def check_health(self) -> None:
-                raise RuntimeError("Simulated failure")
+                error_msg = "Simulated failure"
+                raise RuntimeError(error_msg)
 
         service.register_checker(FailingChecker())  # type: ignore[arg-type]
         service.register_checker(ApplicationHealthChecker())
