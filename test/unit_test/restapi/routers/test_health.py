@@ -17,18 +17,18 @@ from gearmeshing_ai.restapi.service.health import HealthCheckService
 class TestHealthRouterSetup:
     """Test cases for health router setup and configuration."""
 
-    def test_router_creation(self):
+    def test_router_creation(self) -> None:
         """Test that router is created with correct configuration."""
         assert router.prefix == "/health"
         assert router.tags == ["health"]
 
-    def test_get_health_router(self):
+    def test_get_health_router(self) -> None:
         """Test get_health_router function."""
         health_router = get_health_router()
         assert health_router is router
         assert health_router.prefix == "/health"
 
-    def test_router_endpoints(self):
+    def test_router_endpoints(self) -> None:
         """Test that all expected endpoints are registered."""
         app = create_application()
         routes = [route.path for route in app.routes]
@@ -42,13 +42,13 @@ class TestHealthRouterSetup:
 class TestHealthCheckDependency:
     """Test cases for health check dependency injection."""
 
-    def test_get_health_service(self):
+    def test_get_health_service(self) -> None:
         """Test get_health_service dependency function."""
         service = get_health_service()
         assert isinstance(service, HealthCheckService)
 
     @patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service")
-    def test_get_health_service_with_mock(self, mock_create):
+    def test_get_health_service_with_mock(self, mock_create: MagicMock) -> None:
         """Test get_health_service with mocked service creation."""
         mock_service = MagicMock(spec=HealthCheckService)
         mock_create.return_value = mock_service
@@ -61,12 +61,12 @@ class TestHealthCheckDependency:
 class TestHealthCheckEndpoint:
     """Test cases for /health endpoint."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_health_check_healthy(self):
+    def test_health_check_healthy(self) -> None:
         """Test health check when service is healthy."""
         response = self.client.get("/health/")
         # May be healthy or degraded depending on actual services
@@ -74,33 +74,33 @@ class TestHealthCheckEndpoint:
         data = response.json()
         assert "success" in data
 
-    def test_health_check_degraded(self):
+    def test_health_check_degraded(self) -> None:
         """Test health check when service is degraded."""
         response = self.client.get("/health/")
         assert response.status_code in [200, 503]
         data = response.json()
         assert "success" in data
 
-    def test_health_check_unhealthy(self):
+    def test_health_check_unhealthy(self) -> None:
         """Test health check when service is unhealthy."""
         response = self.client.get("/health/")
         assert response.status_code in [200, 503]
         data = response.json()
         assert isinstance(data, dict)
 
-    def test_health_check_service_exception(self):
+    def test_health_check_service_exception(self) -> None:
         """Test health check when service raises exception."""
         response = self.client.get("/health/")
         assert response.status_code in [200, 503]
         data = response.json()
         assert isinstance(data, dict)
 
-    def test_health_check_http_exception_propagation(self):
+    def test_health_check_http_exception_propagation(self) -> None:
         """Test that HTTP exceptions are propagated correctly."""
         response = self.client.get("/health/")
         assert response.status_code in [200, 503, 500]
 
-    def test_health_check_response_structure(self):
+    def test_health_check_response_structure(self) -> None:
         """Test health check response structure validation."""
         response = self.client.get("/health/")
         assert response.status_code in [200, 503]
@@ -115,33 +115,33 @@ class TestHealthCheckEndpoint:
 class TestSimpleHealthCheckEndpoint:
     """Test cases for /health/simple endpoint."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_simple_health_check_ok(self):
+    def test_simple_health_check_ok(self) -> None:
         """Test simple health check when service is healthy."""
         response = self.client.get("/health/simple")
         assert response.status_code in [200, 503]
         data = response.json()
         assert "success" in data
 
-    def test_simple_health_check_not_ok(self):
+    def test_simple_health_check_not_ok(self) -> None:
         """Test simple health check when service is not healthy."""
         response = self.client.get("/health/simple")
         assert response.status_code in [200, 503]
         data = response.json()
         assert isinstance(data, dict)
 
-    def test_simple_health_check_service_exception(self):
+    def test_simple_health_check_service_exception(self) -> None:
         """Test simple health check when service raises exception."""
         response = self.client.get("/health/simple")
         assert response.status_code in [200, 503]
         data = response.json()
         assert isinstance(data, dict)
 
-    def test_simple_health_check_response_structure(self):
+    def test_simple_health_check_response_structure(self) -> None:
         """Test simple health check response structure validation."""
         response = self.client.get("/health/simple")
         assert response.status_code in [200, 503]
@@ -156,40 +156,40 @@ class TestSimpleHealthCheckEndpoint:
 class TestReadinessCheckEndpoint:
     """Test cases for /health/ready endpoint."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_readiness_check_ready(self):
+    def test_readiness_check_ready(self) -> None:
         """Test readiness check when application is ready."""
         response = self.client.get("/health/ready")
         assert response.status_code in [200, 503]
         data = response.json()
         assert "success" in data
 
-    def test_readiness_check_degraded_still_ready(self):
+    def test_readiness_check_degraded_still_ready(self) -> None:
         """Test readiness check when service is degraded but still ready."""
         response = self.client.get("/health/ready")
         assert response.status_code in [200, 503]
         data = response.json()
         assert isinstance(data, dict)
 
-    def test_readiness_check_not_ready(self):
+    def test_readiness_check_not_ready(self) -> None:
         """Test readiness check when application is not ready."""
         response = self.client.get("/health/ready")
         assert response.status_code in [200, 503]
         data = response.json()
         assert isinstance(data, dict)
 
-    def test_readiness_check_service_exception(self):
+    def test_readiness_check_service_exception(self) -> None:
         """Test readiness check when service raises exception."""
         response = self.client.get("/health/ready")
         assert response.status_code in [200, 503]
         data = response.json()
         assert isinstance(data, dict)
 
-    def test_readiness_check_response_structure(self):
+    def test_readiness_check_response_structure(self) -> None:
         """Test readiness check response structure validation."""
         response = self.client.get("/health/ready")
         assert response.status_code in [200, 503]
@@ -204,19 +204,19 @@ class TestReadinessCheckEndpoint:
 class TestLivenessCheckEndpoint:
     """Test cases for /health/live endpoint."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_liveness_check_alive(self):
+    def test_liveness_check_alive(self) -> None:
         """Test liveness check returns alive status."""
         response = self.client.get("/health/live")
         assert response.status_code == 200
         data = response.json()
         assert "success" in data
 
-    def test_liveness_check_response_structure(self):
+    def test_liveness_check_response_structure(self) -> None:
         """Test liveness check response structure validation."""
         response = self.client.get("/health/live")
         assert response.status_code == 200
@@ -227,7 +227,7 @@ class TestLivenessCheckEndpoint:
         assert "message" in data
         assert "timestamp" in data
 
-    def test_liveness_check_no_dependencies(self):
+    def test_liveness_check_no_dependencies(self) -> None:
         """Test that liveness check doesn't depend on external services."""
         response = self.client.get("/health/live")
         assert response.status_code == 200
@@ -238,12 +238,12 @@ class TestLivenessCheckEndpoint:
 class TestHealthRouterIntegration:
     """Integration tests for health router."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_all_health_endpoints_consistency(self):
+    def test_all_health_endpoints_consistency(self) -> None:
         """Test that all health endpoints are consistent."""
         # Test all endpoints
         health_response = self.client.get("/health/")
@@ -264,7 +264,7 @@ class TestHealthRouterIntegration:
             assert "message" in data
             assert "timestamp" in data
 
-    def test_health_endpoints_with_different_statuses(self):
+    def test_health_endpoints_with_different_statuses(self) -> None:
         """Test health endpoints with different service statuses."""
         # Test comprehensive health check
         health_response = self.client.get("/health/")
@@ -272,13 +272,13 @@ class TestHealthRouterIntegration:
         data = health_response.json()
         assert "success" in data
 
-    def test_concurrent_health_checks(self):
+    def test_concurrent_health_checks(self) -> None:
         """Test concurrent health check requests."""
         import threading
 
         results = []
 
-        def make_request():
+        def make_request() -> None:
             response = self.client.get("/health/")
             results.append(response.status_code in [200, 503])
 
@@ -304,12 +304,12 @@ class TestHealthRouterIntegration:
 class TestHealthRouterErrorHandling:
     """Test cases for error handling in health router."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test client for each test."""
         self.app = create_application()
         self.client = TestClient(self.app)
 
-    def test_invalid_http_method(self):
+    def test_invalid_http_method(self) -> None:
         """Test invalid HTTP method on health endpoints."""
         # Test POST on GET endpoints
         response = self.client.post("/health/")
@@ -318,12 +318,12 @@ class TestHealthRouterErrorHandling:
         response = self.client.post("/health/simple")
         assert response.status_code in [405, 422]
 
-    def test_health_check_with_malformed_service_response(self):
+    def test_health_check_with_malformed_service_response(self) -> None:
         """Test health check with malformed service response."""
         response = self.client.get("/health/")
         assert response.status_code in [200, 503]
 
-    def test_dependency_injection_failure(self):
+    def test_dependency_injection_failure(self) -> None:
         """Test behavior when dependency injection fails."""
         response = self.client.get("/health/")
         assert response.status_code in [200, 503, 500]
@@ -332,7 +332,7 @@ class TestHealthRouterErrorHandling:
 class TestHealthRouterDocumentation:
     """Test cases for health router documentation and metadata."""
 
-    def test_endpoint_documentation(self):
+    def test_endpoint_documentation(self) -> None:
         """Test that endpoints have proper documentation."""
         routes = router.routes
 
@@ -346,11 +346,11 @@ class TestHealthRouterDocumentation:
             # Check that routes have response model
             assert route.response_model is not None
 
-    def test_router_tags(self):
+    def test_router_tags(self) -> None:
         """Test that router has proper tags for documentation."""
         assert "health" in router.tags
 
-    def test_endpoint_paths(self):
+    def test_endpoint_paths(self) -> None:
         """Test that endpoint paths follow REST conventions."""
         app = create_application()
         routes = [route.path for route in app.routes]
