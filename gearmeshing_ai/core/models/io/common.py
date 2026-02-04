@@ -7,11 +7,9 @@ serialization, and clear documentation.
 
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
-
-T = TypeVar("T")
 
 
 # Status enums for type safety and maintainability
@@ -73,7 +71,7 @@ class BaseResponseModel(BaseModel):
         return value.isoformat()
 
 
-class GlobalResponse(BaseResponseModel, Generic[T]):
+class GlobalResponse[T](BaseResponseModel):
     """Global unified response model for all API endpoints.
 
     This model provides a consistent response structure across all scenarios
@@ -182,7 +180,8 @@ class ErrorContent(BaseModel):
 
 
 # Type aliases for common response types
-GlobalResponseType = GlobalResponse[T]
+type generic_response = GlobalResponse[Any]
+GlobalResponseType = generic_response
 HealthResponseType = GlobalResponse[HealthStatusContent]
 SimpleHealthResponseType = GlobalResponse[SimpleHealthContent]
 ReadinessResponseType = GlobalResponse[ReadinessContent]
