@@ -248,10 +248,12 @@ def sanitize_path(path: str) -> str:
 
     """
     if not isinstance(path, str):
-        raise TypeError(f"Path must be a string, got {type(path).__name__}")
+        error_msg = f"Path must be a string, got {type(path).__name__}"
+        raise TypeError(error_msg)
 
     if path is None:
-        raise TypeError("Path cannot be None")
+        error_msg = "Path cannot be None"
+        raise TypeError(error_msg)
 
     # Strip leading/trailing whitespace
     path = path.strip()
