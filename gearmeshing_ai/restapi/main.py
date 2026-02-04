@@ -6,6 +6,7 @@ duck typing principles for clean, maintainable, and extensible code.
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,7 +33,7 @@ class ApplicationFactory:
         """Initialize the application factory."""
         self._app: FastAPI | None = None
 
-    def create_app(self, title: str = "GearMeshing-AI API", **kwargs) -> FastAPI:
+    def create_app(self, title: str = "GearMeshing-AI API", **kwargs: Any) -> FastAPI:
         """Create and configure FastAPI application.
 
         This method creates a FastAPI application with standard
@@ -112,7 +113,7 @@ class ApplicationFactory:
 
         """
 
-        @app.get("/", response_model=WelcomeResponseType)
+        @app.get("/", response_model=WelcomeResponseType)  # type: ignore
         async def root() -> WelcomeResponseType:
             """Root endpoint for the API.
 
@@ -127,7 +128,7 @@ class ApplicationFactory:
                 message="Welcome to GearMeshing-AI API", version="0.0.0", docs="/docs", health="/health"
             )
 
-        @app.get("/info", response_model=ApiInfoResponseType)
+        @app.get("/info", response_model=ApiInfoResponseType)  # type: ignore
         async def info() -> ApiInfoResponseType:
             """Information endpoint for the API.
 
@@ -146,7 +147,7 @@ class ApplicationFactory:
                 documentation={"swagger": "/docs", "redoc": "/redoc"},
             )
 
-    def _create_lifespan(self) -> callable:
+    def _create_lifespan(self) -> Any:
         """Create application lifespan context manager.
 
         This method creates a lifespan context manager that handles
@@ -207,7 +208,7 @@ class ApplicationFactory:
 _app_factory = ApplicationFactory()
 
 
-def create_application(**kwargs) -> FastAPI:
+def create_application(**kwargs: Any) -> FastAPI:
     """Create and return a FastAPI application.
 
     This factory function provides a simple interface for creating
