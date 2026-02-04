@@ -73,7 +73,8 @@ class BaseHealthChecker:
             Exception: If health check fails
 
         """
-        raise NotImplementedError(f"{self.__class__.__name__} must implement _do_check_health")
+        error_msg = f"{self.__class__.__name__} must implement _do_check_health"
+        raise NotImplementedError(error_msg)
 
 
 class DatabaseHealthChecker(BaseHealthChecker):
