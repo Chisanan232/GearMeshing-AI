@@ -7,11 +7,22 @@ complete CLI workflows and real-world usage scenarios.
 import pytest
 import subprocess
 import sys
+import re
 from pathlib import Path
 from typer.testing import CliRunner
 from unittest.mock import patch, MagicMock
 
 from gearmeshing_ai.command_line.app import app, main_entry
+
+
+def strip_ansi_codes(text: str) -> str:
+    """Strip ANSI escape codes from text.
+    
+    This is necessary for CI environments where terminal detection
+    causes Typer/Click to include color codes in help output.
+    """
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)
 
 
 class TestCLIBasicWorkflows:
@@ -26,26 +37,29 @@ class TestCLIBasicWorkflows:
         # 1. User discovers the main CLI help
         result = self.runner.invoke(app, ["--help"])
         assert result.exit_code == 0
-        assert "GearMeshing-AI Command Line Interface" in result.stdout
-        assert "agent" in result.stdout
-        assert "server" in result.stdout
-        assert "system" in result.stdout
+        clean_stdout = strip_ansi_codes(result.stdout)
+        assert "GearMeshing-AI Command Line Interface" in clean_stdout
+        assert "agent" in clean_stdout
+        assert "server" in clean_stdout
+        assert "system" in clean_stdout
 
         # 2. User discovers agent subcommand help
         result = self.runner.invoke(app, ["agent", "--help"])
         assert result.exit_code == 0
-        assert "list" in result.stdout
-        assert "create" in result.stdout
-        assert "run" in result.stdout
-        assert "stop" in result.stdout
-        assert "status" in result.stdout
-        assert "delete" in result.stdout
+        clean_stdout = strip_ansi_codes(result.stdout)
+        assert "list" in clean_stdout
+        assert "create" in clean_stdout
+        assert "run" in clean_stdout
+        assert "stop" in clean_stdout
+        assert "status" in clean_stdout
+        assert "delete" in clean_stdout
 
         # 3. User discovers specific command help
         result = self.runner.invoke(app, ["agent", "list", "--help"])
         assert result.exit_code == 0
-        assert "--status" in result.stdout
-        assert "--limit" in result.stdout
+        clean_stdout = strip_ansi_codes(result.stdout)
+        assert "--status" in clean_stdout
+        assert "--limit" in clean_stdout
 
     def test_cli_agent_workflow(self) -> None:
         """Test complete agent management workflow."""
@@ -168,12 +182,13 @@ class TestCLIServerWorkflows:
         """Test server subcommand help discovery."""
         result = self.runner.invoke(app, ["server", "--help"])
         assert result.exit_code == 0
-        assert "start" in result.stdout
-        assert "stop" in result.stdout
-        assert "status" in result.stdout
-        assert "restart" in result.stdout
-        assert "logs" in result.stdout
-        assert "health" in result.stdout
+        clean_stdout = strip_ansi_codes(result.stdout)
+        assert "start" in clean_stdout
+        assert "stop" in clean_stdout
+        assert "status" in clean_stdout
+        assert "restart" in clean_stdout
+        assert "logs" in clean_stdout
+        assert "health" in clean_stdout
 
     def test_cli_server_startup_workflow(self) -> None:
         """Test server startup workflow with various configurations."""
@@ -268,13 +283,14 @@ class TestCLISystemWorkflows:
         """Test system subcommand help discovery."""
         result = self.runner.invoke(app, ["system", "--help"])
         assert result.exit_code == 0
-        assert "info" in result.stdout
-        assert "check" in result.stdout
-        assert "config" in result.stdout
-        assert "logs" in result.stdout
-        assert "cleanup" in result.stdout
-        assert "monitor" in result.stdout
-        assert "version" in result.stdout
+        clean_stdout = strip_ansi_codes(result.stdout)
+        assert "info" in clean_stdout
+        assert "check" in clean_stdout
+        assert "config" in clean_stdout
+        assert "logs" in clean_stdout
+        assert "cleanup" in clean_stdout
+        assert "monitor" in clean_stdout
+        assert "version" in clean_stdout
 
     def test_cli_system_info_workflow(self) -> None:
         """Test system information workflow."""
