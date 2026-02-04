@@ -1,8 +1,8 @@
 """Unit tests for agent commands."""
 
-import pytest
-from typer.testing import CliRunner
 from unittest.mock import patch
+
+from typer.testing import CliRunner
 
 from gearmeshing_ai.command_line.subcmd.agent import app
 
@@ -44,12 +44,19 @@ class TestAgentCommands:
     def test_agent_create_full(self) -> None:
         """Test agent create command with all parameters."""
         with patch("gearmeshing_ai.command_line.subcmd.agent.logger") as mock_logger:
-            result = runner.invoke(app, [
-                "create", "test-agent",
-                "--model", "gpt-3.5-turbo",
-                "--description", "Test agent for unit testing",
-                "--config", "/path/to/config.yaml"
-            ])
+            result = runner.invoke(
+                app,
+                [
+                    "create",
+                    "test-agent",
+                    "--model",
+                    "gpt-3.5-turbo",
+                    "--description",
+                    "Test agent for unit testing",
+                    "--config",
+                    "/path/to/config.yaml",
+                ],
+            )
             assert result.exit_code == 0
             assert "Creating agent: test-agent" in result.stdout
             assert "Model: gpt-3.5-turbo" in result.stdout

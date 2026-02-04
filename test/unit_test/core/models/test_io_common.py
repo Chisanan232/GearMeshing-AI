@@ -4,42 +4,39 @@ This module contains comprehensive tests for Pydantic models,
 enums, and type aliases used across the project.
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, timezone
-from typing import Any, Dict, List
 from pydantic import ValidationError
 
 from gearmeshing_ai.core.models.io.common import (
-    # Enums
-    HealthStatus,
-    SimpleHealthStatus,
-    ReadinessStatus,
-    LivenessStatus,
-    
+    ApiInfoContent,
+    ApiInfoResponseType,
     # Base models
     BaseResponseModel,
-    GlobalResponse,
-    
-    # Content models
-    HealthStatusContent,
-    SimpleHealthContent,
-    ReadinessContent,
-    LivenessContent,
-    WelcomeContent,
-    ApiInfoContent,
     ClientInfoContent,
+    ClientInfoResponseType,
     ErrorContent,
-    
+    ErrorResponseType,
+    GlobalResponse,
     # Type aliases
     GlobalResponseType,
     HealthResponseType,
-    SimpleHealthResponseType,
-    ReadinessResponseType,
+    # Enums
+    HealthStatus,
+    # Content models
+    HealthStatusContent,
+    LivenessContent,
     LivenessResponseType,
+    LivenessStatus,
+    ReadinessContent,
+    ReadinessResponseType,
+    ReadinessStatus,
+    SimpleHealthContent,
+    SimpleHealthResponseType,
+    SimpleHealthStatus,
+    WelcomeContent,
     WelcomeResponseType,
-    ApiInfoResponseType,
-    ClientInfoResponseType,
-    ErrorResponseType,
 )
 
 
@@ -51,7 +48,7 @@ class TestStatusEnums:
         assert HealthStatus.HEALTHY == "healthy"
         assert HealthStatus.UNHEALTHY == "unhealthy"
         assert HealthStatus.DEGRADED == "degraded"
-        
+
         # Test all values are strings
         for status in HealthStatus:
             assert isinstance(status.value, str)
@@ -60,7 +57,7 @@ class TestStatusEnums:
         """Test HealthStatus enum iteration."""
         statuses = list(HealthStatus)
         expected = [HealthStatus.HEALTHY, HealthStatus.UNHEALTHY, HealthStatus.DEGRADED]
-        
+
         assert len(statuses) == 3
         for expected_status in expected:
             assert expected_status in statuses
@@ -69,7 +66,7 @@ class TestStatusEnums:
         """Test SimpleHealthStatus enum values."""
         assert SimpleHealthStatus.OK == "ok"
         assert SimpleHealthStatus.ERROR == "error"
-        
+
         # Test all values are strings
         for status in SimpleHealthStatus:
             assert isinstance(status.value, str)
@@ -78,7 +75,7 @@ class TestStatusEnums:
         """Test ReadinessStatus enum values."""
         assert ReadinessStatus.READY == "ready"
         assert ReadinessStatus.NOT_READY == "not_ready"
-        
+
         # Test all values are strings
         for status in ReadinessStatus:
             assert isinstance(status.value, str)
@@ -86,7 +83,7 @@ class TestStatusEnums:
     def test_liveness_status_enum_values(self):
         """Test LivenessStatus enum values."""
         assert LivenessStatus.ALIVE == "alive"
-        
+
         # Test all values are strings
         for status in LivenessStatus:
             assert isinstance(status.value, str)
@@ -107,11 +104,8 @@ class TestStatusEnums:
 
     def test_enum_hashability(self):
         """Test that enums are hashable (can be used as dict keys)."""
-        status_dict = {
-            HealthStatus.HEALTHY: "All good",
-            HealthStatus.UNHEALTHY: "Something wrong"
-        }
-        
+        status_dict = {HealthStatus.HEALTHY: "All good", HealthStatus.UNHEALTHY: "Something wrong"}
+
         assert status_dict[HealthStatus.HEALTHY] == "All good"
         assert status_dict[HealthStatus.UNHEALTHY] == "Something wrong"
 
@@ -122,26 +116,27 @@ class TestBaseResponseModel:
     def test_base_response_model_timestamp_generation(self):
         """Test that timestamp is automatically generated."""
         model = BaseResponseModel()
-        
+
         assert isinstance(model.timestamp, datetime)
-        assert model.timestamp <= datetime.now(timezone.utc)
+        assert model.timestamp <= datetime.now(UTC)
 
     def test_base_response_model_custom_timestamp(self):
         """Test BaseResponseModel with custom timestamp."""
         custom_time = datetime(2023, 1, 1, 12, 0, 0)
         model = BaseResponseModel(timestamp=custom_time)
-        
+
         assert model.timestamp == custom_time
 
     def test_base_response_model_json_serialization(self):
         """Test BaseResponseModel JSON serialization."""
         model = BaseResponseModel()
-        
+
         json_data = model.model_dump_json()
         assert "timestamp" in json_data
-        
+
         # Should be valid JSON
         import json
+
         parsed = json.loads(json_data)
         assert "timestamp" in parsed
 
@@ -149,7 +144,7 @@ class TestBaseResponseModel:
         """Test datetime encoding in JSON."""
         custom_time = datetime(2023, 1, 1, 12, 0, 0)
         model = BaseResponseModel(timestamp=custom_time)
-        
+
         json_data = model.model_dump()
         assert "timestamp" in json_data
         # Timestamp should be encoded as ISO string
@@ -159,11 +154,11 @@ class TestBaseResponseModel:
         """Test BaseResponseModel configuration."""
         # Test that model has correct configuration
         model = BaseResponseModel()
-        
+
         # Test populate_by_name
-        model_with_alias = BaseResponseModel(**{"timestamp": datetime.now(timezone.utc)})
+        model_with_alias = BaseResponseModel(**{"timestamp": datetime.now(UTC)})
         assert model_with_alias.timestamp is not None
-        
+
         # Test str_strip_whitespace (if applicable)
         # This would be tested with string fields in subclasses
 
@@ -173,12 +168,8 @@ class TestGlobalResponse:
 
     def test_global_response_basic_creation(self):
         """Test basic GlobalResponse creation."""
-        response = GlobalResponse(
-            success=True,
-            message="Test successful",
-            content={"data": "test"}
-        )
-        
+        response = GlobalResponse(success=True, message="Test successful", content={"data": "test"})
+
         assert response.success is True
         assert response.message == "Test successful"
         assert response.content == {"data": "test"}
@@ -186,11 +177,8 @@ class TestGlobalResponse:
 
     def test_global_response_with_none_content(self):
         """Test GlobalResponse with None content."""
-        response = GlobalResponse(
-            success=False,
-            message="Test failed"
-        )
-        
+        response = GlobalResponse(success=False, message="Test failed")
+
         assert response.success is False
         assert response.message == "Test failed"
         assert response.content is None
@@ -198,27 +186,15 @@ class TestGlobalResponse:
     def test_global_response_with_different_content_types(self):
         """Test GlobalResponse with different content types."""
         # String content
-        response1 = GlobalResponse(
-            success=True,
-            message="String content",
-            content="test string"
-        )
+        response1 = GlobalResponse(success=True, message="String content", content="test string")
         assert response1.content == "test string"
-        
+
         # Dict content
-        response2 = GlobalResponse(
-            success=True,
-            message="Dict content",
-            content={"key": "value"}
-        )
+        response2 = GlobalResponse(success=True, message="Dict content", content={"key": "value"})
         assert response2.content == {"key": "value"}
-        
+
         # List content
-        response3 = GlobalResponse(
-            success=True,
-            message="List content",
-            content=[1, 2, 3]
-        )
+        response3 = GlobalResponse(success=True, message="List content", content=[1, 2, 3])
         assert response3.content == [1, 2, 3]
 
     def test_global_response_validation(self):
@@ -227,43 +203,37 @@ class TestGlobalResponse:
         with pytest.raises(ValidationError):
             GlobalResponse(
                 success="not_boolean",  # Should be boolean
-                message="Test"
+                message="Test",
             )
-        
+
         # Test with invalid message type
         with pytest.raises(ValidationError):
             GlobalResponse(
                 success=True,
-                message=123  # Should be string
+                message=123,  # Should be string
             )
 
     def test_global_response_generic_type(self):
         """Test GlobalResponse generic type behavior."""
         # Test with specific type
-        dict_response: GlobalResponseType[Dict[str, str]] = GlobalResponse(
-            success=True,
-            message="Dict response",
-            content={"key": "value"}
+        dict_response: GlobalResponseType[dict[str, str]] = GlobalResponse(
+            success=True, message="Dict response", content={"key": "value"}
         )
-        
+
         assert isinstance(dict_response.content, dict)
         assert dict_response.content["key"] == "value"
 
     def test_global_response_serialization(self):
         """Test GlobalResponse serialization."""
-        response = GlobalResponse(
-            success=True,
-            message="Test response",
-            content={"data": "test"}
-        )
-        
+        response = GlobalResponse(success=True, message="Test response", content={"data": "test"})
+
         # Test dict serialization
         data = response.model_dump()
         assert data["success"] is True
         assert data["message"] == "Test response"
         assert data["content"] == {"data": "test"}
         assert "timestamp" in data
-        
+
         # Test JSON serialization
         json_data = response.model_dump_json()
         assert "success" in json_data
@@ -277,11 +247,9 @@ class TestContentModels:
     def test_health_status_content_creation(self):
         """Test HealthStatusContent creation."""
         content = HealthStatusContent(
-            status=HealthStatus.HEALTHY,
-            checkers={"database": "ok"},
-            details={"version": "1.0.0"}
+            status=HealthStatus.HEALTHY, checkers={"database": "ok"}, details={"version": "1.0.0"}
         )
-        
+
         assert content.status == HealthStatus.HEALTHY
         assert content.checkers == {"database": "ok"}
         assert content.details == {"version": "1.0.0"}
@@ -289,7 +257,7 @@ class TestContentModels:
     def test_health_status_content_defaults(self):
         """Test HealthStatusContent with default values."""
         content = HealthStatusContent(status=HealthStatus.HEALTHY)
-        
+
         assert content.status == HealthStatus.HEALTHY
         assert content.checkers is None
         assert content.details is None
@@ -299,7 +267,7 @@ class TestContentModels:
         # Test with invalid status
         with pytest.raises(ValidationError):
             HealthStatusContent(status="invalid_status")
-        
+
         # Test with valid status as string
         content = HealthStatusContent(status="healthy")
         assert content.status == HealthStatus.HEALTHY
@@ -307,30 +275,25 @@ class TestContentModels:
     def test_simple_health_content_creation(self):
         """Test SimpleHealthContent creation."""
         content = SimpleHealthContent(status=SimpleHealthStatus.OK)
-        
+
         assert content.status == SimpleHealthStatus.OK
 
     def test_readiness_content_creation(self):
         """Test ReadinessContent creation."""
         content = ReadinessContent(status=ReadinessStatus.READY)
-        
+
         assert content.status == ReadinessStatus.READY
 
     def test_liveness_content_creation(self):
         """Test LivenessContent creation."""
         content = LivenessContent(status=LivenessStatus.ALIVE)
-        
+
         assert content.status == LivenessStatus.ALIVE
 
     def test_welcome_content_creation(self):
         """Test WelcomeContent creation."""
-        content = WelcomeContent(
-            message="Welcome to API",
-            version="1.0.0",
-            docs="/docs",
-            health="/health"
-        )
-        
+        content = WelcomeContent(message="Welcome to API", version="1.0.0", docs="/docs", health="/health")
+
         assert content.message == "Welcome to API"
         assert content.version == "1.0.0"
         assert content.docs == "/docs"
@@ -349,9 +312,9 @@ class TestContentModels:
             version="1.0.0",
             description="Test API description",
             endpoints=["/health", "/info"],
-            documentation={"swagger": "/docs", "redoc": "/redoc"}
+            documentation={"swagger": "/docs", "redoc": "/redoc"},
         )
-        
+
         assert content.name == "Test API"
         assert content.version == "1.0.0"
         assert content.description == "Test API description"
@@ -367,18 +330,15 @@ class TestContentModels:
                 version="1.0.0",
                 description="Test",
                 endpoints="not_a_list",  # Should be list
-                documentation={}
+                documentation={},
             )
 
     def test_client_info_content_creation(self):
         """Test ClientInfoContent creation."""
         content = ClientInfoContent(
-            client_ip="192.168.1.1",
-            user_agent="Mozilla/5.0...",
-            method="GET",
-            url="http://example.com/test"
+            client_ip="192.168.1.1", user_agent="Mozilla/5.0...", method="GET", url="http://example.com/test"
         )
-        
+
         assert content.client_ip == "192.168.1.1"
         assert content.user_agent == "Mozilla/5.0..."
         assert content.method == "GET"
@@ -386,12 +346,8 @@ class TestContentModels:
 
     def test_error_content_creation(self):
         """Test ErrorContent creation."""
-        content = ErrorContent(
-            error_code="VALIDATION_ERROR",
-            details={"field": "invalid"},
-            stack_trace="Traceback..."
-        )
-        
+        content = ErrorContent(error_code="VALIDATION_ERROR", details={"field": "invalid"}, stack_trace="Traceback...")
+
         assert content.error_code == "VALIDATION_ERROR"
         assert content.details == {"field": "invalid"}
         assert content.stack_trace == "Traceback..."
@@ -399,7 +355,7 @@ class TestContentModels:
     def test_error_content_defaults(self):
         """Test ErrorContent with default values."""
         content = ErrorContent()
-        
+
         assert content.error_code is None
         assert content.details is None
         assert content.stack_trace is None
@@ -413,12 +369,9 @@ class TestTypeAliases:
         response: HealthResponseType = GlobalResponse(
             success=True,
             message="Health check",
-            content=HealthStatusContent(
-                status=HealthStatus.HEALTHY,
-                details={"test": "ok"}
-            )
+            content=HealthStatusContent(status=HealthStatus.HEALTHY, details={"test": "ok"}),
         )
-        
+
         assert response.success is True
         assert isinstance(response.content, HealthStatusContent)
         assert response.content.status == HealthStatus.HEALTHY
@@ -426,33 +379,27 @@ class TestTypeAliases:
     def test_simple_health_response_type(self):
         """Test SimpleHealthResponseType type alias."""
         response: SimpleHealthResponseType = GlobalResponse(
-            success=True,
-            message="Simple health",
-            content=SimpleHealthContent(status=SimpleHealthStatus.OK)
+            success=True, message="Simple health", content=SimpleHealthContent(status=SimpleHealthStatus.OK)
         )
-        
+
         assert isinstance(response.content, SimpleHealthContent)
         assert response.content.status == SimpleHealthStatus.OK
 
     def test_readiness_response_type(self):
         """Test ReadinessResponseType type alias."""
         response: ReadinessResponseType = GlobalResponse(
-            success=True,
-            message="Readiness check",
-            content=ReadinessContent(status=ReadinessStatus.READY)
+            success=True, message="Readiness check", content=ReadinessContent(status=ReadinessStatus.READY)
         )
-        
+
         assert isinstance(response.content, ReadinessContent)
         assert response.content.status == ReadinessStatus.READY
 
     def test_liveness_response_type(self):
         """Test LivenessResponseType type alias."""
         response: LivenessResponseType = GlobalResponse(
-            success=True,
-            message="Liveness check",
-            content=LivenessContent(status=LivenessStatus.ALIVE)
+            success=True, message="Liveness check", content=LivenessContent(status=LivenessStatus.ALIVE)
         )
-        
+
         assert isinstance(response.content, LivenessContent)
         assert response.content.status == LivenessStatus.ALIVE
 
@@ -461,14 +408,9 @@ class TestTypeAliases:
         response: WelcomeResponseType = GlobalResponse(
             success=True,
             message="Welcome",
-            content=WelcomeContent(
-                message="Welcome to API",
-                version="1.0.0",
-                docs="/docs",
-                health="/health"
-            )
+            content=WelcomeContent(message="Welcome to API", version="1.0.0", docs="/docs", health="/health"),
         )
-        
+
         assert isinstance(response.content, WelcomeContent)
         assert response.content.message == "Welcome to API"
 
@@ -482,10 +424,10 @@ class TestTypeAliases:
                 version="1.0.0",
                 description="Test API",
                 endpoints=["/health"],
-                documentation={"swagger": "/docs"}
-            )
+                documentation={"swagger": "/docs"},
+            ),
         )
-        
+
         assert isinstance(response.content, ApiInfoContent)
         assert response.content.name == "Test API"
 
@@ -495,13 +437,10 @@ class TestTypeAliases:
             success=True,
             message="Client info",
             content=ClientInfoContent(
-                client_ip="127.0.0.1",
-                user_agent="Test Agent",
-                method="POST",
-                url="http://test.com"
-            )
+                client_ip="127.0.0.1", user_agent="Test Agent", method="POST", url="http://test.com"
+            ),
         )
-        
+
         assert isinstance(response.content, ClientInfoContent)
         assert response.content.client_ip == "127.0.0.1"
 
@@ -510,12 +449,9 @@ class TestTypeAliases:
         response: ErrorResponseType = GlobalResponse(
             success=False,
             message="Error occurred",
-            content=ErrorContent(
-                error_code="TEST_ERROR",
-                details={"error": "test error"}
-            )
+            content=ErrorContent(error_code="TEST_ERROR", details={"error": "test error"}),
         )
-        
+
         assert isinstance(response.content, ErrorContent)
         assert response.content.error_code == "TEST_ERROR"
 
@@ -533,23 +469,20 @@ class TestModelInheritance:
             WelcomeContent,
             ApiInfoContent,
             ClientInfoContent,
-            ErrorContent
+            ErrorContent,
         ]
-        
+
         for model_class in content_models:
             # Check that it's a Pydantic BaseModel
-            assert hasattr(model_class, 'model_validate')
-            assert hasattr(model_class, 'model_dump')
+            assert hasattr(model_class, "model_validate")
+            assert hasattr(model_class, "model_dump")
 
     def test_global_response_inherits_from_base_response_model(self):
         """Test GlobalResponse inheritance."""
-        response = GlobalResponse(
-            success=True,
-            message="Test"
-        )
-        
+        response = GlobalResponse(success=True, message="Test")
+
         # Should have timestamp from BaseResponseModel
-        assert hasattr(response, 'timestamp')
+        assert hasattr(response, "timestamp")
         assert isinstance(response.timestamp, datetime)
 
     def test_model_schema_generation(self):
@@ -564,14 +497,10 @@ class TestModelInheritance:
 
     def test_model_copy(self):
         """Test model copying functionality."""
-        original = GlobalResponse(
-            success=True,
-            message="Test",
-            content={"data": "test"}
-        )
-        
+        original = GlobalResponse(success=True, message="Test", content={"data": "test"})
+
         copied = original.model_copy()
-        
+
         assert copied.success == original.success
         assert copied.message == original.message
         assert copied.content == original.content
@@ -579,21 +508,11 @@ class TestModelInheritance:
 
     def test_model_equality(self):
         """Test model equality comparison."""
-        timestamp = datetime.now(timezone.utc)
-        response1 = GlobalResponse(
-            success=True,
-            message="Test",
-            content={"data": "test"},
-            timestamp=timestamp
-        )
-        
-        response2 = GlobalResponse(
-            success=True,
-            message="Test",
-            content={"data": "test"},
-            timestamp=timestamp
-        )
-        
+        timestamp = datetime.now(UTC)
+        response1 = GlobalResponse(success=True, message="Test", content={"data": "test"}, timestamp=timestamp)
+
+        response2 = GlobalResponse(success=True, message="Test", content={"data": "test"}, timestamp=timestamp)
+
         # Models with same data should be equal
         assert response1.model_dump() == response2.model_dump()
 
@@ -603,22 +522,15 @@ class TestModelValidationEdgeCases:
 
     def test_global_response_with_empty_content(self):
         """Test GlobalResponse with empty content."""
-        response = GlobalResponse(
-            success=True,
-            message="Test",
-            content={}
-        )
-        
+        response = GlobalResponse(success=True, message="Test", content={})
+
         assert response.content == {}
 
     def test_content_models_with_extra_fields(self):
         """Test content models with extra fields (should be rejected)."""
         # Test with extra fields (should fail validation)
         with pytest.raises(ValidationError):
-            HealthStatusContent(
-                status=HealthStatus.HEALTHY,
-                extra_field="not_allowed"
-            )
+            HealthStatusContent(status=HealthStatus.HEALTHY, extra_field="not_allowed")
 
     def test_enum_validation_with_invalid_values(self):
         """Test enum validation with invalid string values."""
@@ -641,19 +553,15 @@ class TestModelValidationEdgeCases:
                 message="Test",
                 content=HealthStatusContent(
                     status="invalid_status"  # Should be valid enum
-                )
+                ),
             )
 
     def test_large_data_handling(self):
         """Test handling of large data in content."""
         large_dict = {f"key_{i}": f"value_{i}" for i in range(1000)}
-        
-        response = GlobalResponse(
-            success=True,
-            message="Large data test",
-            content=large_dict
-        )
-        
+
+        response = GlobalResponse(success=True, message="Large data test", content=large_dict)
+
         assert len(response.content) == 1000
         assert response.content["key_0"] == "value_0"
         assert response.content["key_999"] == "value_999"
@@ -667,18 +575,15 @@ class TestModelSerialization:
         original = GlobalResponse(
             success=True,
             message="Test message",
-            content=HealthStatusContent(
-                status=HealthStatus.HEALTHY,
-                details={"test": "data"}
-            )
+            content=HealthStatusContent(status=HealthStatus.HEALTHY, details={"test": "data"}),
         )
-        
+
         # Serialize to JSON
         json_str = original.model_dump_json()
-        
+
         # Deserialize from JSON using the specific response type
         restored = HealthResponseType.model_validate_json(json_str)
-        
+
         assert restored.success == original.success
         assert restored.message == original.message
         assert restored.content.status == original.content.status
@@ -689,20 +594,15 @@ class TestModelSerialization:
         original = GlobalResponse(
             success=True,
             message="Test message",
-            content=WelcomeContent(
-                message="Welcome",
-                version="1.0.0",
-                docs="/docs",
-                health="/health"
-            )
+            content=WelcomeContent(message="Welcome", version="1.0.0", docs="/docs", health="/health"),
         )
-        
+
         # Serialize to dict
         data_dict = original.model_dump()
-        
+
         # Deserialize from dict using the specific response type
         restored = WelcomeResponseType.model_validate(data_dict)
-        
+
         assert restored.success == original.success
         assert restored.message == original.message
         assert restored.content.message == original.content.message
@@ -710,15 +610,11 @@ class TestModelSerialization:
 
     def test_exclude_none_values(self):
         """Test serialization with None values excluded."""
-        response = GlobalResponse(
-            success=True,
-            message="Test",
-            content=None
-        )
-        
+        response = GlobalResponse(success=True, message="Test", content=None)
+
         # Test with exclude_none
         data = response.model_dump(exclude_none=True)
-        
+
         assert "content" not in data
         assert "success" in data
         assert "message" in data
@@ -726,15 +622,11 @@ class TestModelSerialization:
 
     def test_serialize_only_specific_fields(self):
         """Test serializing only specific fields."""
-        response = GlobalResponse(
-            success=True,
-            message="Test",
-            content={"data": "test"}
-        )
-        
+        response = GlobalResponse(success=True, message="Test", content={"data": "test"})
+
         # Test with include parameter
         data = response.model_dump(include={"success", "message"})
-        
+
         assert "success" in data
         assert "message" in data
         assert "content" not in data
@@ -742,15 +634,11 @@ class TestModelSerialization:
 
     def test_exclude_specific_fields(self):
         """Test excluding specific fields from serialization."""
-        response = GlobalResponse(
-            success=True,
-            message="Test",
-            content={"data": "test"}
-        )
-        
+        response = GlobalResponse(success=True, message="Test", content={"data": "test"})
+
         # Test with exclude parameter
         data = response.model_dump(exclude={"timestamp"})
-        
+
         assert "success" in data
         assert "message" in data
         assert "content" in data

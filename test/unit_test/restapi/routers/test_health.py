@@ -4,24 +4,14 @@ This module contains comprehensive tests for all health check endpoints
 including /health, /simple, /ready, and /live endpoints.
 """
 
-import pytest
-from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from gearmeshing_ai.restapi.routers.health import router, get_health_router
+from fastapi.testclient import TestClient
+
 from gearmeshing_ai.restapi.dependencies import get_health_service
-from gearmeshing_ai.restapi.service.health import HealthCheckService
 from gearmeshing_ai.restapi.main import create_application
-from gearmeshing_ai.core.models.io import (
-    HealthStatus,
-    SimpleHealthStatus,
-    ReadinessStatus,
-    LivenessStatus,
-    HealthStatusContent,
-    SimpleHealthContent,
-    ReadinessContent,
-    LivenessContent
-)
+from gearmeshing_ai.restapi.routers.health import get_health_router, router
+from gearmeshing_ai.restapi.service.health import HealthCheckService
 
 
 class TestHealthRouterSetup:
@@ -44,7 +34,7 @@ class TestHealthRouterSetup:
         routes = [route.path for route in app.routes]
         # Routes are registered with /health prefix
         expected_routes = ["/health/", "/health/simple", "/health/ready", "/health/live"]
-        
+
         for route in expected_routes:
             assert route in routes
 
@@ -57,12 +47,12 @@ class TestHealthCheckDependency:
         service = get_health_service()
         assert isinstance(service, HealthCheckService)
 
-    @patch('gearmeshing_ai.restapi.dependencies.health.create_default_health_service')
+    @patch("gearmeshing_ai.restapi.dependencies.health.create_default_health_service")
     def test_get_health_service_with_mock(self, mock_create):
         """Test get_health_service with mocked service creation."""
         mock_service = MagicMock(spec=HealthCheckService)
         mock_create.return_value = mock_service
-        
+
         service = get_health_service()
         assert service is mock_service
         mock_create.assert_called_once()
@@ -115,7 +105,7 @@ class TestHealthCheckEndpoint:
         response = self.client.get("/health/")
         assert response.status_code in [200, 503]
         data = response.json()
-        
+
         # Verify required fields
         assert "success" in data
         assert "message" in data
@@ -156,7 +146,7 @@ class TestSimpleHealthCheckEndpoint:
         response = self.client.get("/health/simple")
         assert response.status_code in [200, 503]
         data = response.json()
-        
+
         # Verify required fields
         assert "success" in data
         assert "message" in data
@@ -204,7 +194,7 @@ class TestReadinessCheckEndpoint:
         response = self.client.get("/health/ready")
         assert response.status_code in [200, 503]
         data = response.json()
-        
+
         # Verify required fields
         assert "success" in data
         assert "message" in data
@@ -231,7 +221,7 @@ class TestLivenessCheckEndpoint:
         response = self.client.get("/health/live")
         assert response.status_code == 200
         data = response.json()
-        
+
         # Verify required fields
         assert "success" in data
         assert "message" in data
@@ -260,13 +250,13 @@ class TestHealthRouterIntegration:
         simple_response = self.client.get("/health/simple")
         ready_response = self.client.get("/health/ready")
         live_response = self.client.get("/health/live")
-        
+
         # All should respond
         assert health_response.status_code in [200, 503]
         assert simple_response.status_code in [200, 503]
         assert ready_response.status_code in [200, 503]
         assert live_response.status_code == 200
-        
+
         # All should have consistent structure
         for response in [health_response, simple_response, ready_response, live_response]:
             data = response.json()
@@ -285,27 +275,27 @@ class TestHealthRouterIntegration:
     def test_concurrent_health_checks(self):
         """Test concurrent health check requests."""
         import threading
-        
+
         results = []
-        
+
         def make_request():
             response = self.client.get("/health/")
             results.append(response.status_code in [200, 503])
-        
+
         # Create multiple threads
         threads = []
         for _ in range(10):
             thread = threading.Thread(target=make_request)
             threads.append(thread)
-        
+
         # Start all threads
         for thread in threads:
             thread.start()
-        
+
         # Wait for all threads to complete
         for thread in threads:
             thread.join()
-        
+
         # All requests should succeed
         assert all(results)
         assert len(results) == 10
@@ -324,7 +314,7 @@ class TestHealthRouterErrorHandling:
         # Test POST on GET endpoints
         response = self.client.post("/health/")
         assert response.status_code in [405, 422]
-        
+
         response = self.client.post("/health/simple")
         assert response.status_code in [405, 422]
 
@@ -345,14 +335,14 @@ class TestHealthRouterDocumentation:
     def test_endpoint_documentation(self):
         """Test that endpoints have proper documentation."""
         routes = router.routes
-        
+
         for route in routes:
             # Check that routes have summary
-            assert hasattr(route, 'summary') or route.summary is not None
-            
+            assert hasattr(route, "summary") or route.summary is not None
+
             # Check that routes have description
-            assert hasattr(route, 'description') or route.description is not None
-            
+            assert hasattr(route, "description") or route.description is not None
+
             # Check that routes have response model
             assert route.response_model is not None
 
@@ -364,7 +354,7 @@ class TestHealthRouterDocumentation:
         """Test that endpoint paths follow REST conventions."""
         app = create_application()
         routes = [route.path for route in app.routes]
-        
+
         # Health routes are registered with /health prefix
         assert "/health/" in routes or "/health" in routes
         assert "/health/simple" in routes

@@ -1,8 +1,8 @@
 """Unit tests for server commands."""
 
-import pytest
-from typer.testing import CliRunner
 from unittest.mock import patch
+
+from typer.testing import CliRunner
 
 from gearmeshing_ai.command_line.subcmd.server import app
 
@@ -28,14 +28,21 @@ class TestServerCommands:
     def test_server_start_custom(self) -> None:
         """Test server start command with custom parameters."""
         with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
-            result = runner.invoke(app, [
-                "start",
-                "--host", "127.0.0.1",
-                "--port", "9000",
-                "--workers", "4",
-                "--reload",
-                "--config", "/path/to/config.yaml"
-            ])
+            result = runner.invoke(
+                app,
+                [
+                    "start",
+                    "--host",
+                    "127.0.0.1",
+                    "--port",
+                    "9000",
+                    "--workers",
+                    "4",
+                    "--reload",
+                    "--config",
+                    "/path/to/config.yaml",
+                ],
+            )
             assert result.exit_code == 0
             assert "Host: 127.0.0.1" in result.stdout
             assert "Port: 9000" in result.stdout
@@ -102,12 +109,7 @@ class TestServerCommands:
     def test_server_logs_custom(self) -> None:
         """Test server logs command with custom parameters."""
         with patch("gearmeshing_ai.command_line.subcmd.server.logger") as mock_logger:
-            result = runner.invoke(app, [
-                "logs",
-                "--follow",
-                "--lines", "100",
-                "--level", "DEBUG"
-            ])
+            result = runner.invoke(app, ["logs", "--follow", "--lines", "100", "--level", "DEBUG"])
             assert result.exit_code == 0
             assert "Follow: True" in result.stdout
             assert "Lines: 100" in result.stdout

@@ -72,7 +72,7 @@ def my_command(
 ) -> None:
     """Description of what this command does."""
     logger.info(f"Running my_command with param1={param1}, param2={param2}")
-    
+
     # TODO: Implement actual functionality
     typer.echo(f"✅ Command executed: {param1}")
 ```

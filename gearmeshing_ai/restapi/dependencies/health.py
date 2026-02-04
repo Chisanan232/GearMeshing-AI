@@ -9,11 +9,12 @@ from gearmeshing_ai.restapi.service.health import HealthCheckService, create_def
 
 def get_health_service() -> HealthCheckService:
     """Dependency function to get health service instance.
-    
+
     This follows FastAPI's dependency injection pattern and provides
     a clean way to inject the health service into endpoints.
-    
+
     Returns:
         HealthCheckService: Health check service instance
+
     """
     return create_default_health_service()

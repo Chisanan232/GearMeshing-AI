@@ -1,17 +1,16 @@
 """Test configuration and fixtures for CLI integration tests."""
 
-import pytest
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock
 
-from gearmeshing_ai.command_line.app import app
+import pytest
 
 
 @pytest.fixture
 def temp_config_file() -> Path:
     """Create a temporary configuration file for testing."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         f.write("""
 # Test configuration
 server:

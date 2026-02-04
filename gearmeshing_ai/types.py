@@ -1,5 +1,4 @@
-"""
-Type definitions for the Python package.
+"""Type definitions for the Python package.
 
 This module provides centralized type aliases and type definitions following
 PEP 561, PEP 484, PEP 585, and PEP 695 standards for static type checking with MyPy.
@@ -16,20 +15,4 @@ Type Hierarchy:
 
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    AsyncIterator,
-    Awaitable,
-    Callable,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Protocol,
-    Union,
-    runtime_checkable,
-)
-
-__all__ = [
-]
+__all__ = []
