@@ -26,7 +26,7 @@ def strip_ansi_codes(text: str) -> str:
 class TestCLIBasicWorkflows:
     """End-to-end tests for basic CLI workflows."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test runner for each test."""
         self.runner = CliRunner()
 
@@ -162,7 +162,7 @@ class TestCLIBasicWorkflows:
 class TestCLIServerWorkflows:
     """End-to-end tests for server management workflows."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test runner for each test."""
         self.runner = CliRunner()
 
@@ -257,7 +257,7 @@ class TestCLIServerWorkflows:
 class TestCLISystemWorkflows:
     """End-to-end tests for system utility workflows."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test runner for each test."""
         self.runner = CliRunner()
 
@@ -353,7 +353,7 @@ class TestCLISystemWorkflows:
 class TestCLIGlobalOptionsWorkflows:
     """End-to-end tests for global options workflows."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test runner for each test."""
         self.runner = CliRunner()
 
@@ -419,7 +419,7 @@ class TestCLIGlobalOptionsWorkflows:
 class TestCLIErrorHandlingWorkflows:
     """End-to-end tests for error handling workflows."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test runner for each test."""
         self.runner = CliRunner()
 
@@ -476,7 +476,7 @@ class TestCLIEntryPointWorkflow:
 class TestCLIRealWorldScenarios:
     """End-to-end tests for real-world usage scenarios."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup test runner for each test."""
         self.runner = CliRunner()
 
