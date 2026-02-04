@@ -2,7 +2,7 @@ exclude: '.github/|docs/'
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
         args: ['--unsafe']
@@ -24,7 +24,7 @@ repos:
         types_or: [ python, pyi ]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.16.0
+    rev: v1.19.1
     hooks:
       - id: mypy
         package: src,test
@@ -37,6 +37,6 @@ repos:
 
   - repo: https://github.com/astral-sh/uv-pre-commit
     # uv version.
-    rev: 0.7.13
+    rev: 0.9.28
     hooks:
       - id: uv-lock
