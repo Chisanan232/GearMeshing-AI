@@ -23,7 +23,7 @@ app.add_typer(server.app, name="server", help="Server management and operations"
 app.add_typer(system.app, name="system", help="System utilities and diagnostics")
 
 
-@app.callback()  # type: ignore[misc]
+@app.callback()  # type: ignore[untyped-decorator]
 def main(
     verbose: bool | None = typer.Option(False, "--verbose", "-v", help="Enable verbose logging"),
     quiet: bool | None = typer.Option(False, "--quiet", "-q", help="Suppress non-error output"),

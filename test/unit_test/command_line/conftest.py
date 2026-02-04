@@ -6,7 +6,7 @@ from collections.abc import Generator
 import pytest
 
 
-@pytest.fixture(autouse=True)  # type: ignore[misc]
+@pytest.fixture(autouse=True)  # type: ignore[untyped-decorator]
 def reset_logging() -> Generator[None, None, None]:
     """Reset logging configuration between tests."""
     # Reset the logging configured flag

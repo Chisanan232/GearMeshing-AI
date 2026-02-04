@@ -47,7 +47,7 @@ class TestGetHealthServiceDependency:
 
         app = FastAPI()
 
-        @app.get("/test")  # type: ignore[misc]
+        @app.get("/test")  # type: ignore[untyped-decorator]
         def test_endpoint(service: HealthCheckService = Depends(get_health_service)) -> dict[str, bool]:
             return {"service": service is not None}
 

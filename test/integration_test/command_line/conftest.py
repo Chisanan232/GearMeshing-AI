@@ -7,7 +7,7 @@ from unittest.mock import Mock
 import pytest
 
 
-@pytest.fixture  # type: ignore[misc]
+@pytest.fixture  # type: ignore[untyped-decorator]
 def temp_config_file() -> Path:
     """Create a temporary configuration file for testing."""
     with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
@@ -28,7 +28,7 @@ logging:
         return Path(f.name)
 
 
-@pytest.fixture  # type: ignore[misc]
+@pytest.fixture  # type: ignore[untyped-decorator]
 def mock_agent_service() -> Mock:
     """Mock agent service for testing."""
     mock = Mock()
@@ -41,7 +41,7 @@ def mock_agent_service() -> Mock:
     return mock
 
 
-@pytest.fixture  # type: ignore[misc]
+@pytest.fixture  # type: ignore[untyped-decorator]
 def mock_server_service() -> Mock:
     """Mock server service for testing."""
     mock = Mock()
@@ -53,7 +53,7 @@ def mock_server_service() -> Mock:
     return mock
 
 
-@pytest.fixture  # type: ignore[misc]
+@pytest.fixture  # type: ignore[untyped-decorator]
 def mock_system_service() -> Mock:
     """Mock system service for testing."""
     mock = Mock()
