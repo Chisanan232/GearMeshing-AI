@@ -11,7 +11,7 @@ def get_logger(name: str) -> logging.Logger:
 
 
 def setup_cli_logging(verbose: bool = False, quiet: bool = False) -> None:
-    """Setup CLI logging configuration."""
+    """Set up CLI logging configuration."""
     global _logging_configured
 
     # Only configure logging once
