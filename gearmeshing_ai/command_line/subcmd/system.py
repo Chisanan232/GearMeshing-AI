@@ -16,7 +16,7 @@ app = typer.Typer(
 )
 
 
-@app.command()
+@app.command()  # type: ignore
 def info() -> None:
     """Display system information."""
     logger.info("Displaying system information")
@@ -26,7 +26,7 @@ def info() -> None:
     typer.echo("  (System info functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def check() -> None:
     """Run system health checks."""
     logger.info("Running system health checks")
@@ -36,7 +36,7 @@ def check() -> None:
     typer.echo("  (Health check functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def config(
     show: bool = typer.Option(True, "--show/--no-show", help="Show current configuration"),
     validate: bool = typer.Option(False, "--validate", help="Validate configuration"),
@@ -54,7 +54,7 @@ def config(
         typer.echo("  (Configuration validation functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def logs(
     component: str | None = typer.Option(None, "--component", help="Filter by component"),
     follow: bool = typer.Option(False, "--follow", "-f", help="Follow log output"),
@@ -73,7 +73,7 @@ def logs(
     typer.echo("  (Log viewing functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def cleanup(
     dry_run: bool = typer.Option(False, "--dry-run", help="Show what would be cleaned up without doing it"),
     force: bool = typer.Option(False, "--force", "-f", help="Force cleanup without confirmation"),
@@ -93,7 +93,7 @@ def cleanup(
     typer.echo("  (Cleanup functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def monitor() -> None:
     """Monitor system resources and performance."""
     logger.info("Starting system monitor")
@@ -103,7 +103,7 @@ def monitor() -> None:
     typer.echo("  (Monitoring functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def version() -> None:
     """Display version information."""
     logger.info("Displaying version information")
