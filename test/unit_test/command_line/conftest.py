@@ -1,12 +1,13 @@
 """Fixtures for command line tests."""
 
 import logging
+from typing import Generator
 
 import pytest
 
 
-@pytest.fixture(autouse=True)
-def reset_logging():
+@pytest.fixture(autouse=True)  # type: ignore[misc]
+def reset_logging() -> Generator[None, None, None]:
     """Reset logging configuration between tests."""
     # Reset the logging configured flag
     import gearmeshing_ai.core.utils.logging_config as logging_config
