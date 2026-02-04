@@ -66,7 +66,7 @@ class ApplicationFactory:
         return app
 
     def _setup_middleware(self, app: FastAPI) -> None:
-        """Setup application middleware.
+        """Set up application middleware.
 
         This method configures all necessary middleware for the
         FastAPI application following duck typing principles.
@@ -85,7 +85,7 @@ class ApplicationFactory:
         )
 
     def _setup_routers(self, app: FastAPI) -> None:
-        """Setup application routers.
+        """Set up application routers.
 
         This method registers all API routers with the FastAPI
         application. The router setup follows duck typing principles
@@ -106,7 +106,7 @@ class ApplicationFactory:
         # app.include_router(other_router)
 
     def _setup_main_endpoints(self, app: FastAPI) -> None:
-        """Setup main application endpoints.
+        """Set up main application endpoints.
 
         Args:
             app: FastAPI application instance
