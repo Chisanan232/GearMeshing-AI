@@ -17,7 +17,7 @@ app = typer.Typer(
 
 
 @app.command()  # type: ignore
-def list(
+def list_agents(
     status: str | None = typer.Option(None, "--status", "-s", help="Filter by agent status"),
     limit: int = typer.Option(10, "--limit", "-l", help="Maximum number of agents to list"),
 ) -> None:
@@ -108,10 +108,9 @@ def delete(
     confirm: bool = typer.Option(False, "--confirm", "-y", help="Skip confirmation prompt"),
 ) -> None:
     """Delete an agent."""
-    if not confirm:
-        if not typer.confirm(f"Are you sure you want to delete agent '{agent_id}'?"):
-            typer.echo("Operation cancelled")
-            raise typer.Exit()
+    if not confirm and not typer.confirm(f"Are you sure you want to delete agent '{agent_id}'?"):
+        typer.echo("Operation cancelled")
+        raise typer.Exit
 
     logger.info(f"Deleting agent: {agent_id}")
 
