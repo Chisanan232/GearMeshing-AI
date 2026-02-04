@@ -16,7 +16,7 @@ app = typer.Typer(
 )
 
 
-@app.command()
+@app.command()  # type: ignore
 def list(
     status: str | None = typer.Option(None, "--status", "-s", help="Filter by agent status"),
     limit: int = typer.Option(10, "--limit", "-l", help="Maximum number of agents to list"),
@@ -31,7 +31,7 @@ def list(
     typer.echo(f"  Limit: {limit}")
 
 
-@app.command()
+@app.command()  # type: ignore
 def create(
     name: str = typer.Argument(..., help="Agent name"),
     model: str = typer.Option("gpt-4", "--model", "-m", help="AI model to use"),
@@ -49,7 +49,7 @@ def create(
     typer.echo("  (Agent creation functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def run(
     agent_id: str = typer.Argument(..., help="Agent ID or name"),
     input_text: str = typer.Option(None, "--input", "-i", help="Input text for the agent"),
@@ -74,7 +74,7 @@ def run(
     typer.echo("  (Agent execution functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def stop(
     agent_id: str = typer.Argument(..., help="Agent ID or name"),
     force: bool = typer.Option(False, "--force", "-f", help="Force stop the agent"),
@@ -88,7 +88,7 @@ def stop(
     typer.echo("  (Agent stopping functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def status(
     agent_id: str = typer.Argument(..., help="Agent ID or name"),
     detailed: bool = typer.Option(False, "--detailed", "-d", help="Show detailed status"),
@@ -102,7 +102,7 @@ def status(
     typer.echo("  (Agent status functionality to be implemented)")
 
 
-@app.command()
+@app.command()  # type: ignore
 def delete(
     agent_id: str = typer.Argument(..., help="Agent ID or name"),
     confirm: bool = typer.Option(False, "--confirm", "-y", help="Skip confirmation prompt"),
