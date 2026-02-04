@@ -8,6 +8,7 @@ import re
 from unittest.mock import patch
 
 import pytest
+import typer
 from typer.testing import CliRunner
 
 from gearmeshing_ai.command_line.app import app, main_entry
@@ -185,8 +186,8 @@ class TestCLIServerWorkflows:
         assert result.exit_code == 0
         assert "GearMeshing-AI server" in result.stdout
 
-        # 2. Start server with custom host and port
-        result = self.runner.invoke(app, ["server", "start", "--host", "0.0.0.0", "--port", "9000"])
+        # 2. Start server with custom host and port (explicitly testing all interfaces binding)
+        result = self.runner.invoke(app, ["server", "start", "--host", "0.0.0.0", "--port", "9000"])  # noqa: S104
         assert result.exit_code == 0
         assert "GearMeshing-AI server" in result.stdout
 
@@ -462,14 +463,14 @@ class TestCLIEntryPointWorkflow:
         """Test main_entry handles keyboard interrupt."""
         with patch("gearmeshing_ai.command_line.app.app") as mock_app:
             mock_app.side_effect = KeyboardInterrupt()
-            with pytest.raises(Exception):  # typer.Exit raises Exception
+            with pytest.raises(typer.Exit):  # typer.Exit raises Exception
                 main_entry()
 
     def test_main_entry_exception_workflow(self) -> None:
         """Test main_entry handles exceptions."""
         with patch("gearmeshing_ai.command_line.app.app") as mock_app:
             mock_app.side_effect = Exception("Test error")
-            with pytest.raises(Exception):  # typer.Exit raises Exception
+            with pytest.raises(typer.Exit):  # typer.Exit raises Exception
                 main_entry()
 
 
@@ -519,8 +520,8 @@ class TestCLIRealWorldScenarios:
         result = self.runner.invoke(app, ["system", "check"])
         assert result.exit_code == 0
 
-        # 2. DevOps engineer starts server
-        result = self.runner.invoke(app, ["server", "start", "--host", "0.0.0.0", "--port", "8000"])
+        # 2. DevOps engineer starts server (explicitly testing all interfaces binding for production)
+        result = self.runner.invoke(app, ["server", "start", "--host", "0.0.0.0", "--port", "8000"])  # noqa: S104
         assert result.exit_code == 0
 
         # 3. DevOps engineer checks server status
