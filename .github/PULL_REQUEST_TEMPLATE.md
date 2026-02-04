@@ -39,8 +39,11 @@
 * Scopes:
     * [ ] ✍️ Command line interface
     * [ ] 💼 Core feature
+        * [ ] 👮🏻‍♂️ Abstraction or base objects
+        * [ ] 🤖 AI agent
+        * [ ] 📲 Info Provider
         * [ ] 🕸️ Web server
-        * [ ] 🤖 MCP server
+        * [ ] 📲 MCP client
         * [ ] 🪡 API client
         * [ ] 🫀 Data model
     * [ ] 🎨 UI/UX (maybe command line interface, etc.)
@@ -49,7 +52,9 @@
         * [ ] 🧪 Unit testing
         * [ ] 🧪 Integration testing
         * [ ] 🧪 End-to-end testing
+        * [ ] 🧪 Smoke testing (with AI models real calling)
         * [ ] 🧪 Contract testing
+        * [ ] 🧪 Evaluation testing
     * [ ] 📚 Documentation
     * [ ] 🚀 Building
         * [ ] 🤖 CI/CD
