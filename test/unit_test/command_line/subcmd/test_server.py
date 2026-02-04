@@ -18,12 +18,12 @@ class TestServerCommands:
             result = runner.invoke(app, ["start"])
             assert result.exit_code == 0
             assert "Starting GearMeshing-AI server:" in result.stdout
-            assert "Host: 0.0.0.0" in result.stdout
+            assert "Host: 127.0.0.1" in result.stdout
             assert "Port: 8000" in result.stdout
             assert "Workers: 1" in result.stdout
             assert "Reload: False" in result.stdout
             assert "Config: default" in result.stdout
-            mock_logger.info.assert_called_with("Starting server on 0.0.0.0:8000 with 1 workers")
+            mock_logger.info.assert_called_with("Starting server on 127.0.0.1:8000 with 1 workers")
 
     def test_server_start_custom(self) -> None:
         """Test server start command with custom parameters."""

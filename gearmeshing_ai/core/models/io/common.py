@@ -180,8 +180,7 @@ class ErrorContent(BaseModel):
 
 
 # Type aliases for common response types
-type generic_response = GlobalResponse[Any]
-GlobalResponseType = generic_response
+type GlobalResponseType[T] = GlobalResponse[T]
 HealthResponseType = GlobalResponse[HealthStatusContent]
 SimpleHealthResponseType = GlobalResponse[SimpleHealthContent]
 ReadinessResponseType = GlobalResponse[ReadinessContent]

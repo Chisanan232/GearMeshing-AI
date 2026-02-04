@@ -16,7 +16,7 @@ app = typer.Typer(
 )
 
 
-@app.command()  # type: ignore
+@app.command(name="list")  # type: ignore
 def list_agents(
     status: str | None = typer.Option(None, "--status", "-s", help="Filter by agent status"),
     limit: int = typer.Option(10, "--limit", "-l", help="Maximum number of agents to list"),
