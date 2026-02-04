@@ -29,7 +29,7 @@ from ..service.health import HealthCheckService
 router = APIRouter(prefix="/health", tags=["health"])
 
 
-@router.get(
+@router.get(  # type: ignore
     "/",
     summary="Comprehensive health check",
     description="Check health of all system components",
@@ -88,7 +88,7 @@ async def health_check(service: HealthCheckService = Depends(get_health_service)
         )
 
 
-@router.get(
+@router.get(  # type: ignore
     "/simple",
     summary="Simple health check",
     description="Basic health check for load balancers",
@@ -135,7 +135,7 @@ async def simple_health_check(service: HealthCheckService = Depends(get_health_s
         )
 
 
-@router.get(
+@router.get(  # type: ignore
     "/ready",
     summary="Readiness check",
     description="Check if application is ready to serve traffic",
@@ -185,7 +185,7 @@ async def readiness_check(service: HealthCheckService = Depends(get_health_servi
         )
 
 
-@router.get(
+@router.get(  # type: ignore
     "/live", summary="Liveness check", description="Check if application is alive", response_model=LivenessResponseType
 )
 async def liveness_check() -> LivenessResponseType:
