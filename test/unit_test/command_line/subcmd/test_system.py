@@ -110,14 +110,16 @@ class TestSystemCommands:
 
     def test_system_cleanup_with_confirmation(self) -> None:
         """Test system cleanup command with confirmation."""
-        with patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger:
-            with patch("typer.confirm", return_value=True):
-                result = runner.invoke(app, ["cleanup"])
-                assert result.exit_code == 0
-                assert "System Cleanup:" in result.stdout
-                assert "Dry run: False" in result.stdout
-                assert "Force: False" in result.stdout
-                mock_logger.info.assert_called_with("Running cleanup (dry_run: False, force: False)")
+        with (
+            patch("gearmeshing_ai.command_line.subcmd.system.logger") as mock_logger,
+            patch("typer.confirm", return_value=True),
+        ):
+            result = runner.invoke(app, ["cleanup"])
+            assert result.exit_code == 0
+            assert "System Cleanup:" in result.stdout
+            assert "Dry run: False" in result.stdout
+            assert "Force: False" in result.stdout
+            mock_logger.info.assert_called_with("Running cleanup (dry_run: False, force: False)")
 
     def test_system_cleanup_cancelled(self) -> None:
         """Test system cleanup command when cancelled."""
