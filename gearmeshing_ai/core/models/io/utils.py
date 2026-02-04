@@ -213,7 +213,7 @@ def create_liveness_response(status: LivenessStatus = LivenessStatus.ALIVE) -> G
     return GlobalResponse(success=True, message="Liveness check completed", content=liveness_content)
 
 
-def get_client_info(request) -> ClientInfoContent:
+def get_client_info(request: Any) -> ClientInfoContent:
     """Extract client information from request.
 
     This utility function extracts relevant client information
