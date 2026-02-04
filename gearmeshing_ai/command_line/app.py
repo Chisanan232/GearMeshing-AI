@@ -23,7 +23,7 @@ app.add_typer(server.app, name="server", help="Server management and operations"
 app.add_typer(system.app, name="system", help="System utilities and diagnostics")
 
 
-@app.callback()
+@app.callback()  # type: ignore[misc]
 def main(
     verbose: bool | None = typer.Option(False, "--verbose", "-v", help="Enable verbose logging"),
     quiet: bool | None = typer.Option(False, "--quiet", "-q", help="Suppress non-error output"),
@@ -37,7 +37,7 @@ def main(
     Use --help with any command to see detailed usage information.
     """
     # Configure logging based on verbosity
-    setup_cli_logging(verbose=verbose, quiet=quiet)
+    setup_cli_logging(verbose=verbose or False, quiet=quiet or False)
 
     logger.info(f"GearMeshing-AI CLI initialized (verbose={verbose}, quiet={quiet})")
 
