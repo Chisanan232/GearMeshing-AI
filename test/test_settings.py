@@ -18,13 +18,13 @@ from test.settings import TestAgentSettings, TestModelSettings, TestSettings
 class TestSettingsModel:
     """Test the test settings model functionality."""
 
-    def test_settings_model_creation(self):
+    def test_settings_model_creation(self) -> None:
         """Test that settings model can be created without errors."""
         settings = TestSettings()
         assert settings is not None
         assert isinstance(settings, TestSettings)
 
-    def test_default_values(self):
+    def test_default_values(self) -> None:
         """Test that default values are set correctly."""
         settings = TestSettings()
         assert settings.run_ai_tests is True
@@ -33,14 +33,14 @@ class TestSettingsModel:
         assert isinstance(settings.test_models, dict)
         assert isinstance(settings.test_agents, dict)
 
-    def test_get_available_providers_no_keys(self):
+    def test_get_available_providers_no_keys(self) -> None:
         """Test getting available providers when no API keys are set."""
         settings = TestSettings()
         providers = settings.get_available_providers()
         assert isinstance(providers, list)
         assert len(providers) == 0
 
-    def test_has_provider_no_keys(self):
+    def test_has_provider_no_keys(self) -> None:
         """Test provider check when no API keys are set."""
         settings = TestSettings()
         assert settings.has_provider("openai") is False
@@ -56,7 +56,7 @@ class TestSettingsModel:
             "GEMINI_API_KEY": "test-gemini-key",
         },
     )
-    def test_settings_with_api_keys(self):
+    def test_settings_with_api_keys(self) -> None:
         """Test settings creation with API keys in environment."""
         settings = TestSettings()
 
@@ -77,7 +77,7 @@ class TestSettingsModel:
         assert settings.has_provider("google") is True
 
     @patch.dict(os.environ, {"OPENAI_API_KEY": "test-openai-key"})
-    def test_default_configurations_with_openai(self):
+    def test_default_configurations_with_openai(self) -> None:
         """Test that default configurations are created when OpenAI API key is present."""
         settings = TestSettings()
 
@@ -98,7 +98,7 @@ class TestSettingsModel:
         assert test_agent.system_prompt is not None
 
     @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-anthropic-key"})
-    def test_default_configurations_with_anthropic(self):
+    def test_default_configurations_with_anthropic(self) -> None:
         """Test that default configurations are created when Anthropic API key is present."""
         settings = TestSettings()
 
@@ -117,7 +117,7 @@ class TestSettingsModel:
         assert claude_agent.model_settings == anthropic_model
 
     @patch.dict(os.environ, {"GEMINI_API_KEY": "test-gemini-key"})
-    def test_default_configurations_with_gemini(self):
+    def test_default_configurations_with_gemini(self) -> None:
         """Test that default configurations are created when Gemini API key is present."""
         settings = TestSettings()
 
@@ -135,7 +135,7 @@ class TestSettingsModel:
         assert gemini_agent.role == "gemini_assistant"
         assert gemini_agent.model_settings == gemini_model
 
-    def test_model_settings_validation(self):
+    def test_model_settings_validation(self) -> None:
         """Test TestModelSettings validation."""
         # Valid model settings
         model_settings = TestModelSettings(
@@ -148,7 +148,7 @@ class TestSettingsModel:
         assert model_settings.max_tokens == 500
         assert isinstance(model_settings.additional_params, dict)
 
-    def test_agent_settings_validation(self):
+    def test_agent_settings_validation(self) -> None:
         """Test TestAgentSettings validation."""
         model_settings = TestModelSettings(customized_name="test_model", provider="openai", model="gpt-4")
 
@@ -167,7 +167,7 @@ class TestSettingsModel:
         assert agent_settings.system_prompt == "Test system prompt"
         assert isinstance(agent_settings.metadata, dict)
 
-    def test_secret_str_behavior(self):
+    def test_secret_str_behavior(self) -> None:
         """Test that SecretStr properly hides sensitive values."""
         settings = TestSettings()
 
@@ -182,10 +182,11 @@ class TestSettingsModel:
         assert "**********" in api_key_repr or "SecretStr" in api_key_repr
 
         # Check that we can still get the actual value
+        assert model_settings.api_key is not None
         actual_value = model_settings.api_key.get_secret_value()
         assert actual_value == "secret-key"
 
-    def test_env_file_loading(self):
+    def test_env_file_loading(self) -> None:
         """Test that environment file is loaded correctly."""
         # Check if .env file exists in test directory
         env_path = Path(__file__).parent / ".env"
