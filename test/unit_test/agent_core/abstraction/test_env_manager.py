@@ -32,7 +32,7 @@ class TestEnvManager:
     def test_env_manager_initialization_with_mock_settings(self, mock_settings_class: Any) -> None:
         """Test EnvManager initialization with mocked settings."""
         mock_settings = Mock(spec=AIProviderSettings)
-        
+
         # Create nested mock structure
         mock_openai = Mock()
         mock_openai.api_key = SecretStr("test-openai-key")
@@ -40,12 +40,12 @@ class TestEnvManager:
         mock_anthropic.api_key = SecretStr("test-anthropic-key")
         mock_gemini = Mock()
         mock_gemini.api_key = None
-        
+
         mock_ai_provider = Mock()
         mock_ai_provider.openai = mock_openai
         mock_ai_provider.anthropic = mock_anthropic
         mock_ai_provider.gemini = mock_gemini
-        
+
         mock_settings.ai_provider = mock_ai_provider
         mock_settings_class.return_value = mock_settings
 

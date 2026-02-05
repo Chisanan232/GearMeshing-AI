@@ -24,45 +24,45 @@ elif (Path(__file__).parent.parent / ".env").exists():
 
 class TestOpenAIConfig(BaseModel):
     """Test OpenAI configuration settings."""
-    
+
     api_key: SecretStr | None = Field(None, description="OpenAI API key")
     model: str = Field("gpt-4", description="Default OpenAI test model")
     temperature: float = Field(0.7, description="Sampling temperature")
     max_tokens: int = Field(1000, description="Maximum tokens to generate")
-    
+
     model_config = ConfigDict(strict=False)
 
 
 class TestAnthropicConfig(BaseModel):
     """Test Anthropic configuration settings."""
-    
+
     api_key: SecretStr | None = Field(None, description="Anthropic API key")
     model: str = Field("claude-3-sonnet-20240229", description="Default Anthropic test model")
     temperature: float = Field(0.7, description="Sampling temperature")
     max_tokens: int = Field(1000, description="Maximum tokens to generate")
-    
+
     model_config = ConfigDict(strict=False)
 
 
 class TestGeminiConfig(BaseModel):
     """Test Google Gemini configuration settings."""
-    
+
     api_key: SecretStr | None = Field(None, description="Google Gemini API key")
     model: str = Field("gemini-pro", description="Default Gemini test model")
     temperature: float = Field(0.7, description="Sampling temperature")
     max_tokens: int = Field(1000, description="Maximum tokens to generate")
-    
+
     model_config = ConfigDict(strict=False)
 
 
 class TestXAIConfig(BaseModel):
     """Test xAI (Grok) configuration settings."""
-    
+
     api_key: SecretStr | None = Field(None, description="xAI API key")
     model: str = Field("grok-beta", description="Default xAI test model")
     temperature: float = Field(0.7, description="Sampling temperature")
     max_tokens: int = Field(1000, description="Maximum tokens to generate")
-    
+
     model_config = ConfigDict(strict=False)
 
 
@@ -97,19 +97,13 @@ class TestAgentSettings(BaseModel):
 class AIProviderConfig(BaseModel):
     """AI provider configuration container for tests."""
 
-    openai: TestOpenAIConfig = Field(
-        default_factory=TestOpenAIConfig, description="OpenAI test configuration"
-    )
+    openai: TestOpenAIConfig = Field(default_factory=TestOpenAIConfig, description="OpenAI test configuration")
     anthropic: TestAnthropicConfig = Field(
         default_factory=TestAnthropicConfig, description="Anthropic test configuration"
     )
-    gemini: TestGeminiConfig = Field(
-        default_factory=TestGeminiConfig, description="Gemini test configuration"
-    )
-    xai: TestXAIConfig = Field(
-        default_factory=TestXAIConfig, description="xAI test configuration"
-    )
-    
+    gemini: TestGeminiConfig = Field(default_factory=TestGeminiConfig, description="Gemini test configuration")
+    xai: TestXAIConfig = Field(default_factory=TestXAIConfig, description="xAI test configuration")
+
     model_config = ConfigDict(strict=False)
 
 
@@ -257,15 +251,15 @@ def export_api_keys_to_env() -> None:
     # Export OpenAI API key
     if test_settings.ai_provider.openai.api_key:
         os.environ["OPENAI_API_KEY"] = test_settings.ai_provider.openai.api_key.get_secret_value()
-    
+
     # Export Anthropic API key
     if test_settings.ai_provider.anthropic.api_key:
         os.environ["ANTHROPIC_API_KEY"] = test_settings.ai_provider.anthropic.api_key.get_secret_value()
-    
+
     # Export Gemini API key
     if test_settings.ai_provider.gemini.api_key:
         os.environ["GOOGLE_API_KEY"] = test_settings.ai_provider.gemini.api_key.get_secret_value()
-    
+
     # Export xAI API key
     if test_settings.ai_provider.xai.api_key:
         os.environ["XAI_API_KEY"] = test_settings.ai_provider.xai.api_key.get_secret_value()

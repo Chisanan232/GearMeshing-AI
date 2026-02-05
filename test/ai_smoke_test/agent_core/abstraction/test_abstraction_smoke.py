@@ -74,7 +74,7 @@ class TestAgentAdapterSmoke:
             customized_name="test_openai",
             provider="openai",
             model="gpt-4",
-            api_key=test_settings.ai_provider.openai.api_key
+            api_key=test_settings.ai_provider.openai.api_key,
         )
 
         agent_settings = AgentSettings(
@@ -241,7 +241,7 @@ class TestAgentSettingsSmoke:
                 customized_name="real_openai",
                 provider="openai",
                 model="gpt-4",
-                api_key=test_settings.ai_provider.openai.api_key
+                api_key=test_settings.ai_provider.openai.api_key,
             )
             assert model_settings.api_key is not None
             assert model_settings.api_key.get_secret_value() is not None
