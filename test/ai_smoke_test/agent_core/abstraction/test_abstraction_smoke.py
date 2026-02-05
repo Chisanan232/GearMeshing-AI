@@ -30,7 +30,7 @@ from test.settings import test_settings
 class MockMCPClient(MCPClientAbstraction):
     """Mock MCP client for testing."""
 
-    def __init__(self, tools_data: list[Any] | None = None):
+    def __init__(self, tools_data: list[Any] | None = None) -> None:
         self.tools_data = tools_data or []
         self.get_tools_call_count = 0
 
@@ -49,12 +49,12 @@ class MockMCPClient(MCPClientAbstraction):
 class TestAgentAdapterSmoke:
     """Smoke tests for the AgentAdapter with real AI model calls."""
 
-    def test_adapter_is_abstract(self):
+    def test_adapter_is_abstract(self) -> None:
         """Test that AgentAdapter cannot be instantiated directly."""
         with pytest.raises(TypeError):
-            AgentAdapter()
+            AgentAdapter()  # type: ignore[abstract]
 
-    def test_concrete_adapter_implementation(self):
+    def test_concrete_adapter_implementation(self) -> None:
         """Test that PydanticAIAdapter is a valid implementation."""
         adapter = PydanticAIAdapter()
         assert isinstance(adapter, AgentAdapter)
@@ -62,10 +62,10 @@ class TestAgentAdapterSmoke:
         assert hasattr(adapter, "run")
         assert hasattr(adapter, "run_stream")
 
-    @pytest.mark.asyncio
-    @pytest.mark.ai_test
-    @pytest.mark.openai
-    async def test_adapter_create_agent_openai(self):
+    @pytest.mark.asyncio  # type: ignore[untyped-decorator]
+    @pytest.mark.ai_test  # type: ignore[untyped-decorator]
+    @pytest.mark.openai  # type: ignore[untyped-decorator]
+    async def test_adapter_create_agent_openai(self) -> None:
         """Test agent creation through adapter with OpenAI."""
         adapter = PydanticAIAdapter()
 
@@ -94,10 +94,10 @@ class TestAgentAdapterSmoke:
 
         assert isinstance(agent, PydanticAgent)
 
-    @pytest.mark.asyncio
-    @pytest.mark.ai_test
-    @pytest.mark.openai
-    async def test_adapter_run_agent_openai(self):
+    @pytest.mark.asyncio  # type: ignore[untyped-decorator]
+    @pytest.mark.ai_test  # type: ignore[untyped-decorator]
+    @pytest.mark.openai  # type: ignore[untyped-decorator]
+    async def test_adapter_run_agent_openai(self) -> None:
         """Test running agent through adapter with OpenAI."""
         adapter = PydanticAIAdapter()
 
@@ -130,10 +130,10 @@ class TestAgentAdapterSmoke:
         assert isinstance(response, str)
         assert len(response) > 0
 
-    @pytest.mark.asyncio
-    @pytest.mark.ai_test
-    @pytest.mark.openai
-    async def test_adapter_stream_agent_openai(self):
+    @pytest.mark.asyncio  # type: ignore[untyped-decorator]
+    @pytest.mark.ai_test  # type: ignore[untyped-decorator]
+    @pytest.mark.openai  # type: ignore[untyped-decorator]
+    async def test_adapter_stream_agent_openai(self) -> None:
         """Test streaming agent through adapter with OpenAI."""
         adapter = PydanticAIAdapter()
 
@@ -174,13 +174,13 @@ class TestAgentAdapterSmoke:
 class TestAgentFactorySmoke:
     """Smoke tests for the AgentFactory with real AI agent creation."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup for each test method."""
         self.adapter = PydanticAIAdapter()
         self.mock_mcp = MockMCPClient()
         self.factory = AgentFactory(self.adapter, self.mock_mcp)
 
-    def test_factory_initialization(self):
+    def test_factory_initialization(self) -> None:
         """Test factory initialization."""
         assert self.factory.adapter == self.adapter
         assert self.factory.mcp_client == self.mock_mcp
@@ -188,10 +188,10 @@ class TestAgentFactorySmoke:
         assert isinstance(self.factory._agent_settings_registry, dict)
         assert isinstance(self.factory._model_settings_registry, dict)
 
-    @pytest.mark.asyncio
-    @pytest.mark.ai_test
-    @pytest.mark.openai
-    async def test_get_or_create_agent_with_real_ai(self):
+    @pytest.mark.asyncio  # type: ignore[untyped-decorator]
+    @pytest.mark.ai_test  # type: ignore[untyped-decorator]
+    @pytest.mark.openai  # type: ignore[untyped-decorator]
+    async def test_get_or_create_agent_with_real_ai(self) -> None:
         """Test agent creation with real AI model."""
         model_settings = ModelSettings(
             customized_name="test_openai",
@@ -220,8 +220,8 @@ class TestAgentFactorySmoke:
         agent = await self.factory.get_or_create_agent("test_role")
         assert agent is not None
 
-    @pytest.mark.asyncio
-    async def test_get_or_create_agent_missing_settings(self):
+    @pytest.mark.asyncio  # type: ignore[untyped-decorator]
+    async def test_get_or_create_agent_missing_settings(self) -> None:
         """Test error when settings are not registered."""
         with pytest.raises(ValueError, match="No agent settings registered for role: missing_role"):
             await self.factory.get_or_create_agent("missing_role")
@@ -230,8 +230,8 @@ class TestAgentFactorySmoke:
 class TestAgentSettingsSmoke:
     """Smoke tests for AgentSettings and ModelSettings with real API keys."""
 
-    @pytest.mark.openai
-    def test_settings_with_real_openai_key(self):
+    @pytest.mark.openai  # type: ignore[untyped-decorator]
+    def test_settings_with_real_openai_key(self) -> None:
         """Test settings with real OpenAI API key."""
         if test_settings.has_provider("openai"):
             model_settings = ModelSettings(
@@ -240,8 +240,8 @@ class TestAgentSettingsSmoke:
             assert model_settings.api_key is not None
             assert model_settings.api_key.get_secret_value() is not None
 
-    @pytest.mark.anthropic
-    def test_settings_with_real_anthropic_key(self):
+    @pytest.mark.anthropic  # type: ignore[untyped-decorator]
+    def test_settings_with_real_anthropic_key(self) -> None:
         """Test settings with real Anthropic API key."""
         if test_settings.has_provider("anthropic"):
             model_settings = ModelSettings(
@@ -253,8 +253,8 @@ class TestAgentSettingsSmoke:
             assert model_settings.api_key is not None
             assert model_settings.api_key.get_secret_value() is not None
 
-    @pytest.mark.google
-    def test_settings_with_real_google_key(self):
+    @pytest.mark.google  # type: ignore[untyped-decorator]
+    def test_settings_with_real_google_key(self) -> None:
         """Test settings with real Google API key."""
         if test_settings.has_provider("google"):
             model_settings = ModelSettings(
@@ -270,13 +270,13 @@ class TestAgentSettingsSmoke:
 class TestMCPClientAbstractionSmoke:
     """Smoke tests for MCPClientAbstraction integration."""
 
-    def test_mcp_client_is_abstract(self):
+    def test_mcp_client_is_abstract(self) -> None:
         """Test that MCPClientAbstraction cannot be instantiated directly."""
         with pytest.raises(TypeError):
-            MCPClientAbstraction()
+            MCPClientAbstraction()  # type: ignore[abstract]
 
-    @pytest.mark.asyncio
-    async def test_mcp_client_tool_names(self):
+    @pytest.mark.asyncio  # type: ignore[untyped-decorator]
+    async def test_mcp_client_tool_names(self) -> None:
         """Test that MCP client receives correct tool names."""
         mock_mcp = MockMCPClient()
 
@@ -297,10 +297,10 @@ class TestMCPClientAbstractionSmoke:
 class TestIntegrationSmoke:
     """Integration smoke tests for the entire abstraction system."""
 
-    @pytest.mark.asyncio
-    @pytest.mark.ai_test
-    @pytest.mark.openai
-    async def test_full_abstraction_workflow(self):
+    @pytest.mark.asyncio  # type: ignore[untyped-decorator]
+    @pytest.mark.ai_test  # type: ignore[untyped-decorator]
+    @pytest.mark.openai  # type: ignore[untyped-decorator]
+    async def test_full_abstraction_workflow(self) -> None:
         """Test complete workflow: settings -> factory -> adapter -> AI model."""
         # Skip if AI tests disabled or no API keys
         if not test_settings.run_ai_tests or not test_settings.has_provider("openai"):
