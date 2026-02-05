@@ -16,11 +16,11 @@ class EnvManager:
         """Check if the API key for a specific provider is present."""
         provider = provider.lower()
         if provider == "openai":
-            return self.settings.openai_api_key is not None
+            return self.settings.ai_provider.openai.api_key is not None
         if provider == "anthropic":
-            return self.settings.anthropic_api_key is not None
+            return self.settings.ai_provider.anthropic.api_key is not None
         if provider == "gemini" or provider == "google":
-            return self.settings.gemini_api_key is not None
+            return self.settings.ai_provider.gemini.api_key is not None
         return False
 
     def export_variables(self) -> None:
@@ -28,14 +28,14 @@ class EnvManager:
 
         (like OpenAI client, Pydantic AI) can pick them up automatically.
         """
-        if self.settings.openai_api_key:
-            os.environ["OPENAI_API_KEY"] = self.settings.openai_api_key.get_secret_value()
+        if self.settings.ai_provider.openai.api_key:
+            os.environ["OPENAI_API_KEY"] = self.settings.ai_provider.openai.api_key.get_secret_value()
 
-        if self.settings.anthropic_api_key:
-            os.environ["ANTHROPIC_API_KEY"] = self.settings.anthropic_api_key.get_secret_value()
+        if self.settings.ai_provider.anthropic.api_key:
+            os.environ["ANTHROPIC_API_KEY"] = self.settings.ai_provider.anthropic.api_key.get_secret_value()
 
-        if self.settings.gemini_api_key:
-            os.environ["GEMINI_API_KEY"] = self.settings.gemini_api_key.get_secret_value()
+        if self.settings.ai_provider.gemini.api_key:
+            os.environ["GEMINI_API_KEY"] = self.settings.ai_provider.gemini.api_key.get_secret_value()
 
     def get_settings(self) -> AIProviderSettings:
         return self.settings

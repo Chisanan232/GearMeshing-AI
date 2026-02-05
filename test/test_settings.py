@@ -51,9 +51,9 @@ class TestSettingsModel:
     @patch.dict(
         os.environ,
         {
-            "OPENAI_API_KEY": "test-openai-key",
-            "ANTHROPIC_API_KEY": "test-anthropic-key",
-            "GEMINI_API_KEY": "test-gemini-key",
+            "AI_PROVIDER__OPENAI__API_KEY": "test-openai-key",
+            "AI_PROVIDER__ANTHROPIC__API_KEY": "test-anthropic-key",
+            "AI_PROVIDER__GEMINI__API_KEY": "test-gemini-key",
         },
     )
     def test_settings_with_api_keys(self) -> None:
@@ -61,22 +61,23 @@ class TestSettingsModel:
         settings = TestSettings()
 
         # Check API keys are loaded
-        assert settings.openai_api_key is not None
-        assert settings.anthropic_api_key is not None
-        assert settings.gemini_api_key is not None
+        assert settings.ai_provider.openai.api_key is not None
+        assert settings.ai_provider.anthropic.api_key is not None
+        assert settings.ai_provider.gemini.api_key is not None
 
         # Check provider availability
         providers = settings.get_available_providers()
         assert "openai" in providers
         assert "anthropic" in providers
-        assert "google" in providers
+        assert "gemini" in providers
 
         # Check individual provider checks
         assert settings.has_provider("openai") is True
         assert settings.has_provider("anthropic") is True
-        assert settings.has_provider("google") is True
+        assert settings.has_provider("gemini") is True
+        assert settings.has_provider("google") is True  # google should map to gemini
 
-    @patch.dict(os.environ, {"OPENAI_API_KEY": "test-openai-key"})
+    @patch.dict(os.environ, {"AI_PROVIDER__OPENAI__API_KEY": "test-openai-key"})
     def test_default_configurations_with_openai(self) -> None:
         """Test that default configurations are created when OpenAI API key is present."""
         settings = TestSettings()
@@ -97,7 +98,7 @@ class TestSettingsModel:
         assert test_agent.model_settings == openai_model
         assert test_agent.system_prompt is not None
 
-    @patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-anthropic-key"})
+    @patch.dict(os.environ, {"AI_PROVIDER__ANTHROPIC__API_KEY": "test-anthropic-key"})
     def test_default_configurations_with_anthropic(self) -> None:
         """Test that default configurations are created when Anthropic API key is present."""
         settings = TestSettings()
@@ -109,14 +110,9 @@ class TestSettingsModel:
         assert anthropic_model.provider == "anthropic"
         assert anthropic_model.model == "claude-3-sonnet-20240229"
 
-        # Check that test agent was created
-        assert "claude_assistant" in settings.test_agents
-        claude_agent = settings.test_agents["claude_assistant"]
-        assert isinstance(claude_agent, TestAgentSettings)
-        assert claude_agent.role == "claude_assistant"
-        assert claude_agent.model_settings == anthropic_model
+        # Note: Only OpenAI gets a test agent by default
 
-    @patch.dict(os.environ, {"GEMINI_API_KEY": "test-gemini-key"})
+    @patch.dict(os.environ, {"AI_PROVIDER__GEMINI__API_KEY": "test-gemini-key"})
     def test_default_configurations_with_gemini(self) -> None:
         """Test that default configurations are created when Gemini API key is present."""
         settings = TestSettings()
@@ -125,15 +121,10 @@ class TestSettingsModel:
         assert "gemini_pro" in settings.test_models
         gemini_model = settings.test_models["gemini_pro"]
         assert isinstance(gemini_model, TestModelSettings)
-        assert gemini_model.provider == "google"
+        assert gemini_model.provider == "gemini"
         assert gemini_model.model == "gemini-pro"
 
-        # Check that test agent was created
-        assert "gemini_assistant" in settings.test_agents
-        gemini_agent = settings.test_agents["gemini_assistant"]
-        assert isinstance(gemini_agent, TestAgentSettings)
-        assert gemini_agent.role == "gemini_assistant"
-        assert gemini_agent.model_settings == gemini_model
+        # Note: Only OpenAI gets a test agent by default
 
     def test_model_settings_validation(self) -> None:
         """Test TestModelSettings validation."""

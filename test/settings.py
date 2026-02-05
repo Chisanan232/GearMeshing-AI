@@ -5,11 +5,12 @@ This module provides a Pydantic-based settings model specifically for testing,
 with environment variable loading from a test-specific .env file.
 """
 
+import os
 from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load test environment variables
@@ -19,6 +20,50 @@ if TEST_ENV_PATH.exists():
 elif (Path(__file__).parent.parent / ".env").exists():
     # Try parent directory .env as fallback
     load_dotenv(Path(__file__).parent.parent / ".env")
+
+
+class TestOpenAIConfig(BaseModel):
+    """Test OpenAI configuration settings."""
+
+    api_key: SecretStr | None = Field(None, description="OpenAI API key")
+    model: str = Field("gpt-4", description="Default OpenAI test model")
+    temperature: float = Field(0.7, description="Sampling temperature")
+    max_tokens: int = Field(1000, description="Maximum tokens to generate")
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestAnthropicConfig(BaseModel):
+    """Test Anthropic configuration settings."""
+
+    api_key: SecretStr | None = Field(None, description="Anthropic API key")
+    model: str = Field("claude-3-sonnet-20240229", description="Default Anthropic test model")
+    temperature: float = Field(0.7, description="Sampling temperature")
+    max_tokens: int = Field(1000, description="Maximum tokens to generate")
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestGeminiConfig(BaseModel):
+    """Test Google Gemini configuration settings."""
+
+    api_key: SecretStr | None = Field(None, description="Google Gemini API key")
+    model: str = Field("gemini-pro", description="Default Gemini test model")
+    temperature: float = Field(0.7, description="Sampling temperature")
+    max_tokens: int = Field(1000, description="Maximum tokens to generate")
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestXAIConfig(BaseModel):
+    """Test xAI (Grok) configuration settings."""
+
+    api_key: SecretStr | None = Field(None, description="xAI API key")
+    model: str = Field("grok-beta", description="Default xAI test model")
+    temperature: float = Field(0.7, description="Sampling temperature")
+    max_tokens: int = Field(1000, description="Maximum tokens to generate")
+
+    model_config = ConfigDict(strict=False)
 
 
 class TestModelSettings(BaseModel):
@@ -33,6 +78,8 @@ class TestModelSettings(BaseModel):
     max_tokens: int | None = Field(None, description="Maximum tokens to generate")
     additional_params: dict[str, Any] = Field(default_factory=dict, description="Provider specific parameters")
 
+    model_config = ConfigDict(strict=False)
+
 
 class TestAgentSettings(BaseModel):
     """Test settings for an AI agent."""
@@ -44,14 +91,37 @@ class TestAgentSettings(BaseModel):
     system_prompt: str | None = Field(None, description="System prompt to initialize the agent context")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata for the agent")
 
+    model_config = ConfigDict(strict=False)
+
+
+class AIProviderConfig(BaseModel):
+    """AI provider configuration container for tests."""
+
+    openai: TestOpenAIConfig = Field(default_factory=TestOpenAIConfig, description="OpenAI test configuration")
+    anthropic: TestAnthropicConfig = Field(
+        default_factory=TestAnthropicConfig, description="Anthropic test configuration"
+    )
+    gemini: TestGeminiConfig = Field(default_factory=TestGeminiConfig, description="Gemini test configuration")
+    xai: TestXAIConfig = Field(default_factory=TestXAIConfig, description="xAI test configuration")
+
+    model_config = ConfigDict(strict=False)
+
 
 class TestSettings(BaseSettings):
-    """Main test settings container for GearMeshing-AI tests."""
+    """Main test settings container for GearMeshing-AI tests.
 
-    # AI Provider configurations
-    openai_api_key: SecretStr | None = Field(None, description="OpenAI API key")
-    anthropic_api_key: SecretStr | None = Field(None, description="Anthropic API key")
-    gemini_api_key: SecretStr | None = Field(None, description="Google Gemini API key")
+    Uses nested structure with double underscore delimiter.
+    Environment variables should be formatted as:
+    - AI_PROVIDER__OPENAI__API_KEY
+    - AI_PROVIDER__ANTHROPIC__API_KEY
+    - AI_PROVIDER__GEMINI__API_KEY
+    - AI_PROVIDER__XAI__API_KEY
+    """
+
+    # AI Provider configurations (nested)
+    ai_provider: AIProviderConfig = Field(
+        default_factory=lambda: AIProviderConfig(), description="AI provider configurations"
+    )
 
     # Test execution flags
     run_ai_tests: bool = Field(True, description="Whether to run tests that call real AI models")
@@ -62,7 +132,13 @@ class TestSettings(BaseSettings):
     test_models: dict[str, TestModelSettings] = Field(default_factory=dict, description="Test model configurations")
     test_agents: dict[str, TestAgentSettings] = Field(default_factory=dict, description="Test agent configurations")
 
-    model_config = SettingsConfigDict(env_file=str(TEST_ENV_PATH), env_file_encoding="utf-8", case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file=str(TEST_ENV_PATH),
+        env_file_encoding="utf-8",
+        env_nested_delimiter="__",
+        case_sensitive=False,
+        extra="ignore",
+    )
 
     def __init__(self, **data: Any) -> None:
         super().__init__(**data)
@@ -72,14 +148,14 @@ class TestSettings(BaseSettings):
         """Setup default test configurations if API keys are available."""
 
         # Default OpenAI model configuration
-        if self.openai_api_key:
+        if self.ai_provider.openai.api_key:
             self.test_models["openai_gpt4"] = TestModelSettings(
                 customized_name="openai_gpt4",
                 provider="openai",
-                model="gpt-4",
-                api_key=self.openai_api_key,
-                temperature=0.7,
-                max_tokens=1000,
+                model=self.ai_provider.openai.model,
+                api_key=self.ai_provider.openai.api_key,
+                temperature=self.ai_provider.openai.temperature,
+                max_tokens=self.ai_provider.openai.max_tokens,
             )
 
             self.test_agents["test_assistant"] = TestAgentSettings(
@@ -91,65 +167,104 @@ class TestSettings(BaseSettings):
             )
 
         # Default Anthropic model configuration
-        if self.anthropic_api_key:
+        if self.ai_provider.anthropic.api_key:
             self.test_models["anthropic_claude"] = TestModelSettings(
                 customized_name="anthropic_claude",
                 provider="anthropic",
-                model="claude-3-sonnet-20240229",
-                api_key=self.anthropic_api_key,
-                temperature=0.7,
-                max_tokens=1000,
-            )
-
-            self.test_agents["claude_assistant"] = TestAgentSettings(
-                role="claude_assistant",
-                description="A Claude-based test assistant",
-                model_settings=self.test_models["anthropic_claude"],
-                system_prompt="You are a helpful Claude test assistant. Respond briefly and accurately.",
-                tools=[],
+                model=self.ai_provider.anthropic.model,
+                api_key=self.ai_provider.anthropic.api_key,
+                temperature=self.ai_provider.anthropic.temperature,
+                max_tokens=self.ai_provider.anthropic.max_tokens,
             )
 
         # Default Gemini model configuration
-        if self.gemini_api_key:
+        if self.ai_provider.gemini.api_key:
             self.test_models["gemini_pro"] = TestModelSettings(
                 customized_name="gemini_pro",
-                provider="google",
-                model="gemini-pro",
-                api_key=self.gemini_api_key,
-                temperature=0.7,
-                max_tokens=1000,
+                provider="gemini",
+                model=self.ai_provider.gemini.model,
+                api_key=self.ai_provider.gemini.api_key,
+                temperature=self.ai_provider.gemini.temperature,
+                max_tokens=self.ai_provider.gemini.max_tokens,
             )
 
-            self.test_agents["gemini_assistant"] = TestAgentSettings(
-                role="gemini_assistant",
-                description="A Gemini-based test assistant",
-                model_settings=self.test_models["gemini_pro"],
-                system_prompt="You are a helpful Gemini test assistant. Respond briefly and accurately.",
-                tools=[],
+        # Default xAI model configuration
+        if self.ai_provider.xai.api_key:
+            self.test_models["xai_grok"] = TestModelSettings(
+                customized_name="xai_grok",
+                provider="xai",
+                model=self.ai_provider.xai.model,
+                api_key=self.ai_provider.xai.api_key,
+                temperature=self.ai_provider.xai.temperature,
+                max_tokens=self.ai_provider.xai.max_tokens,
             )
+
+    @property
+    def openai(self) -> TestOpenAIConfig:
+        """Get OpenAI configuration."""
+        return self.ai_provider.openai
+
+    @property
+    def anthropic(self) -> TestAnthropicConfig:
+        """Get Anthropic configuration."""
+        return self.ai_provider.anthropic
+
+    @property
+    def gemini(self) -> TestGeminiConfig:
+        """Get Gemini configuration."""
+        return self.ai_provider.gemini
+
+    @property
+    def xai(self) -> TestXAIConfig:
+        """Get xAI configuration."""
+        return self.ai_provider.xai
 
     def get_available_providers(self) -> list[str]:
         """Get list of available AI providers based on API keys."""
         providers = []
-        if self.openai_api_key:
+        if self.ai_provider.openai.api_key:
             providers.append("openai")
-        if self.anthropic_api_key:
+        if self.ai_provider.anthropic.api_key:
             providers.append("anthropic")
-        if self.gemini_api_key:
-            providers.append("google")
+        if self.ai_provider.gemini.api_key:
+            providers.append("gemini")
+        if self.ai_provider.xai.api_key:
+            providers.append("xai")
         return providers
 
     def has_provider(self, provider: str) -> bool:
         """Check if a specific provider has API key configured."""
         provider = provider.lower()
         if provider == "openai":
-            return self.openai_api_key is not None
+            return bool(self.ai_provider.openai.api_key)
         if provider == "anthropic":
-            return self.anthropic_api_key is not None
-        if provider in ["google", "gemini"]:
-            return self.gemini_api_key is not None
+            return bool(self.ai_provider.anthropic.api_key)
+        if provider == "gemini" or provider == "google":
+            return bool(self.ai_provider.gemini.api_key)
+        if provider == "xai" or provider == "grok":
+            return bool(self.ai_provider.xai.api_key)
         return False
 
 
-# Singleton instance for use across tests
+def export_api_keys_to_env() -> None:
+    """Export API keys from test_settings to environment variables for smoke tests."""
+    # Export OpenAI API key
+    if test_settings.ai_provider.openai.api_key:
+        os.environ["OPENAI_API_KEY"] = test_settings.ai_provider.openai.api_key.get_secret_value()
+
+    # Export Anthropic API key
+    if test_settings.ai_provider.anthropic.api_key:
+        os.environ["ANTHROPIC_API_KEY"] = test_settings.ai_provider.anthropic.api_key.get_secret_value()
+
+    # Export Gemini API key
+    if test_settings.ai_provider.gemini.api_key:
+        os.environ["GOOGLE_API_KEY"] = test_settings.ai_provider.gemini.api_key.get_secret_value()
+
+    # Export xAI API key
+    if test_settings.ai_provider.xai.api_key:
+        os.environ["XAI_API_KEY"] = test_settings.ai_provider.xai.api_key.get_secret_value()
+
+
+# Create singleton instance and export API keys
 test_settings = TestSettings()
+export_api_keys_to_env()

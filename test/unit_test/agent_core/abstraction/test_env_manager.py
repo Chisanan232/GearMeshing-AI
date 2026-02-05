@@ -32,9 +32,21 @@ class TestEnvManager:
     def test_env_manager_initialization_with_mock_settings(self, mock_settings_class: Any) -> None:
         """Test EnvManager initialization with mocked settings."""
         mock_settings = Mock(spec=AIProviderSettings)
-        mock_settings.openai_api_key = SecretStr("test-openai-key")
-        mock_settings.anthropic_api_key = SecretStr("test-anthropic-key")
-        mock_settings.gemini_api_key = None
+
+        # Create nested mock structure
+        mock_openai = Mock()
+        mock_openai.api_key = SecretStr("test-openai-key")
+        mock_anthropic = Mock()
+        mock_anthropic.api_key = SecretStr("test-anthropic-key")
+        mock_gemini = Mock()
+        mock_gemini.api_key = None
+
+        mock_ai_provider = Mock()
+        mock_ai_provider.openai = mock_openai
+        mock_ai_provider.anthropic = mock_anthropic
+        mock_ai_provider.gemini = mock_gemini
+
+        mock_settings.ai_provider = mock_ai_provider
         mock_settings_class.return_value = mock_settings
 
         with patch("gearmeshing_ai.core.models.setting.AIProviderSettings", mock_settings_class):
@@ -49,9 +61,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with OpenAI key
-        env_manager.settings.openai_api_key = SecretStr("sk-test-key")
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = SecretStr("sk-test-key")
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # Test various case combinations
         assert env_manager.validate_provider_keys("openai") is True
@@ -64,9 +76,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with Anthropic key
-        env_manager.settings.openai_api_key = None
-        env_manager.settings.anthropic_api_key = SecretStr("sk-ant-test-key")
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = None
+        env_manager.settings.ai_provider.anthropic.api_key = SecretStr("sk-ant-test-key")
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # Test various case combinations
         assert env_manager.validate_provider_keys("anthropic") is True
@@ -78,9 +90,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with Gemini key
-        env_manager.settings.openai_api_key = None
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = SecretStr("test-gemini-key")
+        env_manager.settings.ai_provider.openai.api_key = None
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = SecretStr("test-gemini-key")
 
         # Test various names for Google provider
         assert env_manager.validate_provider_keys("gemini") is True
@@ -94,9 +106,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with no keys
-        env_manager.settings.openai_api_key = None
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = None
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # All should return False
         assert env_manager.validate_provider_keys("openai") is False
@@ -109,7 +121,7 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with some keys
-        env_manager.settings.openai_api_key = SecretStr("test-key")
+        env_manager.settings.ai_provider.openai.api_key = SecretStr("test-key")
 
         # Unsupported providers should return False
         assert env_manager.validate_provider_keys("unsupported") is False
@@ -122,9 +134,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with OpenAI key
-        env_manager.settings.openai_api_key = SecretStr("test-key")
-        env_manager.settings.anthropic_api_key = SecretStr("test-key")
-        env_manager.settings.gemini_api_key = SecretStr("test-key")
+        env_manager.settings.ai_provider.openai.api_key = SecretStr("test-key")
+        env_manager.settings.ai_provider.anthropic.api_key = SecretStr("test-key")
+        env_manager.settings.ai_provider.gemini.api_key = SecretStr("test-key")
 
         # Test various case combinations
         test_cases = [
@@ -159,9 +171,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with all keys
-        env_manager.settings.openai_api_key = SecretStr("sk-openai-test")
-        env_manager.settings.anthropic_api_key = SecretStr("sk-ant-anthropic-test")
-        env_manager.settings.gemini_api_key = SecretStr("gemini-test-key")
+        env_manager.settings.ai_provider.openai.api_key = SecretStr("sk-openai-test")
+        env_manager.settings.ai_provider.anthropic.api_key = SecretStr("sk-ant-anthropic-test")
+        env_manager.settings.ai_provider.gemini.api_key = SecretStr("gemini-test-key")
 
         # Export variables
         env_manager.export_variables()
@@ -177,9 +189,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with only OpenAI key
-        env_manager.settings.openai_api_key = SecretStr("sk-openai-test")
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = SecretStr("sk-openai-test")
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # Export variables
         env_manager.export_variables()
@@ -195,9 +207,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with no keys
-        env_manager.settings.openai_api_key = None
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = None
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # Export variables
         env_manager.export_variables()
@@ -216,9 +228,9 @@ class TestEnvManager:
         assert os.environ.get("OPENAI_API_KEY") == "existing-key"
 
         # Mock settings with different OpenAI key
-        env_manager.settings.openai_api_key = SecretStr("sk-new-key")
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = SecretStr("sk-new-key")
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # Export variables
         env_manager.export_variables()
@@ -232,9 +244,9 @@ class TestEnvManager:
 
         # Mock settings with SecretStr
         secret_key = SecretStr("sk-secret-value")
-        env_manager.settings.openai_api_key = secret_key
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = secret_key
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # Export variables
         with patch.dict(os.environ, {}, clear=True):
@@ -244,7 +256,7 @@ class TestEnvManager:
             assert os.environ.get("OPENAI_API_KEY") == "sk-secret-value"
 
             # Verify the SecretStr object is still intact
-            assert env_manager.settings.openai_api_key.get_secret_value() == "sk-secret-value"
+            assert env_manager.settings.ai_provider.openai.api_key.get_secret_value() == "sk-secret-value"
 
     def test_get_settings(self) -> None:
         """Test get_settings method."""
@@ -261,9 +273,9 @@ class TestEnvManager:
         with patch.dict(
             os.environ,
             {
-                "OPENAI_API_KEY": "sk-real-openai-key",
-                "ANTHROPIC_API_KEY": "sk-real-anthropic-key",
-                "GEMINI_API_KEY": "real-gemini-key",
+                "AI_PROVIDER__OPENAI__API_KEY": "sk-real-openai-key",
+                "AI_PROVIDER__ANTHROPIC__API_KEY": "sk-real-anthropic-key",
+                "AI_PROVIDER__GEMINI__API_KEY": "real-gemini-key",
             },
         ):
             settings = AIProviderSettings()
@@ -305,9 +317,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings
-        env_manager.settings.openai_api_key = SecretStr("sk-test-key")
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = SecretStr("sk-test-key")
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # Export multiple times
         with patch.dict(os.environ, {}, clear=True):
@@ -325,9 +337,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings with OpenAI key
-        env_manager.settings.openai_api_key = SecretStr("test-key")
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = SecretStr("test-key")
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # Test edge cases
         edge_cases = [
@@ -352,9 +364,9 @@ class TestEnvManager:
         env_manager = EnvManager()
 
         # Mock settings
-        env_manager.settings.openai_api_key = SecretStr("sk-new-value")
-        env_manager.settings.anthropic_api_key = None
-        env_manager.settings.gemini_api_key = None
+        env_manager.settings.ai_provider.openai.api_key = SecretStr("sk-new-value")
+        env_manager.settings.ai_provider.anthropic.api_key = None
+        env_manager.settings.ai_provider.gemini.api_key = None
 
         # Export multiple times and verify consistency
         for _ in range(5):

@@ -71,7 +71,10 @@ class TestAgentAdapterSmoke:
 
         # Create test settings
         model_settings = ModelSettings(
-            customized_name="test_openai", provider="openai", model="gpt-4", api_key=test_settings.openai_api_key
+            customized_name="test_openai",
+            provider="openai",
+            model="gpt-4",
+            api_key=test_settings.ai_provider.openai.api_key,
         )
 
         agent_settings = AgentSettings(
@@ -106,7 +109,7 @@ class TestAgentAdapterSmoke:
             customized_name="test_openai",
             provider="openai",
             model="gpt-4",
-            api_key=test_settings.openai_api_key,
+            api_key=test_settings.ai_provider.openai.api_key,
             max_tokens=50,  # Limit tokens for testing
         )
 
@@ -142,7 +145,7 @@ class TestAgentAdapterSmoke:
             customized_name="test_openai",
             provider="openai",
             model="gpt-4",
-            api_key=test_settings.openai_api_key,
+            api_key=test_settings.ai_provider.openai.api_key,
             max_tokens=50,  # Limit tokens for testing
         )
 
@@ -197,7 +200,7 @@ class TestAgentFactorySmoke:
             customized_name="test_openai",
             provider="openai",
             model="gpt-4",
-            api_key=test_settings.openai_api_key,
+            api_key=test_settings.ai_provider.openai.api_key,
             max_tokens=50,
         )
 
@@ -235,7 +238,10 @@ class TestAgentSettingsSmoke:
         """Test settings with real OpenAI API key."""
         if test_settings.has_provider("openai"):
             model_settings = ModelSettings(
-                customized_name="real_openai", provider="openai", model="gpt-4", api_key=test_settings.openai_api_key
+                customized_name="real_openai",
+                provider="openai",
+                model="gpt-4",
+                api_key=test_settings.ai_provider.openai.api_key,
             )
             assert model_settings.api_key is not None
             assert model_settings.api_key.get_secret_value() is not None
@@ -248,7 +254,7 @@ class TestAgentSettingsSmoke:
                 customized_name="real_anthropic",
                 provider="anthropic",
                 model="claude-3-sonnet-20240229",
-                api_key=test_settings.anthropic_api_key,
+                api_key=test_settings.ai_provider.anthropic.api_key,
             )
             assert model_settings.api_key is not None
             assert model_settings.api_key.get_secret_value() is not None
@@ -261,7 +267,7 @@ class TestAgentSettingsSmoke:
                 customized_name="real_gemini",
                 provider="google",
                 model="gemini-pro",
-                api_key=test_settings.gemini_api_key,
+                api_key=test_settings.ai_provider.gemini.api_key,
             )
             assert model_settings.api_key is not None
             assert model_settings.api_key.get_secret_value() is not None
@@ -316,7 +322,7 @@ class TestIntegrationSmoke:
             customized_name="integration_test",
             provider="openai",
             model="gpt-4",
-            api_key=test_settings.openai_api_key,
+            api_key=test_settings.ai_provider.openai.api_key,
             temperature=0.7,
             max_tokens=50,
         )
