@@ -11,7 +11,7 @@ class AgentFactory:
     Handles settings management, tool retrieval via MCP, and caching.
     """
 
-    def __init__(self, adapter: AgentAdapter, mcp_client: MCPClientAbstraction | None = None):
+    def __init__(self, adapter: AgentAdapter, mcp_client: MCPClientAbstraction | None = None) -> None:
         self.adapter = adapter
         self.mcp_client = mcp_client
         self.cache = AgentCache()
