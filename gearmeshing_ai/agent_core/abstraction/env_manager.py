@@ -8,7 +8,7 @@ class EnvManager:
     Validates API keys and exports them to os.environ for libraries that expect them there.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.settings = AIProviderSettings()
 
     def validate_provider_keys(self, provider: str) -> bool:
