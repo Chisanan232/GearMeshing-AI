@@ -185,7 +185,7 @@ class TestAgentFactoryIntegration:
         # Test streaming execution
         chunks = []
         stream_coro = factory.adapter.run_stream(agent, "Tell me a story")
-        async for chunk in await stream_coro:
+        async for chunk in stream_coro:
             chunks.append(chunk)
 
         assert len(chunks) == 2

@@ -191,7 +191,7 @@ class TestMCPClientAbstraction:
         """Test that MCP client methods have proper docstrings."""
         # Test that abstract method has docstring
         assert MCPClientAbstraction.get_tools.__doc__ is not None
-        assert "Fetches tool implementations" in MCPClientAbstraction.get_tools.__doc__
+        assert "Fetch tool implementations" in MCPClientAbstraction.get_tools.__doc__
         assert "tool_names" in MCPClientAbstraction.get_tools.__doc__
 
     def test_mcp_client_async_method(self) -> None:

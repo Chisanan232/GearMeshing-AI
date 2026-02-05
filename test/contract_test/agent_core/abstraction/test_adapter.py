@@ -234,10 +234,10 @@ class TestAgentAdapter:
         """Test that adapter methods have proper docstrings."""
         # Test that abstract methods have docstrings
         assert AgentAdapter.create_agent.__doc__ is not None
-        assert "Creates and returns" in AgentAdapter.create_agent.__doc__
+        assert "Create and return" in AgentAdapter.create_agent.__doc__
 
         assert AgentAdapter.run.__doc__ is not None
-        assert "Runs the agent" in AgentAdapter.run.__doc__
+        assert "Run the agent" in AgentAdapter.run.__doc__
 
         assert AgentAdapter.run_stream.__doc__ is not None
         assert "streaming mode" in AgentAdapter.run_stream.__doc__
