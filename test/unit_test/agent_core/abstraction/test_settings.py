@@ -11,7 +11,7 @@ from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelS
 class TestModelSettings:
     """Test cases for ModelSettings class."""
 
-    def test_model_settings_creation_with_required_fields(self):
+    def test_model_settings_creation_with_required_fields(self) -> None:
         """Test creating ModelSettings with only required fields."""
         settings = ModelSettings(customized_name="test-model", provider="openai", model="gpt-4")
 
@@ -24,7 +24,7 @@ class TestModelSettings:
         assert settings.max_tokens is None
         assert settings.additional_params == {}
 
-    def test_model_settings_creation_with_all_fields(self):
+    def test_model_settings_creation_with_all_fields(self) -> None:
         """Test creating ModelSettings with all fields."""
         api_key = "sk-test-key"
         settings = ModelSettings(
@@ -41,13 +41,13 @@ class TestModelSettings:
         assert settings.customized_name == "complete-model"
         assert settings.provider == "anthropic"
         assert settings.model == "claude-3-opus"
-        assert settings.api_key.get_secret_value() == api_key
+        assert settings.api_key is not None and settings.api_key.get_secret_value() == api_key
         assert settings.api_base == "https://api.anthropic.com"
         assert settings.temperature == 0.5
         assert settings.max_tokens == 4096
         assert settings.additional_params == {"top_p": 0.9, "frequency_penalty": 0.1}
 
-    def test_model_settings_validation_errors(self):
+    def test_model_settings_validation_errors(self) -> None:
         """Test validation errors for missing required fields."""
         # Missing customized_name
         with pytest.raises(ValidationError) as exc_info:
@@ -64,7 +64,7 @@ class TestModelSettings:
             ModelSettings(customized_name="test", provider="openai")
         assert "model" in str(exc_info.value)
 
-    def test_model_settings_temperature_validation(self):
+    def test_model_settings_temperature_validation(self) -> None:
         """Test temperature field validation."""
         # Valid temperature values
         settings = ModelSettings(customized_name="test", provider="openai", model="gpt-4", temperature=0.0)
@@ -77,7 +77,7 @@ class TestModelSettings:
         settings = ModelSettings(customized_name="test", provider="openai", model="gpt-4", temperature=0.123)
         assert settings.temperature == 0.123
 
-    def test_model_settings_secret_str_behavior(self):
+    def test_model_settings_secret_str_behavior(self) -> None:
         """Test SecretStr behavior for API key."""
         api_key = "sk-secret-key"
         settings = ModelSettings(customized_name="test", provider="openai", model="gpt-4", api_key=api_key)
@@ -87,9 +87,9 @@ class TestModelSettings:
         assert "**********" in repr(settings.api_key) or "SecretStr" in repr(settings.api_key)
 
         # But get_secret_value() should return the actual value
-        assert settings.api_key.get_secret_value() == api_key
+        assert settings.api_key is not None and settings.api_key.get_secret_value() == api_key
 
-    def test_model_settings_additional_params_mutation(self):
+    def test_model_settings_additional_params_mutation(self) -> None:
         """Test that additional_params can be modified after creation."""
         settings = ModelSettings(
             customized_name="test", provider="openai", model="gpt-4", additional_params={"initial": "value"}
@@ -99,7 +99,7 @@ class TestModelSettings:
         settings.additional_params["new_key"] = "new_value"
         assert settings.additional_params == {"initial": "value", "new_key": "new_value"}
 
-    def test_model_settings_model_copy_with_update(self):
+    def test_model_settings_model_copy_with_update(self) -> None:
         """Test model_copy with update functionality."""
         original = ModelSettings(customized_name="test", provider="openai", model="gpt-4", temperature=0.7)
 
@@ -119,7 +119,7 @@ class TestModelSettings:
 class TestAgentSettings:
     """Test cases for AgentSettings class."""
 
-    def test_agent_settings_creation_with_required_fields(self):
+    def test_agent_settings_creation_with_required_fields(self) -> None:
         """Test creating AgentSettings with only required fields."""
         model_settings = ModelSettings(customized_name="test-model", provider="openai", model="gpt-4")
 
@@ -132,7 +132,7 @@ class TestAgentSettings:
         assert agent_settings.system_prompt is None
         assert agent_settings.metadata == {}
 
-    def test_agent_settings_creation_with_all_fields(self):
+    def test_agent_settings_creation_with_all_fields(self) -> None:
         """Test creating AgentSettings with all fields."""
         model_settings = ModelSettings(
             customized_name="complete-model", provider="anthropic", model="claude-3-opus", api_key="sk-test-key"
@@ -154,7 +154,7 @@ class TestAgentSettings:
         assert agent_settings.system_prompt == "You are a helpful assistant."
         assert agent_settings.metadata == {"version": "1.0", "author": "test"}
 
-    def test_agent_settings_validation_errors(self):
+    def test_agent_settings_validation_errors(self) -> None:
         """Test validation errors for missing required fields."""
         model_settings = ModelSettings(customized_name="test-model", provider="openai", model="gpt-4")
 
@@ -173,7 +173,7 @@ class TestAgentSettings:
             AgentSettings(role="test", description="Test agent")
         assert "model_settings" in str(exc_info.value)
 
-    def test_agent_settings_tools_list_behavior(self):
+    def test_agent_settings_tools_list_behavior(self) -> None:
         """Test tools field behavior."""
         model_settings = ModelSettings(customized_name="test", provider="openai", model="gpt-4")
 
@@ -187,7 +187,7 @@ class TestAgentSettings:
         )
         assert agent_settings.tools == ["tool1", "tool2", "tool3"]
 
-    def test_agent_settings_metadata_mutation(self):
+    def test_agent_settings_metadata_mutation(self) -> None:
         """Test that metadata can be modified after creation."""
         model_settings = ModelSettings(customized_name="test", provider="openai", model="gpt-4")
 
@@ -199,7 +199,7 @@ class TestAgentSettings:
         agent_settings.metadata["new_key"] = "new_value"
         assert agent_settings.metadata == {"initial": "value", "new_key": "new_value"}
 
-    def test_agent_settings_model_copy_with_update(self):
+    def test_agent_settings_model_copy_with_update(self) -> None:
         """Test model_copy with update functionality."""
         model_settings = ModelSettings(customized_name="test", provider="openai", model="gpt-4")
 
@@ -226,7 +226,7 @@ class TestAgentSettings:
         assert original.tools == ["tool1"]
         assert original.system_prompt is None
 
-    def test_agent_settings_nested_model_validation(self):
+    def test_agent_settings_nested_model_validation(self) -> None:
         """Test that nested ModelSettings are properly validated."""
         # Invalid nested model settings should cause validation error
         with pytest.raises(ValidationError):
@@ -236,7 +236,7 @@ class TestAgentSettings:
                 model_settings="invalid_model_settings",  # Should be ModelSettings instance
             )
 
-    def test_agent_settings_serialization(self):
+    def test_agent_settings_serialization(self) -> None:
         """Test serialization behavior."""
         model_settings = ModelSettings(customized_name="test", provider="openai", model="gpt-4", api_key="sk-secret")
 
@@ -256,5 +256,6 @@ class TestAgentSettings:
         assert "**********" in api_key_repr
 
         # Test that we can get the actual secret value
+        assert model_data["api_key"] is not None
         actual_value = model_data["api_key"].get_secret_value()
         assert actual_value == "sk-secret"
