@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, AsyncGenerator
 
 from .settings import AgentSettings
 
@@ -25,7 +25,7 @@ class AgentAdapter(ABC):
         pass
 
     @abstractmethod
-    async def run(self, agent: Any, prompt: str, **kwargs) -> Any:
+    async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         """Runs the agent with a prompt.
 
         Args:
@@ -40,7 +40,7 @@ class AgentAdapter(ABC):
         pass
 
     @abstractmethod
-    async def run_stream(self, agent: Any, prompt: str, **kwargs) -> Any:
+    async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> AsyncGenerator[str, None]:
         """Runs the agent with a prompt in streaming mode.
 
         Args:
