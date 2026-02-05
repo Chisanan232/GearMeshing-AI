@@ -482,9 +482,9 @@ class TestCompleteWorkflowIntegration:
         ):
             # Configure mock settings
             mock_instance = Mock()
-            mock_instance.openai_api_key = SecretStr("sk-test-key")
-            mock_instance.anthropic_api_key = SecretStr("sk-ant-test-key")
-            mock_instance.gemini_api_key = SecretStr("sk-gemini-test-key")
+            mock_instance.ai_provider.openai.api_key = SecretStr("sk-test-key")
+            mock_instance.ai_provider.anthropic.api_key = SecretStr("sk-ant-test-key")
+            mock_instance.ai_provider.gemini.api_key = SecretStr("sk-gemini-test-key")
             mock_settings.return_value = mock_instance
 
             # Create environment manager after patching
