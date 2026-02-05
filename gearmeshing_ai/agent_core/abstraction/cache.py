@@ -1,14 +1,15 @@
-from typing import Dict, Any, Optional
 import threading
+from typing import Any
+
 
 class AgentCache:
-    """
-    Singleton cache for storing instantiated AI agents.
+    """Singleton cache for storing instantiated AI agents.
     Uses 'role' as the primary key.
     """
+
     _instance = None
     _lock = threading.Lock()
-    _agents: Dict[str, Any] = {}
+    _agents: dict[str, Any] = {}
 
     def __new__(cls):
         if cls._instance is None:
@@ -17,7 +18,7 @@ class AgentCache:
                     cls._instance = super(AgentCache, cls).__new__(cls)
         return cls._instance
 
-    def get(self, role: str) -> Optional[Any]:
+    def get(self, role: str) -> Any | None:
         """Retrieve an agent instance by role."""
         return self._agents.get(role)
 

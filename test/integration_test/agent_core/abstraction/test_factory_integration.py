@@ -2,34 +2,35 @@
 Integration tests for AgentFactory with real adapters and MCP client.
 """
 
-import pytest
-from unittest.mock import Mock, AsyncMock
-from typing import Any, List, Dict
+from typing import Any
+from unittest.mock import Mock
 
-from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
+import pytest
+
 from gearmeshing_ai.agent_core.abstraction.adapter import AgentAdapter
-from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
 from gearmeshing_ai.agent_core.abstraction.cache import AgentCache
+from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
+from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
 
 
 class ConcreteAgentAdapter(AgentAdapter):
     """Concrete implementation of AgentAdapter for integration testing."""
-    
+
     def __init__(self):
         self.created_agents = []
         self.run_calls = []
         self.run_stream_calls = []
-    
-    def create_agent(self, settings: AgentSettings, tools: List[Any]) -> Any:
+
+    def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
         agent = ConcreteAgent(settings, tools)
         self.created_agents.append(agent)
         return agent
-    
+
     async def run(self, agent: Any, prompt: str, **kwargs) -> Any:
         self.run_calls.append((agent, prompt, kwargs))
         return f"Response from {agent.settings.role}: {prompt}"
-    
+
     async def run_stream(self, agent: Any, prompt: str, **kwargs) -> Any:
         self.run_stream_calls.append((agent, prompt, kwargs))
         yield f"Chunk 1 from {agent.settings.role}: {prompt}"
@@ -38,28 +39,28 @@ class ConcreteAgentAdapter(AgentAdapter):
 
 class ConcreteAgent:
     """Concrete agent implementation for testing."""
-    
-    def __init__(self, settings: AgentSettings, tools: List[Any]):
+
+    def __init__(self, settings: AgentSettings, tools: list[Any]):
         self.settings = settings
         self.tools = tools
         self.execution_history = []
-    
+
     def __repr__(self):
         return f"ConcreteAgent(role={self.settings.role}, tools={len(self.tools)})"
 
 
 class ConcreteMCPClient(MCPClientAbstraction):
     """Concrete implementation of MCPClientAbstraction for integration testing."""
-    
-    def __init__(self, tools_registry: Dict[str, Any] = None):
+
+    def __init__(self, tools_registry: dict[str, Any] = None):
         self.tools_registry = tools_registry or {}
         self.get_tools_history = []
         self.connection_count = 0
-    
-    async def get_tools(self, tool_names: List[str]) -> List[Any]:
+
+    async def get_tools(self, tool_names: list[str]) -> list[Any]:
         self.get_tools_history.append(tool_names)
         self.connection_count += 1
-        
+
         tools = []
         for name in tool_names:
             if name in self.tools_registry:
@@ -70,7 +71,7 @@ class ConcreteMCPClient(MCPClientAbstraction):
                 tool.name = name
                 tool.description = f"Mock MCP tool: {name}"
                 tools.append(tool)
-        
+
         return tools
 
 
@@ -92,7 +93,7 @@ class TestAgentFactoryIntegration:
             tool.name = name
             tool.description = f"Mock MCP tool: {name}"
             tools[name] = tool
-        
+
         return tools
 
     @pytest.fixture
@@ -109,11 +110,7 @@ class TestAgentFactoryIntegration:
     def sample_model_settings(self):
         """Fixture providing sample model settings."""
         return ModelSettings(
-            customized_name="gpt-4-config",
-            provider="openai",
-            model="gpt-4",
-            temperature=0.7,
-            max_tokens=2048
+            customized_name="gpt-4-config", provider="openai", model="gpt-4", temperature=0.7, max_tokens=2048
         )
 
     @pytest.fixture
@@ -125,7 +122,7 @@ class TestAgentFactoryIntegration:
             model_settings=sample_model_settings,
             tools=["calculator", "weather"],
             system_prompt="You are a helpful assistant.",
-            metadata={"version": "1.0", "category": "general"}
+            metadata={"version": "1.0", "category": "general"},
         )
 
     def test_factory_with_concrete_implementations(self, factory, adapter, mcp_client):
@@ -140,22 +137,22 @@ class TestAgentFactoryIntegration:
         """Test complete agent creation workflow with concrete implementations."""
         # Clear cache to ensure fresh creation
         factory.cache.clear()
-        
+
         # Register agent settings
         factory.register_agent_settings(sample_agent_settings)
-        
+
         # Create agent
         agent = await factory.get_or_create_agent("assistant")
-        
+
         # Verify agent creation
         assert isinstance(agent, ConcreteAgent)
         assert agent.settings is sample_agent_settings
         assert len(agent.tools) == 2  # calculator and weather
-        
+
         # Verify adapter was called
         assert len(factory.adapter.created_agents) == 1
         assert factory.adapter.created_agents[0] is agent
-        
+
         # Verify MCP client was called
         assert len(factory.mcp_client.get_tools_history) == 1
         assert factory.mcp_client.get_tools_history[0] == ["calculator", "weather"]
@@ -165,10 +162,10 @@ class TestAgentFactoryIntegration:
         # Register and create agent
         factory.register_agent_settings(sample_agent_settings)
         agent = await factory.get_or_create_agent("assistant")
-        
+
         # Test run execution
         response = await factory.adapter.run(agent, "What is 2+2?")
-        
+
         assert "Response from assistant: What is 2+2?" in response
         assert len(factory.adapter.run_calls) == 1
         assert factory.adapter.run_calls[0][0] is agent
@@ -179,12 +176,12 @@ class TestAgentFactoryIntegration:
         # Register and create agent
         factory.register_agent_settings(sample_agent_settings)
         agent = await factory.get_or_create_agent("assistant")
-        
+
         # Test streaming execution
         chunks = []
         async for chunk in factory.adapter.run_stream(agent, "Tell me a story"):
             chunks.append(chunk)
-        
+
         assert len(chunks) == 2
         assert all("assistant" in chunk for chunk in chunks)
         assert len(factory.adapter.run_stream_calls) == 1
@@ -193,19 +190,19 @@ class TestAgentFactoryIntegration:
         """Test agent caching behavior with concrete agents."""
         # Clear cache to start fresh
         factory.cache.clear()
-        
+
         # Register settings
         factory.register_agent_settings(sample_agent_settings)
-        
+
         # Create agent multiple times
         agent1 = await factory.get_or_create_agent("assistant")
         agent2 = await factory.get_or_create_agent("assistant")
         agent3 = await factory.get_or_create_agent("assistant")
-        
+
         # Verify caching
         assert agent1 is agent2
         assert agent2 is agent3
-        
+
         # Verify only one agent was created
         assert len(factory.adapter.created_agents) == 1
         assert len(factory.mcp_client.get_tools_history) == 1
@@ -214,30 +211,30 @@ class TestAgentFactoryIntegration:
         """Test factory with multiple different agents."""
         # Clear cache to ensure fresh creation
         factory.cache.clear()
-        
+
         # Create different agent settings
         assistant_settings = AgentSettings(
             role="assistant",
             description="General assistant",
             model_settings=sample_model_settings,
-            tools=["calculator"]
+            tools=["calculator"],
         )
-        
+
         analyst_settings = AgentSettings(
             role="analyst",
             description="Data analyst",
             model_settings=sample_model_settings,
-            tools=["database", "calculator"]
+            tools=["database", "calculator"],
         )
-        
+
         # Register both agents
         factory.register_agent_settings(assistant_settings)
         factory.register_agent_settings(analyst_settings)
-        
+
         # Create both agents
         assistant = await factory.get_or_create_agent("assistant")
         analyst = await factory.get_or_create_agent("analyst")
-        
+
         # Verify different agents
         assert assistant is not analyst
         assert assistant.settings.role == "assistant"
@@ -249,23 +246,20 @@ class TestAgentFactoryIntegration:
         """Test factory workflow with override settings."""
         # Register base settings
         factory.register_agent_settings(sample_agent_settings)
-        
+
         # Create agent with overrides
         overrides = {
             "description": "Overridden description",
             "system_prompt": "Overridden system prompt",
-            "model_settings": {
-                "temperature": 0.3,
-                "max_tokens": 1024
-            }
+            "model_settings": {"temperature": 0.3, "max_tokens": 1024},
         }
-        
+
         agent = await factory.get_or_create_agent("assistant", overrides)
-        
+
         # Verify overrides were applied
         assert agent.settings.description == "Overridden description"
         assert agent.settings.system_prompt == "Overridden system prompt"
-        
+
         # Check model_settings (handle both ModelSettings and dict)
         model_settings = agent.settings.model_settings
         if isinstance(model_settings, ModelSettings):
@@ -274,10 +268,10 @@ class TestAgentFactoryIntegration:
             assert model_settings.provider == "openai"
         else:
             # If it's a dict due to mock behavior
-            assert model_settings.get('temperature') == 0.3
-            assert model_settings.get('max_tokens') == 1024
+            assert model_settings.get("temperature") == 0.3
+            assert model_settings.get("max_tokens") == 1024
             # The provider field should be preserved from the original
-            assert model_settings.get('provider', 'openai') == 'openai'
+            assert model_settings.get("provider", "openai") == "openai"
 
     async def test_factory_error_handling_workflow(self, factory):
         """Test factory error handling with concrete implementations."""
@@ -289,15 +283,15 @@ class TestAgentFactoryIntegration:
         """Test that MCP client errors are properly propagated."""
         # Clear cache to ensure fresh creation
         factory.cache.clear()
-        
+
         # Create MCP client that fails
         class FailingMCPClient(MCPClientAbstraction):
-            async def get_tools(self, tool_names: List[str]) -> List[Any]:
+            async def get_tools(self, tool_names: list[str]) -> list[Any]:
                 raise RuntimeError("MCP server unavailable")
-        
+
         factory.mcp_client = FailingMCPClient()
         factory.register_agent_settings(sample_agent_settings)
-        
+
         # Should propagate MCP error
         with pytest.raises(RuntimeError, match="MCP server unavailable"):
             await factory.get_or_create_agent("assistant")
@@ -305,45 +299,41 @@ class TestAgentFactoryIntegration:
     async def test_factory_without_mcp_client(self, adapter):
         """Test factory workflow without MCP client."""
         factory = AgentFactory(adapter)  # No MCP client
-        
+
         # Register settings without tools
-        model_settings = ModelSettings(
-            customized_name="test-model",
-            provider="openai",
-            model="gpt-4"
-        )
+        model_settings = ModelSettings(customized_name="test-model", provider="openai", model="gpt-4")
         agent_settings = AgentSettings(
             role="simple-agent",
             description="Simple agent without tools",
             model_settings=model_settings,
-            tools=[]  # No tools
+            tools=[],  # No tools
         )
-        
+
         factory.register_agent_settings(agent_settings)
-        
+
         # Create agent (should work without MCP client)
         agent = await factory.get_or_create_agent("simple-agent")
-        
+
         assert isinstance(agent, ConcreteAgent)
         assert len(agent.tools) == 0
 
     async def test_concurrent_agent_creation(self, factory, sample_agent_settings):
         """Test concurrent agent creation with concrete implementations."""
         factory.register_agent_settings(sample_agent_settings)
-        
+
         import asyncio
-        
+
         async def create_agents_concurrently():
             tasks = []
             for i in range(5):
                 task = factory.get_or_create_agent("assistant")
                 tasks.append(task)
-            
+
             agents = await asyncio.gather(*tasks)
             return agents
-        
+
         agents = await create_agents_concurrently()
-        
+
         # All agents should be the same (cached)
         assert all(agent is agents[0] for agent in agents)
         assert len(factory.adapter.created_agents) == 1
@@ -352,33 +342,21 @@ class TestAgentFactoryIntegration:
         """Test that factory instances maintain isolated state."""
         factory1 = AgentFactory(adapter, mcp_client)
         factory2 = AgentFactory(adapter, mcp_client)
-        
+
         # Register different settings in each factory
-        model_settings = ModelSettings(
-            customized_name="test-model",
-            provider="openai",
-            model="gpt-4"
-        )
-        
-        agent1_settings = AgentSettings(
-            role="agent1",
-            description="Agent 1",
-            model_settings=model_settings
-        )
-        
-        agent2_settings = AgentSettings(
-            role="agent2",
-            description="Agent 2",
-            model_settings=model_settings
-        )
-        
+        model_settings = ModelSettings(customized_name="test-model", provider="openai", model="gpt-4")
+
+        agent1_settings = AgentSettings(role="agent1", description="Agent 1", model_settings=model_settings)
+
+        agent2_settings = AgentSettings(role="agent2", description="Agent 2", model_settings=model_settings)
+
         factory1.register_agent_settings(agent1_settings)
         factory2.register_agent_settings(agent2_settings)
-        
+
         # Create agents from each factory
         agent1 = await factory1.get_or_create_agent("agent1")
         agent2 = await factory2.get_or_create_agent("agent2")
-        
+
         # Verify isolation
         assert agent1.settings.role == "agent1"
         assert agent2.settings.role == "agent2"
@@ -391,26 +369,26 @@ class TestAgentFactoryIntegration:
         """Test complete workflow including tool execution simulation."""
         # Clear cache to ensure fresh creation with tools
         factory.cache.clear()
-        
+
         factory.register_agent_settings(sample_agent_settings)
-        
+
         # Create agent
         agent = await factory.get_or_create_agent("assistant")
-        
+
         # Verify tools were properly fetched and attached
         assert len(agent.tools) == 2
-        tool_names = [tool.name for tool in agent.tools if hasattr(tool, 'name')]
+        tool_names = [tool.name for tool in agent.tools if hasattr(tool, "name")]
         assert "calculator" in tool_names
         assert "weather" in tool_names
-        
+
         # Simulate tool usage
         calculator_tool = agent.tools[0]
-        if hasattr(calculator_tool, 'calculate'):
+        if hasattr(calculator_tool, "calculate"):
             calculator_tool.calculate.return_value = 42
-        
+
         # Execute agent with tool usage
         response = await factory.adapter.run(agent, "Calculate 2*2")
-        
+
         assert "Response from assistant" in response
         assert len(factory.adapter.run_calls) == 1
 
@@ -420,15 +398,15 @@ class TestAgentFactoryIntegration:
         factory = AgentFactory(adapter, mcp_client)
         assert factory.adapter is adapter
         assert factory.mcp_client is mcp_client
-        
+
         # Test with None adapter (should still work)
         factory = AgentFactory(None, mcp_client)
         assert factory.adapter is None
-        
+
         # Test with None MCP client (should still work)
         factory = AgentFactory(adapter, None)
         assert factory.mcp_client is None
-        
+
         # Test with both None
         factory = AgentFactory(None, None)
         assert factory.adapter is None
