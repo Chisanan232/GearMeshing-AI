@@ -16,7 +16,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 TEST_ENV_PATH = Path(__file__).parent / ".env"
 if TEST_ENV_PATH.exists():
     load_dotenv(TEST_ENV_PATH)
-elif Path(__file__).parent.parent / ".env".exists():
+elif (Path(__file__).parent.parent / ".env").exists():
     # Try parent directory .env as fallback
     load_dotenv(Path(__file__).parent.parent / ".env")
 
@@ -64,11 +64,11 @@ class TestSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=str(TEST_ENV_PATH), env_file_encoding="utf-8", case_sensitive=False)
 
-    def __init__(self, **data):
+    def __init__(self, **data: Any) -> None:
         super().__init__(**data)
         self._setup_default_configurations()
 
-    def _setup_default_configurations(self):
+    def _setup_default_configurations(self) -> None:
         """Setup default test configurations if API keys are available."""
 
         # Default OpenAI model configuration
