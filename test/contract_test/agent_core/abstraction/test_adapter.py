@@ -3,7 +3,7 @@ Unit tests for AgentAdapter abstract base class.
 """
 
 from abc import ABC
-from typing import Any
+from typing import Any, AsyncGenerator
 from unittest.mock import Mock
 
 import pytest
@@ -18,10 +18,10 @@ class MockAgentAdapter(AgentAdapter):
     def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
         return Mock(spec=["run", "run_stream"])
 
-    async def run(self, agent: Any, prompt: str, **kwargs) -> Any:
+    async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         return f"Mock response to: {prompt}"
 
-    async def run_stream(self, agent: Any, prompt: str, **kwargs) -> Any:
+    async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> AsyncGenerator[str, None]:  # type: ignore[override]
         yield f"Mock chunk 1 for: {prompt}"
         yield f"Mock chunk 2 for: {prompt}"
 
@@ -35,7 +35,7 @@ class IncompleteAgentAdapter(AgentAdapter):
 class TestAgentAdapter:
     """Test cases for AgentAdapter abstract base class."""
 
-    def test_agent_adapter_is_abstract_base_class(self):
+    def test_agent_adapter_is_abstract_base_class(self) -> None:
         """Test that AgentAdapter is an abstract base class."""
         assert issubclass(AgentAdapter, ABC)
         assert hasattr(AgentAdapter, "__abstractmethods__")
@@ -46,28 +46,28 @@ class TestAgentAdapter:
         assert "run" in abstract_methods
         assert "run_stream" in abstract_methods
 
-    def test_agent_adapter_cannot_be_instantiated_directly(self):
+    def test_agent_adapter_cannot_be_instantiated_directly(self) -> None:
         """Test that AgentAdapter cannot be instantiated directly."""
         with pytest.raises(TypeError) as exc_info:
-            AgentAdapter()
+            AgentAdapter()  # type: ignore[abstract]
 
         assert "abstract" in str(exc_info.value).lower()
         assert "create_agent" in str(exc_info.value) or "run" in str(exc_info.value)
 
-    def test_incomplete_adapter_raises_type_error(self):
+    def test_incomplete_adapter_raises_type_error(self) -> None:
         """Test that incomplete adapter implementation raises TypeError."""
         with pytest.raises(TypeError) as exc_info:
-            IncompleteAgentAdapter()
+            IncompleteAgentAdapter()  # type: ignore[abstract]
 
         assert "abstract" in str(exc_info.value).lower()
 
-    def test_complete_adapter_can_be_instantiated(self):
+    def test_complete_adapter_can_be_instantiated(self) -> None:
         """Test that complete adapter implementation can be instantiated."""
         adapter = MockAgentAdapter()
         assert isinstance(adapter, AgentAdapter)
         assert isinstance(adapter, MockAgentAdapter)
 
-    def test_create_agent_method_signature(self):
+    def test_create_agent_method_signature(self) -> None:
         """Test create_agent method signature and behavior."""
         adapter = MockAgentAdapter()
 
@@ -83,7 +83,7 @@ class TestAgentAdapter:
         assert hasattr(agent, "run")
         assert hasattr(agent, "run_stream")
 
-    def test_run_method_signature(self):
+    def test_run_method_signature(self) -> None:
         """Test run method signature and behavior."""
         adapter = MockAgentAdapter()
 
@@ -97,7 +97,7 @@ class TestAgentAdapter:
 
         assert result == "Mock response to: test prompt"
 
-    def test_run_stream_method_signature(self):
+    def test_run_stream_method_signature(self) -> None:
         """Test run_stream method signature and behavior."""
         adapter = MockAgentAdapter()
 
@@ -109,7 +109,7 @@ class TestAgentAdapter:
 
         chunks = []
 
-        async def collect_chunks():
+        async def collect_chunks() -> None:
             async for chunk in adapter.run_stream(agent, "test prompt"):
                 chunks.append(chunk)
 
@@ -119,7 +119,7 @@ class TestAgentAdapter:
         assert "Mock chunk 1 for: test prompt" in chunks
         assert "Mock chunk 2 for: test prompt" in chunks
 
-    def test_adapter_methods_accept_various_kwargs(self):
+    def test_adapter_methods_accept_various_kwargs(self) -> None:
         """Test that adapter methods properly handle additional kwargs."""
         adapter = MockAgentAdapter()
         agent = Mock()
@@ -133,7 +133,7 @@ class TestAgentAdapter:
         # Test run_stream with various kwargs
         chunks = []
 
-        async def collect_chunks():
+        async def collect_chunks() -> None:
             async for chunk in adapter.run_stream(
                 agent, "test prompt", temperature=0.7, max_tokens=1000, custom_param="value"
             ):
@@ -142,7 +142,7 @@ class TestAgentAdapter:
         asyncio.run(collect_chunks())
         assert len(chunks) == 2
 
-    def test_adapter_with_complex_tools(self):
+    def test_adapter_with_complex_tools(self) -> None:
         """Test adapter with complex tool objects."""
         adapter = MockAgentAdapter()
 
@@ -161,17 +161,17 @@ class TestAgentAdapter:
         agent = adapter.create_agent(agent_settings, tools)
         assert agent is not None
 
-    def test_adapter_error_handling(self):
+    def test_adapter_error_handling(self) -> None:
         """Test adapter error handling scenarios."""
 
         class ErrorAgentAdapter(AgentAdapter):
             def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
                 raise ValueError("Cannot create agent")
 
-            async def run(self, agent: Any, prompt: str, **kwargs) -> Any:
+            async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
                 raise RuntimeError("Run failed")
 
-            async def run_stream(self, agent: Any, prompt: str, **kwargs) -> Any:
+            async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> AsyncGenerator[str, None]:  # type: ignore[override]
                 # This needs to be an async generator that raises an exception
                 if False:  # Never enters, but makes it a generator
                     yield None
@@ -194,7 +194,7 @@ class TestAgentAdapter:
         # Test run_stream error
         with pytest.raises(RuntimeError, match="Stream failed"):
 
-            async def test_stream():
+            async def test_stream() -> None:
                 error_adapter = ErrorAgentAdapter()
                 try:
                     async for chunk in error_adapter.run_stream(Mock(), "test"):
@@ -204,7 +204,7 @@ class TestAgentAdapter:
 
             asyncio.run(test_stream())
 
-    def test_adapter_method_return_types(self):
+    def test_adapter_method_return_types(self) -> None:
         """Test that adapter methods return appropriate types."""
         adapter = MockAgentAdapter()
         agent = Mock()
@@ -216,7 +216,7 @@ class TestAgentAdapter:
         assert result is not None
 
         # Test run_stream returns async iterator
-        async def test_stream():
+        async def test_stream() -> list[str]:
             chunks = []
             async for chunk in adapter.run_stream(agent, "test"):
                 chunks.append(chunk)
@@ -226,7 +226,7 @@ class TestAgentAdapter:
         assert isinstance(result, list)
         assert len(result) > 0
 
-    def test_adapter_documentation_strings(self):
+    def test_adapter_documentation_strings(self) -> None:
         """Test that adapter methods have proper docstrings."""
         # Test that abstract methods have docstrings
         assert AgentAdapter.create_agent.__doc__ is not None
