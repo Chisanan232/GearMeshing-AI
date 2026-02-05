@@ -5,6 +5,7 @@ from gearmeshing_ai.core.models.setting import AIProviderSettings
 
 class EnvManager:
     """Manages AI Provider environment variables.
+    
     Validates API keys and exports them to os.environ for libraries that expect them there.
     """
 
@@ -12,7 +13,7 @@ class EnvManager:
         self.settings = AIProviderSettings()
 
     def validate_provider_keys(self, provider: str) -> bool:
-        """Checks if the API key for a specific provider is present."""
+        """Check if the API key for a specific provider is present."""
         provider = provider.lower()
         if provider == "openai":
             return self.settings.openai_api_key is not None
@@ -23,7 +24,8 @@ class EnvManager:
         return False
 
     def export_variables(self) -> None:
-        """Exports the loaded settings to os.environ so that underlying SDKs
+        """Export the loaded settings to os.environ so that underlying SDKs.
+        
         (like OpenAI client, Pydantic AI) can pick them up automatically.
         """
         if self.settings.openai_api_key:

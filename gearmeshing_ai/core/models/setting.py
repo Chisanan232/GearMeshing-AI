@@ -3,7 +3,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class AIProviderSettings(BaseSettings):
-    """Settings for AI Model Providers (OpenAI, Anthropic, etc.)
+    """Settings for AI Model Providers (OpenAI, Anthropic, etc.).
+    
     Reads from environment variables or .env file.
     """
 

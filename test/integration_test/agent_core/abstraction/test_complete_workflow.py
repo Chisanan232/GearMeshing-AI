@@ -281,10 +281,12 @@ class TestCompleteWorkflowIntegration:
             ),
         }
 
-    async def test_complete_multi_agent_workflow(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
+    async def test_complete_multi_agent_workflow(
+        self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]
+    ) -> None:
         """Test complete workflow with multiple agents."""
         # Register all agents
-        for role, settings in agent_configurations.items():
+        for _role, settings in agent_configurations.items():
             factory.register_agent_settings(settings)
 
         # Create all agents
@@ -313,9 +315,14 @@ class TestCompleteWorkflowIntegration:
 
         # Verify execution history
         assert len(cast(ProductionAgentAdapter, factory.adapter).execution_history) == 3
-        assert all(record["response"] is not None for record in cast(ProductionAgentAdapter, factory.adapter).execution_history)
+        assert all(
+            record["response"] is not None
+            for record in cast(ProductionAgentAdapter, factory.adapter).execution_history
+        )
 
-    async def test_streaming_workflow_with_multiple_agents(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
+    async def test_streaming_workflow_with_multiple_agents(
+        self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]
+    ) -> None:
         """Test streaming workflow across multiple agents."""
         # Register agents
         for settings in agent_configurations.values():
@@ -328,7 +335,10 @@ class TestCompleteWorkflowIntegration:
             agent = await factory.get_or_create_agent(role)
             chunks = []
 
-            async for chunk in cast(AsyncGenerator[str, None], factory.adapter.run_stream(agent, f"Tell me about {role}")):
+            async for chunk in cast(
+                AsyncGenerator[str, None], 
+                factory.adapter.run_stream(agent, f"Tell me about {role}")
+            ):
                 chunks.append(chunk)
 
             streaming_results[role] = chunks
@@ -346,7 +356,9 @@ class TestCompleteWorkflowIntegration:
         # Verify streaming history
         assert len(cast(ProductionAgentAdapter, factory.adapter).streaming_history) == 3
 
-    async def test_concurrent_agent_execution(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
+    async def test_concurrent_agent_execution(
+        self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]
+    ) -> None:
         """Test concurrent execution of multiple agents."""
         # Register agents
         for settings in agent_configurations.values():
@@ -378,7 +390,9 @@ class TestCompleteWorkflowIntegration:
         # Verify execution history includes all tasks
         assert len(cast(ProductionAgentAdapter, factory.adapter).execution_history) == 5
 
-    async def test_workflow_with_override_settings(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
+    async def test_workflow_with_override_settings(
+        self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]
+    ) -> None:
         """Test workflow with dynamic override settings."""
         # Register base agent
         factory.register_agent_settings(agent_configurations["assistant"])
@@ -421,7 +435,9 @@ class TestCompleteWorkflowIntegration:
             # If it's a dict due to mock behavior
             assert precise_agent.settings.model_settings.get("temperature") == 0.1
 
-    async def test_workflow_with_mcp_failures(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
+    async def test_workflow_with_mcp_failures(
+        self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]
+    ) -> None:
         """Test workflow resilience with MCP client failures."""
         # Clear cache to ensure fresh creation
         factory.cache.clear()
@@ -503,7 +519,9 @@ class TestCompleteWorkflowIntegration:
             response = await factory.adapter.run(agent, "Test with environment")
             assert "Response from env-test-agent:" in response
 
-    async def test_workflow_performance_characteristics(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
+    async def test_workflow_performance_characteristics(
+        self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]
+    ) -> None:
         """Test workflow performance characteristics."""
         import time
 
@@ -546,7 +564,9 @@ class TestCompleteWorkflowIntegration:
             cache_time = time.time() - cache_start
             assert cache_time < 0.01  # Cached creation should be very fast
 
-    async def test_workflow_error_recovery(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
+    async def test_workflow_error_recovery(
+        self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]
+    ) -> None:
         """Test workflow error recovery mechanisms."""
         # Register agent
         factory.register_agent_settings(agent_configurations["assistant"])
@@ -577,7 +597,9 @@ class TestCompleteWorkflowIntegration:
         recovery_response = await factory.adapter.run(agent, "Recovery test")
         assert recovery_response is not None
 
-    def test_workflow_state_consistency(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
+    def test_workflow_state_consistency(
+        self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]
+    ) -> None:
         """Test workflow state consistency across operations."""
         # Clear singleton cache
         factory.cache.clear()

@@ -361,7 +361,8 @@ class TestAgentFactory:
 
             async def get_tools(self, tool_names: list[str]) -> list[Any]:
                 self.call_count += 1
-                raise RuntimeError("MCP connection failed")
+                msg = "MCP connection failed"
+                raise RuntimeError(msg)
 
         mcp_client = FailingMCPClient()
         factory = AgentFactory(adapter, mcp_client)

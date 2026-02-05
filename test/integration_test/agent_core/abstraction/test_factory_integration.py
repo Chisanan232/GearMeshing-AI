@@ -126,7 +126,9 @@ class TestAgentFactoryIntegration:
             metadata={"version": "1.0", "category": "general"},
         )
 
-    def test_factory_with_concrete_implementations(self, factory: AgentFactory, adapter: ConcreteAgentAdapter, mcp_client: ConcreteMCPClient) -> None:
+    def test_factory_with_concrete_implementations(
+        self, factory: AgentFactory, adapter: ConcreteAgentAdapter, mcp_client: ConcreteMCPClient
+    ) -> None:
         """Test factory initialization with concrete implementations."""
         assert factory.adapter is adapter
         assert factory.mcp_client is mcp_client
@@ -134,7 +136,9 @@ class TestAgentFactoryIntegration:
         assert factory._agent_settings_registry == {}
         assert factory._model_settings_registry == {}
 
-    async def test_complete_agent_creation_workflow(self, factory: AgentFactory, sample_agent_settings: AgentSettings) -> None:
+    async def test_complete_agent_creation_workflow(
+        self, factory: AgentFactory, sample_agent_settings: AgentSettings
+    ) -> None:
         """Test complete agent creation workflow with concrete implementations."""
         # Clear cache to ensure fresh creation
         factory.cache.clear()
@@ -188,7 +192,9 @@ class TestAgentFactoryIntegration:
         assert all("assistant" in chunk for chunk in chunks)
         assert len(cast(ConcreteAgentAdapter, factory.adapter).run_stream_calls) == 1
 
-    async def test_factory_caching_with_concrete_agents(self, factory: AgentFactory, sample_agent_settings: AgentSettings) -> None:
+    async def test_factory_caching_with_concrete_agents(
+        self, factory: AgentFactory, sample_agent_settings: AgentSettings
+    ) -> None:
         """Test agent caching behavior with concrete agents."""
         # Clear cache to start fresh
         factory.cache.clear()
@@ -209,7 +215,9 @@ class TestAgentFactoryIntegration:
         assert len(cast(ConcreteAgentAdapter, factory.adapter).created_agents) == 1
         assert len(cast(ConcreteMCPClient, factory.mcp_client).get_tools_history) == 1
 
-    async def test_factory_with_multiple_agents(self, factory: AgentFactory, sample_model_settings: ModelSettings) -> None:
+    async def test_factory_with_multiple_agents(
+        self, factory: AgentFactory, sample_model_settings: ModelSettings
+    ) -> None:
         """Test factory with multiple different agents."""
         # Clear cache to ensure fresh creation
         factory.cache.clear()
@@ -244,7 +252,9 @@ class TestAgentFactoryIntegration:
         assert len(assistant.tools) == 1
         assert len(analyst.tools) == 2
 
-    async def test_factory_override_settings_workflow(self, factory: AgentFactory, sample_agent_settings: AgentSettings) -> None:
+    async def test_factory_override_settings_workflow(
+        self, factory: AgentFactory, sample_agent_settings: AgentSettings
+    ) -> None:
         """Test factory workflow with override settings."""
         # Register base settings
         factory.register_agent_settings(sample_agent_settings)
@@ -281,7 +291,9 @@ class TestAgentFactoryIntegration:
         with pytest.raises(ValueError, match="No agent settings registered for role"):
             await factory.get_or_create_agent("nonexistent")
 
-    async def test_mcp_client_error_propagation(self, factory: AgentFactory, sample_agent_settings: AgentSettings) -> None:
+    async def test_mcp_client_error_propagation(
+        self, factory: AgentFactory, sample_agent_settings: AgentSettings
+    ) -> None:
         """Test that MCP client errors are properly propagated."""
         # Clear cache to ensure fresh creation
         factory.cache.clear()
@@ -367,7 +379,9 @@ class TestAgentFactoryIntegration:
         assert factory2.get_agent_settings("agent2") is not None
         assert factory2.get_agent_settings("agent1") is None
 
-    async def test_complete_workflow_with_tools_execution(self, factory: AgentFactory, sample_agent_settings: AgentSettings) -> None:
+    async def test_complete_workflow_with_tools_execution(
+        self, factory: AgentFactory, sample_agent_settings: AgentSettings
+    ) -> None:
         """Test complete workflow including tool execution simulation."""
         # Clear cache to ensure fresh creation with tools
         factory.cache.clear()
@@ -394,7 +408,9 @@ class TestAgentFactoryIntegration:
         assert "Response from assistant" in response
         assert len(cast(ConcreteAgentAdapter, factory.adapter).run_calls) == 1
 
-    def test_factory_configuration_validation(self, adapter: ConcreteAgentAdapter, mcp_client: ConcreteMCPClient) -> None:
+    def test_factory_configuration_validation(
+        self, adapter: ConcreteAgentAdapter, mcp_client: ConcreteMCPClient
+    ) -> None:
         """Test factory configuration validation."""
         # Test with valid configuration
         factory = AgentFactory(adapter, mcp_client)

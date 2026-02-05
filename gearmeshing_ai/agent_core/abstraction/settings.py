@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, SecretStr
 
 class ModelSettings(BaseModel):
     """Settings for a specific AI model configuration.
+    
     Keyed by 'customized_name' in the factory.
     """
 
@@ -20,6 +21,7 @@ class ModelSettings(BaseModel):
 
 class AgentSettings(BaseModel):
     """Settings for an AI agent.
+    
     Keyed by 'role' in the factory.
     """
 

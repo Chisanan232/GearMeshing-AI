@@ -1,21 +1,22 @@
 import threading
-from typing import Any
+from typing import Any, ClassVar
 
 
 class AgentCache:
     """Singleton cache for storing instantiated AI agents.
+    
     Uses 'role' as the primary key.
     """
 
-    _instance = None
-    _lock = threading.Lock()
-    _agents: dict[str, Any] = {}
+    _instance: ClassVar["AgentCache" | None] = None
+    _lock: ClassVar[threading.Lock] = threading.Lock()
+    _agents: ClassVar[dict[str, Any]] = {}
 
     def __new__(cls) -> "AgentCache":
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
-                    cls._instance = super(AgentCache, cls).__new__(cls)
+                    cls._instance = super().__new__(cls)
         return cls._instance
 
     def get(self, role: str) -> Any | None:

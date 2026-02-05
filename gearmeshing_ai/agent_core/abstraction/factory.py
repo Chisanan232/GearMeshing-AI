@@ -8,6 +8,7 @@ from .settings import AgentSettings, ModelSettings
 
 class AgentFactory:
     """Factory class for creating and managing AI agents.
+    
     Handles settings management, tool retrieval via MCP, and caching.
     """
 
@@ -35,7 +36,7 @@ class AgentFactory:
         return self._model_settings_registry.get(customized_name)
 
     async def get_or_create_agent(self, role: str, override_settings: dict[str, Any] | None = None) -> Any:
-        """Retrieves an agent from cache or creates a new one.
+        """Retrieve an agent from cache or create a new one.
 
         Args:
             role: The role identifier for the agent.
@@ -58,7 +59,8 @@ class AgentFactory:
         if not agent_settings:
             # If not in registry, maybe we can construct it or fail
             # For now, let's assume it must be registered or we'd need to pass full settings object
-            raise ValueError(f"No agent settings registered for role: {role}")
+            msg = f"No agent settings registered for role: {role}"
+            raise ValueError(msg)
 
         # Apply overrides if needed (simple shallow merge for now)
         if override_settings:

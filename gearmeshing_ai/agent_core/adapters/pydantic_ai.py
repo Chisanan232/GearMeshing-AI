@@ -14,7 +14,7 @@ class PydanticAIAdapter(AgentAdapter):
     """Adapter implementation for Pydantic AI framework."""
 
     def _get_model(self, provider: str, model_name: str) -> Any:
-        """Factory for Pydantic AI models."""
+        """Create a Pydantic AI model."""
         provider = provider.lower()
         if provider == "openai":
             return OpenAIModel(model_name)
@@ -26,7 +26,7 @@ class PydanticAIAdapter(AgentAdapter):
         return f"{provider}:{model_name}"
 
     def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
-        """Creates a Pydantic AI Agent instance."""
+        """Create a Pydantic AI Agent instance."""
         model_instance = self._get_model(settings.model_settings.provider, settings.model_settings.model)
 
         # Pydantic AI Agent initialization
@@ -39,7 +39,7 @@ class PydanticAIAdapter(AgentAdapter):
         # Attach metadata or settings to the agent instance if needed for debugging
 
     async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
-        """Runs the Pydantic AI agent."""
+        """Run the Pydantic AI agent."""
         if not isinstance(agent, PydanticAgent):
             msg = "Agent must be an instance of pydantic_ai.Agent"
             raise ValueError(msg)
@@ -48,7 +48,7 @@ class PydanticAIAdapter(AgentAdapter):
         return result.output
 
     async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
-        """Runs the Pydantic AI agent in streaming mode."""
+        """Run the Pydantic AI agent in streaming mode."""
         if not isinstance(agent, PydanticAgent):
             msg = "Agent must be an instance of pydantic_ai.Agent"
             raise ValueError(msg)

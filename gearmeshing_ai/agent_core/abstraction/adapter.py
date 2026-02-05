@@ -7,12 +7,13 @@ from .settings import AgentSettings
 
 class AgentAdapter(ABC):
     """Abstract base class for AI agent framework adapters.
+    
     Implementations should wrap specific frameworks like Pydantic AI, phidata, etc.
     """
 
     @abstractmethod
     def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
-        """Creates and returns the specific framework agent instance.
+        """Create and return the specific framework agent instance.
 
         Args:
             settings: The comprehensive settings for the agent.
@@ -27,7 +28,7 @@ class AgentAdapter(ABC):
 
     @abstractmethod
     async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
-        """Runs the agent with a prompt.
+        """Run the agent with a prompt.
 
         Args:
             agent: The agent instance created by create_agent.
@@ -42,7 +43,7 @@ class AgentAdapter(ABC):
 
     @abstractmethod
     async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> AsyncGenerator[str, None]:
-        """Runs the agent with a prompt in streaming mode.
+        """Run the agent with a prompt in streaming mode.
 
         Args:
             agent: The agent instance created by create_agent.

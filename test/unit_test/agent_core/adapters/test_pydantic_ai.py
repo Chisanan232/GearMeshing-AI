@@ -154,7 +154,9 @@ class TestPydanticAIAdapter:
                 assert result is mock_agent_instance
 
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
-        async def test_create_agent_anthropic(self, adapter: Any, sample_agent_settings: Any, sample_tools: Any) -> None:
+        async def test_create_agent_anthropic(
+            self, adapter: Any, sample_agent_settings: Any, sample_tools: Any
+        ) -> None:
             """Test creating an agent with Anthropic provider."""
             # Update settings to use Anthropic
             sample_agent_settings.model_settings.provider = "anthropic"
@@ -179,7 +181,9 @@ class TestPydanticAIAdapter:
                 assert result is mock_agent_instance
 
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
-        async def test_create_agent_with_empty_system_prompt(self, adapter: Any, sample_agent_settings: Any, sample_tools: Any) -> None:
+        async def test_create_agent_with_empty_system_prompt(
+            self, adapter: Any, sample_agent_settings: Any, sample_tools: Any
+        ) -> None:
             """Test creating an agent with empty system prompt."""
             sample_agent_settings.system_prompt = ""
 
@@ -256,7 +260,7 @@ class TestPydanticAIAdapter:
             """Test run with invalid agent type."""
             invalid_agent = Mock()  # Not a PydanticAgent instance
 
-            with pytest.raises(ValueError, match="Agent must be an instance of pydantic_ai.Agent"):
+            with pytest.raises(ValueError, match=r"Agent must be an instance of pydantic_ai.Agent"):
                 await adapter.run(invalid_agent, "Test prompt")
 
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
@@ -265,9 +269,11 @@ class TestPydanticAIAdapter:
             mock_pydantic_agent.run = AsyncMock(side_effect=Exception("Agent error"))
 
             # Patch isinstance check
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
-                with pytest.raises(Exception, match="Agent error"):
-                    await adapter.run(mock_pydantic_agent, "Test prompt")
+            with (
+                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent),
+                pytest.raises(Exception, match="Agent error"),
+            ):
+                await adapter.run(mock_pydantic_agent, "Test prompt")
 
     class TestRunStream:
         """Test the run_stream method."""
@@ -327,7 +333,7 @@ class TestPydanticAIAdapter:
             """Test streaming with invalid agent type."""
             invalid_agent = Mock()  # Not a PydanticAgent instance
 
-            with pytest.raises(ValueError, match="Agent must be an instance of pydantic_ai.Agent"):
+            with pytest.raises(ValueError, match=r"Agent must be an instance of pydantic_ai.Agent"):
                 async for _chunk in adapter.run_stream(invalid_agent, "Test prompt"):
                     pass
 
@@ -359,10 +365,12 @@ class TestPydanticAIAdapter:
             mock_pydantic_agent.run_stream = Mock(side_effect=Exception("Streaming error"))
 
             # Patch isinstance check
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
-                with pytest.raises(Exception, match="Streaming error"):
-                    async for _chunk in adapter.run_stream(mock_pydantic_agent, "Test prompt"):
-                        pass
+            with (
+                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent),
+                pytest.raises(Exception, match="Streaming error"),
+            ):
+                async for _chunk in adapter.run_stream(mock_pydantic_agent, "Test prompt"):
+                    pass
 
     class TestIntegration:
         """Integration tests for the adapter."""
@@ -402,7 +410,9 @@ class TestPydanticAIAdapter:
                 mock_pydantic_agent.run.assert_called_once_with("Integration test prompt")
 
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
-        async def test_error_handling_workflow(self, adapter: Any, sample_agent_settings: Any, mock_pydantic_agent: Any) -> None:
+        async def test_error_handling_workflow(
+            self, adapter: Any, sample_agent_settings: Any, mock_pydantic_agent: Any
+        ) -> None:
             """Test error handling throughout the workflow."""
             with (
                 patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_model,
@@ -420,7 +430,8 @@ class TestPydanticAIAdapter:
                 agent = adapter.create_agent(sample_agent_settings, [])
 
                 # Patch isinstance check and run agent
-                with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
-                    # Run agent and expect error
-                    with pytest.raises(RuntimeError, match="Agent runtime error"):
-                        await adapter.run(agent, "Error test prompt")
+                with (
+                    patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent),
+                    pytest.raises(RuntimeError, match="Agent runtime error"),
+                ):
+                    await adapter.run(agent, "Error test prompt")
