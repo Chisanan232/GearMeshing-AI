@@ -4,6 +4,7 @@ Unit tests for EnvManager implementation.
 
 import os
 from unittest.mock import Mock, patch
+from typing import Any
 
 from pydantic import SecretStr
 
@@ -14,7 +15,7 @@ from gearmeshing_ai.core.models.setting import AIProviderSettings
 class TestEnvManager:
     """Test cases for EnvManager implementation."""
 
-    def test_env_manager_initialization(self):
+    def test_env_manager_initialization(self) -> None:
         """Test EnvManager initialization."""
         env_manager = EnvManager()
 
@@ -28,7 +29,7 @@ class TestEnvManager:
         assert hasattr(env_manager, "get_settings")
 
     @patch("gearmeshing_ai.agent_core.abstraction.env_manager.AIProviderSettings")
-    def test_env_manager_initialization_with_mock_settings(self, mock_settings_class):
+    def test_env_manager_initialization_with_mock_settings(self, mock_settings_class: Any) -> None:
         """Test EnvManager initialization with mocked settings."""
         mock_settings = Mock(spec=AIProviderSettings)
         mock_settings.openai_api_key = SecretStr("test-openai-key")
@@ -43,7 +44,7 @@ class TestEnvManager:
         mock_settings_class.assert_called_once()
         assert env_manager.settings is mock_settings
 
-    def test_validate_provider_keys_openai(self):
+    def test_validate_provider_keys_openai(self) -> None:
         """Test provider key validation for OpenAI."""
         env_manager = EnvManager()
 
@@ -58,7 +59,7 @@ class TestEnvManager:
         assert env_manager.validate_provider_keys("OPENAI") is True
         assert env_manager.validate_provider_keys("openAi") is True
 
-    def test_validate_provider_keys_anthropic(self):
+    def test_validate_provider_keys_anthropic(self) -> None:
         """Test provider key validation for Anthropic."""
         env_manager = EnvManager()
 
@@ -72,7 +73,7 @@ class TestEnvManager:
         assert env_manager.validate_provider_keys("Anthropic") is True
         assert env_manager.validate_provider_keys("ANTHROPIC") is True
 
-    def test_validate_provider_keys_gemini(self):
+    def test_validate_provider_keys_gemini(self) -> None:
         """Test provider key validation for Gemini/Google."""
         env_manager = EnvManager()
 
@@ -88,7 +89,7 @@ class TestEnvManager:
         assert env_manager.validate_provider_keys("Google") is True
         assert env_manager.validate_provider_keys("GOOGLE") is True
 
-    def test_validate_provider_keys_missing_keys(self):
+    def test_validate_provider_keys_missing_keys(self) -> None:
         """Test provider key validation when keys are missing."""
         env_manager = EnvManager()
 
@@ -103,7 +104,7 @@ class TestEnvManager:
         assert env_manager.validate_provider_keys("gemini") is False
         assert env_manager.validate_provider_keys("google") is False
 
-    def test_validate_provider_keys_unsupported_provider(self):
+    def test_validate_provider_keys_unsupported_provider(self) -> None:
         """Test provider key validation for unsupported providers."""
         env_manager = EnvManager()
 
@@ -116,7 +117,7 @@ class TestEnvManager:
         assert env_manager.validate_provider_keys("cohere") is False
         assert env_manager.validate_provider_keys("") is False
 
-    def test_validate_provider_keys_case_insensitive(self):
+    def test_validate_provider_keys_case_insensitive(self) -> None:
         """Test that provider validation is case insensitive."""
         env_manager = EnvManager()
 
@@ -153,7 +154,7 @@ class TestEnvManager:
             assert result is expected, f"Failed for {provider}: expected {expected}, got {result}"
 
     @patch.dict(os.environ, {}, clear=True)
-    def test_export_variables_with_all_keys(self):
+    def test_export_variables_with_all_keys(self) -> None:
         """Test exporting variables when all keys are present."""
         env_manager = EnvManager()
 
@@ -171,7 +172,7 @@ class TestEnvManager:
         assert os.environ.get("GEMINI_API_KEY") == "gemini-test-key"
 
     @patch.dict(os.environ, {}, clear=True)
-    def test_export_variables_with_partial_keys(self):
+    def test_export_variables_with_partial_keys(self) -> None:
         """Test exporting variables when only some keys are present."""
         env_manager = EnvManager()
 
@@ -189,7 +190,7 @@ class TestEnvManager:
         assert os.environ.get("GEMINI_API_KEY") is None
 
     @patch.dict(os.environ, {}, clear=True)
-    def test_export_variables_with_no_keys(self):
+    def test_export_variables_with_no_keys(self) -> None:
         """Test exporting variables when no keys are present."""
         env_manager = EnvManager()
 
@@ -207,7 +208,7 @@ class TestEnvManager:
         assert os.environ.get("GEMINI_API_KEY") is None
 
     @patch.dict(os.environ, {"OPENAI_API_KEY": "existing-key"}, clear=False)
-    def test_export_variables_overwrites_existing(self):
+    def test_export_variables_overwrites_existing(self) -> None:
         """Test that export_variables overwrites existing environment variables."""
         env_manager = EnvManager()
 
@@ -225,7 +226,7 @@ class TestEnvManager:
         # Verify key was overwritten
         assert os.environ.get("OPENAI_API_KEY") == "sk-new-key"
 
-    def test_export_variables_secret_str_handling(self):
+    def test_export_variables_secret_str_handling(self) -> None:
         """Test that SecretStr values are properly handled during export."""
         env_manager = EnvManager()
 
@@ -245,7 +246,7 @@ class TestEnvManager:
             # Verify the SecretStr object is still intact
             assert env_manager.settings.openai_api_key.get_secret_value() == "sk-secret-value"
 
-    def test_get_settings(self):
+    def test_get_settings(self) -> None:
         """Test get_settings method."""
         env_manager = EnvManager()
 
@@ -254,7 +255,7 @@ class TestEnvManager:
         assert settings is env_manager.settings
         assert isinstance(settings, AIProviderSettings)
 
-    def test_env_manager_with_real_settings(self):
+    def test_env_manager_with_real_settings(self) -> None:
         """Test EnvManager with real AIProviderSettings (integration test)."""
         # Create real settings with actual values
         with patch.dict(
@@ -283,12 +284,12 @@ class TestEnvManager:
                 assert os.environ.get("ANTHROPIC_API_KEY") == "sk-real-anthropic-key"
                 assert os.environ.get("GEMINI_API_KEY") == "real-gemini-key"
 
-    def test_env_manager_error_handling(self):
+    def test_env_manager_error_handling(self) -> None:
         """Test EnvManager error handling scenarios."""
         env_manager = EnvManager()
 
         # Test with None settings (should handle gracefully)
-        env_manager.settings = None
+        env_manager.settings = None  # type: ignore[assignment]
 
         # Should not crash, but may return False or raise
         try:
@@ -299,7 +300,7 @@ class TestEnvManager:
             # Expected when settings is None
             pass
 
-    def test_env_manager_multiple_exports(self):
+    def test_env_manager_multiple_exports(self) -> None:
         """Test multiple calls to export_variables."""
         env_manager = EnvManager()
 
@@ -319,7 +320,7 @@ class TestEnvManager:
             env_manager.export_variables()
             assert os.environ.get("OPENAI_API_KEY") == "sk-test-key"
 
-    def test_env_manager_provider_name_edge_cases(self):
+    def test_env_manager_provider_name_edge_cases(self) -> None:
         """Test provider name validation with edge cases."""
         env_manager = EnvManager()
 
@@ -346,7 +347,7 @@ class TestEnvManager:
             assert result is False, f"Unexpectedly True for edge case: '{provider}'"
 
     @patch.dict(os.environ, {"OPENAI_API_KEY": "old-value"}, clear=False)
-    def test_export_variables_idempotency(self):
+    def test_export_variables_idempotency(self) -> None:
         """Test that export_variables is idempotent."""
         env_manager = EnvManager()
 
