@@ -1,5 +1,5 @@
 import threading
-from typing import Any, ClassVar
+from typing import Any, Optional
 
 
 class AgentCache:
@@ -8,9 +8,9 @@ class AgentCache:
     Uses 'role' as the primary key.
     """
 
-    _instance: ClassVar["AgentCache" | None] = None
-    _lock: ClassVar[threading.Lock] = threading.Lock()
-    _agents: ClassVar[dict[str, Any]] = {}
+    _instance: Optional["AgentCache"] = None
+    _lock: threading.Lock = threading.Lock()
+    _agents: dict[str, Any] = {}  # noqa: RUF012
 
     def __new__(cls) -> "AgentCache":
         if cls._instance is None:
