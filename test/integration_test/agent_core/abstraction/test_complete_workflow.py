@@ -3,7 +3,7 @@ Integration tests for complete agent creation and execution workflow.
 """
 
 import asyncio
-from typing import Any
+from typing import Any, Optional, AsyncGenerator, cast
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -22,18 +22,18 @@ from gearmeshing_ai.agent_core.abstraction import (
 class ProductionAgentAdapter(AgentAdapter):
     """Production-like adapter implementation for comprehensive testing."""
 
-    def __init__(self, config: dict[str, Any] = None):
+    def __init__(self, config: Optional[dict[str, Any]] = None) -> None:
         self.config = config or {}
-        self.created_agents = []
-        self.execution_history = []
-        self.streaming_history = []
+        self.created_agents: list[Any] = []
+        self.execution_history: list[dict[str, Any]] = []
+        self.streaming_history: list[dict[str, Any]] = []
 
     def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
         agent = ProductionAgent(settings, tools, self.config)
         self.created_agents.append(agent)
         return agent
 
-    async def run(self, agent: Any, prompt: str, **kwargs) -> Any:
+    async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         execution_record = {
             "agent": agent,
             "prompt": prompt,
@@ -55,7 +55,7 @@ class ProductionAgentAdapter(AgentAdapter):
         self.execution_history.append(execution_record)
         return response
 
-    async def run_stream(self, agent: Any, prompt: str, **kwargs) -> Any:
+    async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> AsyncGenerator[str, None]:  # type: ignore[override]
         streaming_record = {
             "agent": agent,
             "prompt": prompt,
@@ -74,14 +74,14 @@ class ProductionAgentAdapter(AgentAdapter):
 class ProductionAgent:
     """Production-like agent implementation."""
 
-    def __init__(self, settings: AgentSettings, tools: list[Any], config: dict[str, Any]):
+    def __init__(self, settings: AgentSettings, tools: list[Any], config: dict[str, Any]) -> None:
         self.settings = settings
         self.tools = tools
         self.config = config
-        self.conversation_history = []
-        self.tool_execution_history = []
+        self.conversation_history: list[str] = []
+        self.tool_execution_history: list[dict[str, Any]] = []
 
-    async def _generate_response(self, prompt: str, **kwargs) -> str:
+    async def _generate_response(self, prompt: str, **kwargs: Any) -> str:
         """Generate a response based on settings and prompt."""
         # Simulate processing time
         await asyncio.sleep(0.01)
@@ -115,7 +115,7 @@ class ProductionAgent:
 
         return response
 
-    async def _generate_response_stream(self, prompt: str, **kwargs):
+    async def _generate_response_stream(self, prompt: str, **kwargs: Any) -> AsyncGenerator[str, None]:
         """Generate streaming response."""
         response = await self._generate_response(prompt, **kwargs)
 
@@ -136,11 +136,11 @@ class ProductionAgent:
 class ProductionMCPClient(MCPClientAbstraction):
     """Production-like MCP client implementation."""
 
-    def __init__(self, tools_registry: dict[str, Any] = None, config: dict[str, Any] = None):
+    def __init__(self, tools_registry: Optional[dict[str, Any]] = None, config: Optional[dict[str, Any]] = None) -> None:
         self.tools_registry = tools_registry or {}
         self.config = config or {}
-        self.connection_pool = {}
-        self.request_history = []
+        self.connection_pool: dict[str, Any] = {}
+        self.request_history: list[dict[str, Any]] = []
         self.error_rate = 0.0  # Simulate occasional errors
 
     async def get_tools(self, tool_names: list[str]) -> list[Any]:
@@ -179,8 +179,8 @@ class ProductionMCPClient(MCPClientAbstraction):
 class TestCompleteWorkflowIntegration:
     """Integration tests for complete agent creation and execution workflow."""
 
-    @pytest.fixture
-    def production_config(self):
+    @pytest.fixture  # type: ignore[untyped-decorator]
+    def production_config(self) -> dict[str, Any]:
         """Production-like configuration."""
         return {
             "max_concurrent_agents": 10,
@@ -190,13 +190,13 @@ class TestCompleteWorkflowIntegration:
             "streaming_chunk_size": 3,
         }
 
-    @pytest.fixture
-    def adapter(self, production_config):
+    @pytest.fixture  # type: ignore[untyped-decorator]
+    def adapter(self, production_config: dict[str, Any]) -> ProductionAgentAdapter:
         """Production-like adapter."""
         return ProductionAgentAdapter(production_config)
 
-    @pytest.fixture
-    def tools_registry(self):
+    @pytest.fixture  # type: ignore[untyped-decorator]
+    def tools_registry(self) -> dict[str, Any]:
         """Comprehensive tools registry."""
         calculator = Mock(name="calculator")
         calculator.name = "calculator"
@@ -220,18 +220,18 @@ class TestCompleteWorkflowIntegration:
 
         return {"calculator": calculator, "weather": weather, "database": database, "file_manager": file_manager}
 
-    @pytest.fixture
-    def mcp_client(self, tools_registry, production_config):
+    @pytest.fixture  # type: ignore[untyped-decorator]
+    def mcp_client(self, tools_registry: dict[str, Any], production_config: dict[str, Any]) -> ProductionMCPClient:
         """Production-like MCP client."""
         return ProductionMCPClient(tools_registry, production_config)
 
-    @pytest.fixture
-    def factory(self, adapter, mcp_client):
+    @pytest.fixture  # type: ignore[untyped-decorator]
+    def factory(self, adapter: ProductionAgentAdapter, mcp_client: ProductionMCPClient) -> AgentFactory:
         """Factory with production-like components."""
         return AgentFactory(adapter, mcp_client)
 
-    @pytest.fixture
-    def comprehensive_model_settings(self):
+    @pytest.fixture  # type: ignore[untyped-decorator]
+    def comprehensive_model_settings(self) -> ModelSettings:
         """Comprehensive model settings for testing."""
         return ModelSettings(
             customized_name="production-gpt4",
@@ -249,8 +249,8 @@ class TestCompleteWorkflowIntegration:
             },
         )
 
-    @pytest.fixture
-    def agent_configurations(self, comprehensive_model_settings):
+    @pytest.fixture  # type: ignore[untyped-decorator]
+    def agent_configurations(self, comprehensive_model_settings: ModelSettings) -> dict[str, AgentSettings]:
         """Multiple agent configurations for comprehensive testing."""
         return {
             "assistant": AgentSettings(
@@ -279,7 +279,7 @@ class TestCompleteWorkflowIntegration:
             ),
         }
 
-    async def test_complete_multi_agent_workflow(self, factory, agent_configurations):
+    async def test_complete_multi_agent_workflow(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
         """Test complete workflow with multiple agents."""
         # Register all agents
         for role, settings in agent_configurations.items():
@@ -310,10 +310,10 @@ class TestCompleteWorkflowIntegration:
         assert "Response from developer:" in developer_response
 
         # Verify execution history
-        assert len(factory.adapter.execution_history) == 3
-        assert all(record["response"] is not None for record in factory.adapter.execution_history)
+        assert len(cast(ProductionAgentAdapter, factory.adapter).execution_history) == 3
+        assert all(record["response"] is not None for record in cast(ProductionAgentAdapter, factory.adapter).execution_history)
 
-    async def test_streaming_workflow_with_multiple_agents(self, factory, agent_configurations):
+    async def test_streaming_workflow_with_multiple_agents(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
         """Test streaming workflow across multiple agents."""
         # Register agents
         for settings in agent_configurations.values():
@@ -326,7 +326,7 @@ class TestCompleteWorkflowIntegration:
             agent = await factory.get_or_create_agent(role)
             chunks = []
 
-            async for chunk in factory.adapter.run_stream(agent, f"Tell me about {role}"):
+            async for chunk in cast(AsyncGenerator[str, None], factory.adapter.run_stream(agent, f"Tell me about {role}")):
                 chunks.append(chunk)
 
             streaming_results[role] = chunks
@@ -342,9 +342,9 @@ class TestCompleteWorkflowIntegration:
             )
 
         # Verify streaming history
-        assert len(factory.adapter.streaming_history) == 3
+        assert len(cast(ProductionAgentAdapter, factory.adapter).streaming_history) == 3
 
-    async def test_concurrent_agent_execution(self, factory, agent_configurations):
+    async def test_concurrent_agent_execution(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
         """Test concurrent execution of multiple agents."""
         # Register agents
         for settings in agent_configurations.values():
@@ -356,7 +356,7 @@ class TestCompleteWorkflowIntegration:
             agents[role] = await factory.get_or_create_agent(role)
 
         # Execute concurrent tasks
-        async def execute_agent_task(agent, prompt):
+        async def execute_agent_task(agent: Any, prompt: str) -> Any:
             return await factory.adapter.run(agent, prompt)
 
         tasks = [
@@ -374,9 +374,9 @@ class TestCompleteWorkflowIntegration:
         assert all(result is not None for result in results)
 
         # Verify execution history includes all tasks
-        assert len(factory.adapter.execution_history) == 5
+        assert len(cast(ProductionAgentAdapter, factory.adapter).execution_history) == 5
 
-    async def test_workflow_with_override_settings(self, factory, agent_configurations):
+    async def test_workflow_with_override_settings(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
         """Test workflow with dynamic override settings."""
         # Register base agent
         factory.register_agent_settings(agent_configurations["assistant"])
@@ -419,12 +419,13 @@ class TestCompleteWorkflowIntegration:
             # If it's a dict due to mock behavior
             assert precise_agent.settings.model_settings.get("temperature") == 0.1
 
-    async def test_workflow_with_mcp_failures(self, factory, agent_configurations):
+    async def test_workflow_with_mcp_failures(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
         """Test workflow resilience with MCP client failures."""
         # Clear cache to ensure fresh creation
         factory.cache.clear()
 
         # Configure MCP client to have failures
+        assert factory.mcp_client is not None
         factory.mcp_client.error_rate = 0.5  # 50% failure rate
         factory.mcp_client.request_history = []  # Reset history
 
@@ -456,7 +457,7 @@ class TestCompleteWorkflowIntegration:
         # if len(successful_creations) > 1:
         #     assert all(agent is successful_creations[0] for agent in successful_creations)
 
-    async def test_workflow_with_environment_integration(self):
+    async def test_workflow_with_environment_integration(self) -> None:
         """Test workflow integration with environment management."""
         # Mock environment variables and settings before creating EnvManager
         with (
@@ -500,7 +501,7 @@ class TestCompleteWorkflowIntegration:
             response = await factory.adapter.run(agent, "Test with environment")
             assert "Response from env-test-agent:" in response
 
-    async def test_workflow_performance_characteristics(self, factory, agent_configurations):
+    async def test_workflow_performance_characteristics(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
         """Test workflow performance characteristics."""
         import time
 
@@ -543,7 +544,7 @@ class TestCompleteWorkflowIntegration:
             cache_time = time.time() - cache_start
             assert cache_time < 0.01  # Cached creation should be very fast
 
-    async def test_workflow_error_recovery(self, factory, agent_configurations):
+    async def test_workflow_error_recovery(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
         """Test workflow error recovery mechanisms."""
         # Register agent
         factory.register_agent_settings(agent_configurations["assistant"])
@@ -562,7 +563,7 @@ class TestCompleteWorkflowIntegration:
         # Test streaming with error conditions
         chunks = []
         try:
-            async for chunk in factory.adapter.run_stream(agent, "Streaming test"):
+            async for chunk in cast(AsyncGenerator[str, None], factory.adapter.run_stream(agent, "Streaming test")):
                 chunks.append(chunk)
                 if len(chunks) > 10:  # Prevent infinite loops
                     break
@@ -574,7 +575,7 @@ class TestCompleteWorkflowIntegration:
         recovery_response = await factory.adapter.run(agent, "Recovery test")
         assert recovery_response is not None
 
-    def test_workflow_state_consistency(self, factory, agent_configurations):
+    def test_workflow_state_consistency(self, factory: AgentFactory, agent_configurations: dict[str, AgentSettings]) -> None:
         """Test workflow state consistency across operations."""
         # Clear singleton cache
         factory.cache.clear()
