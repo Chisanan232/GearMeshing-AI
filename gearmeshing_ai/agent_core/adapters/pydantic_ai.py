@@ -40,7 +40,7 @@ class PydanticAIAdapter(AgentAdapter):
         # Attach metadata or settings to the agent instance if needed for debugging
         return agent
 
-    async def run(self, agent: Any, prompt: str, **kwargs) -> Any:
+    async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         """Runs the Pydantic AI agent."""
         if not isinstance(agent, PydanticAgent):
             raise ValueError("Agent must be an instance of pydantic_ai.Agent")
@@ -48,7 +48,7 @@ class PydanticAIAdapter(AgentAdapter):
         result = await agent.run(prompt)
         return result.output
 
-    async def run_stream(self, agent: Any, prompt: str, **kwargs) -> AsyncIterator[str]:
+    async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         """Runs the Pydantic AI agent in streaming mode."""
         if not isinstance(agent, PydanticAgent):
             raise ValueError("Agent must be an instance of pydantic_ai.Agent")
