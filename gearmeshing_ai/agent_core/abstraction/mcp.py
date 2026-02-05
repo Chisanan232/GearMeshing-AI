@@ -4,7 +4,7 @@ from typing import Any, ClassVar
 
 class MCPClientAbstraction(ABC):
     """Abstract base class for an MCP (Model Context Protocol) Client.
-    
+
     This abstraction allows the AgentFactory to fetch tools without knowing the implementation details.
     """
 

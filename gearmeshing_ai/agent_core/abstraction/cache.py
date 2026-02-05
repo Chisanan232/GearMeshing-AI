@@ -4,7 +4,7 @@ from typing import Any, ClassVar
 
 class AgentCache:
     """Singleton cache for storing instantiated AI agents.
-    
+
     Uses 'role' as the primary key.
     """
 

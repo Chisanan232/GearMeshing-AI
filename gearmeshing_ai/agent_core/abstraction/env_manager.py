@@ -5,7 +5,7 @@ from gearmeshing_ai.core.models.setting import AIProviderSettings
 
 class EnvManager:
     """Manages AI Provider environment variables.
-    
+
     Validates API keys and exports them to os.environ for libraries that expect them there.
     """
 
@@ -25,7 +25,7 @@ class EnvManager:
 
     def export_variables(self) -> None:
         """Export the loaded settings to os.environ so that underlying SDKs.
-        
+
         (like OpenAI client, Pydantic AI) can pick them up automatically.
         """
         if self.settings.openai_api_key:

@@ -316,8 +316,7 @@ class TestCompleteWorkflowIntegration:
         # Verify execution history
         assert len(cast(ProductionAgentAdapter, factory.adapter).execution_history) == 3
         assert all(
-            record["response"] is not None
-            for record in cast(ProductionAgentAdapter, factory.adapter).execution_history
+            record["response"] is not None for record in cast(ProductionAgentAdapter, factory.adapter).execution_history
         )
 
     async def test_streaming_workflow_with_multiple_agents(
@@ -336,8 +335,7 @@ class TestCompleteWorkflowIntegration:
             chunks = []
 
             async for chunk in cast(
-                AsyncGenerator[str, None], 
-                factory.adapter.run_stream(agent, f"Tell me about {role}")
+                AsyncGenerator[str, None], factory.adapter.run_stream(agent, f"Tell me about {role}")
             ):
                 chunks.append(chunk)
 

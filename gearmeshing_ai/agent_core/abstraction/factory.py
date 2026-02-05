@@ -8,7 +8,7 @@ from .settings import AgentSettings, ModelSettings
 
 class AgentFactory:
     """Factory class for creating and managing AI agents.
-    
+
     Handles settings management, tool retrieval via MCP, and caching.
     """
 

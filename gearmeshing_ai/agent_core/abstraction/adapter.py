@@ -7,7 +7,7 @@ from .settings import AgentSettings
 
 class AgentAdapter(ABC):
     """Abstract base class for AI agent framework adapters.
-    
+
     Implementations should wrap specific frameworks like Pydantic AI, phidata, etc.
     """
 
