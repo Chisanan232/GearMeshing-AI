@@ -16,8 +16,8 @@ from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelS
 class MockAgentAdapter(AgentAdapter):
     """Mock implementation of AgentAdapter for testing."""
 
-    def __init__(self):
-        self.created_agents = []
+    def __init__(self) -> None:
+        self.created_agents: list[Any] = []
 
     def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
         agent = Mock(spec=["run", "run_stream"])
@@ -26,19 +26,19 @@ class MockAgentAdapter(AgentAdapter):
         self.created_agents.append(agent)
         return agent
 
-    async def run(self, agent: Any, prompt: str, **kwargs) -> Any:
+    async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         return f"Response to: {prompt}"
 
-    async def run_stream(self, agent: Any, prompt: str, **kwargs) -> Any:
+    async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         yield f"Chunk for: {prompt}"
 
 
 class MockMCPClient(MCPClientAbstraction):
     """Mock implementation of MCPClientAbstraction for testing."""
 
-    def __init__(self, tools_map: dict[str, Any] = None):
+    def __init__(self, tools_map: dict[str, Any] | None = None) -> None:
         self.tools_map = tools_map or {}
-        self.get_tools_calls = []
+        self.get_tools_calls: list[list[str]] = []
 
     async def get_tools(self, tool_names: list[str]) -> list[Any]:
         self.get_tools_calls.append(tool_names)
@@ -49,7 +49,7 @@ class MockMCPClient(MCPClientAbstraction):
 class TestAgentFactory:
     """Test cases for AgentFactory implementation."""
 
-    def test_factory_initialization(self):
+    def test_factory_initialization(self) -> None:
         """Test AgentFactory initialization with and without MCP client."""
         adapter = MockAgentAdapter()
 
@@ -67,7 +67,7 @@ class TestAgentFactory:
         assert factory_with_mcp.adapter is adapter
         assert factory_with_mcp.mcp_client is mcp_client
 
-    def test_register_agent_settings(self):
+    def test_register_agent_settings(self) -> None:
         """Test registering agent settings."""
         adapter = MockAgentAdapter()
         factory = AgentFactory(adapter)
@@ -86,7 +86,7 @@ class TestAgentFactory:
         # Test getting non-existent settings
         assert factory.get_agent_settings("non-existent") is None
 
-    def test_register_model_settings(self):
+    def test_register_model_settings(self) -> None:
         """Test registering model settings."""
         adapter = MockAgentAdapter()
         factory = AgentFactory(adapter)
@@ -104,7 +104,7 @@ class TestAgentFactory:
         # Test getting non-existent settings
         assert factory.get_model_settings("non-existent") is None
 
-    def test_register_overwrite_behavior(self):
+    def test_register_overwrite_behavior(self) -> None:
         """Test that registering overwrites existing settings."""
         adapter = MockAgentAdapter()
         factory = AgentFactory(adapter)
@@ -118,6 +118,7 @@ class TestAgentFactory:
 
         # Verify initial registration
         original = factory.get_agent_settings("test-agent")
+        assert original is not None
         assert original.description == "Original description"
 
         # Register new settings with same role
@@ -135,7 +136,7 @@ class TestAgentFactory:
         assert updated.description == "Updated description"
         assert updated.model_settings.provider == "anthropic"
 
-    async def test_get_or_create_agent_without_mcp(self):
+    async def test_get_or_create_agent_without_mcp(self) -> None:
         """Test getting or creating agent without MCP client."""
         adapter = MockAgentAdapter()
         factory = AgentFactory(adapter)  # No MCP client
@@ -159,7 +160,7 @@ class TestAgentFactory:
         assert len(adapter.created_agents) == 1
         assert adapter.created_agents[0] is agent
 
-    async def test_get_or_create_agent_with_mcp(self):
+    async def test_get_or_create_agent_with_mcp(self) -> None:
         """Test getting or creating agent with MCP client."""
         adapter = MockAgentAdapter()
         tools_map = {"tool1": Mock(name="tool1"), "tool2": Mock(name="tool2")}
@@ -189,7 +190,7 @@ class TestAgentFactory:
         assert len(mcp_client.get_tools_calls) == 1
         assert mcp_client.get_tools_calls[0] == ["tool1", "tool2"]
 
-    async def test_get_or_create_agent_caching(self):
+    async def test_get_or_create_agent_caching(self) -> None:
         """Test agent caching behavior."""
         adapter = MockAgentAdapter()
         factory = AgentFactory(adapter)
@@ -212,7 +213,7 @@ class TestAgentFactory:
         assert agent1 is agent2
         assert len(adapter.created_agents) == 1  # Only created once
 
-    async def test_get_or_create_agent_with_override_settings(self):
+    async def test_get_or_create_agent_with_override_settings(self) -> None:
         """Test getting or creating agent with override settings."""
         adapter = MockAgentAdapter()
         factory = AgentFactory(adapter)
@@ -244,7 +245,7 @@ class TestAgentFactory:
             # The provider field should be preserved from the original
             assert model_settings.get("provider", "openai") == "openai"
 
-    async def test_get_or_create_agent_with_override_bypasses_cache(self):
+    async def test_get_or_create_agent_with_override_bypasses_cache(self) -> None:
         """Test that override settings bypass cache."""
         adapter = MockAgentAdapter()
         factory = AgentFactory(adapter)
@@ -268,7 +269,7 @@ class TestAgentFactory:
         assert agent1 is not agent2
         assert len(adapter.created_agents) == 2
 
-    async def test_get_or_create_agent_not_found_error(self):
+    async def test_get_or_create_agent_not_found_error(self) -> None:
         """Test error when agent settings not found."""
         adapter = MockAgentAdapter()
         factory = AgentFactory(adapter)
@@ -277,7 +278,7 @@ class TestAgentFactory:
         with pytest.raises(ValueError, match="No agent settings registered for role: non-existent"):
             await factory.get_or_create_agent("non-existent")
 
-    async def test_get_or_create_agent_empty_tools_list(self):
+    async def test_get_or_create_agent_empty_tools_list(self) -> None:
         """Test agent creation with empty tools list."""
         adapter = MockAgentAdapter()
         tools_map = {"tool1": Mock()}
@@ -301,7 +302,7 @@ class TestAgentFactory:
         assert len(mcp_client.get_tools_calls) == 0
         assert agent.tools == []
 
-    async def test_get_or_create_agent_none_tools_list(self):
+    async def test_get_or_create_agent_none_tools_list(self) -> None:
         """Test agent creation with None tools list."""
         adapter = MockAgentAdapter()
         mcp_client = MockMCPClient()
@@ -324,7 +325,7 @@ class TestAgentFactory:
         assert len(mcp_client.get_tools_calls) == 0
         assert agent.tools == []
 
-    def test_factory_state_isolation(self):
+    def test_factory_state_isolation(self) -> None:
         """Test that different factory instances have isolated state."""
         adapter1 = MockAgentAdapter()
         adapter2 = MockAgentAdapter()
@@ -348,14 +349,14 @@ class TestAgentFactory:
         assert factory2.get_agent_settings("agent2") is agent_settings2
         assert factory2.get_agent_settings("agent1") is None
 
-    @pytest.mark.asyncio
-    async def test_factory_with_mcp_client_error_handling(self):
+    @pytest.mark.asyncio  # type: ignore[untyped-decorator]
+    async def test_factory_with_mcp_client_error_handling(self) -> None:
         """Test error handling when MCP client fails."""
         adapter = MockAgentAdapter()
 
         # Create MCP client that raises error
         class FailingMCPClient(MCPClientAbstraction):
-            def __init__(self):
+            def __init__(self) -> None:
                 self.call_count = 0
 
             async def get_tools(self, tool_names: list[str]) -> list[Any]:
@@ -385,7 +386,7 @@ class TestAgentFactory:
         # Verify the MCP client was actually called
         assert mcp_client.call_count == 1
 
-    def test_factory_registry_size_limits(self):
+    def test_factory_registry_size_limits(self) -> None:
         """Test factory behavior with many registered settings."""
         adapter = MockAgentAdapter()
         factory = AgentFactory(adapter)
