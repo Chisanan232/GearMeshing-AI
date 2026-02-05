@@ -34,6 +34,16 @@ jobs:
       python-versions: '["3.12", "3.13"]'
       operating-systems: '["ubuntu-latest", "ubuntu-22.04", "macos-latest", "macos-14"]'
 
+  run_contract-test:
+#    name: Run all contract test items
+    uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_uv_run_test.yaml@master
+    with:
+      test_type: contract-test
+      test_folder: './test/contract_test'
+      install_dependency_with_group: 'dev'
+      python-versions: '["3.12", "3.13"]'
+      operating-systems: '["ubuntu-latest", "ubuntu-22.04", "macos-latest", "macos-14"]'
+
   run_e2e-test:
 #    name: Run all end-to-end test items
 #    if: ${{ inputs.run_e2e == true }}
@@ -48,16 +58,6 @@ jobs:
     secrets:
       e2e_test_api_token: ${{ secrets.e2e_test_api_token }}
 
-#  run_contract-test:
-##    name: Run all contract test items
-#    uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_uv_run_test.yaml@master
-#    with:
-#      test_type: contract-test
-#      test_folder: './test/contract_test'
-#      install_dependency_with_group: 'dev'
-#      python-versions: '["3.13"]'
-#      operating-systems: '["ubuntu-latest", "ubuntu-22.04", "macos-latest", "macos-14"]'
-#
 #  run_script-test:
 ##    name: Run all contract test items
 #    uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_uv_run_test.yaml@master
@@ -90,6 +90,17 @@ jobs:
     with:
       test_type: integration-test
 
+  contract-test_codecov:
+#    name: For end-to-end test, organize and generate the testing report and upload it to Codecov
+    if: ${{
+        contains(fromJSON('["pull_request","workflow_dispatch","schedule"]'), github.event_name) ||
+        (github.event_name == 'push' && github.ref_name == 'master')
+      }}
+    needs: run_contract-test
+    uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_organize_test_cov_reports.yaml@master
+    with:
+      test_type: contract-test
+
   e2e-test_codecov:
 #    name: For end-to-end test, organize and generate the testing report and upload it to Codecov
     if: ${{
@@ -101,17 +112,6 @@ jobs:
     with:
       test_type: e2e-test
 
-#  contract-test_codecov:
-##    name: For end-to-end test, organize and generate the testing report and upload it to Codecov
-#    if: ${{
-#        contains(fromJSON('["pull_request","workflow_dispatch","schedule"]'), github.event_name) ||
-#        (github.event_name == 'push' && github.ref_name == 'master')
-#      }}
-#    needs: run_contract-test
-#    uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_organize_test_cov_reports.yaml@master
-#    with:
-#      test_type: contract-test
-
   all_test:
 #    name: Organize and generate the testing report and upload it to Codecov
     if: ${{
@@ -120,8 +120,7 @@ jobs:
             (github.event_name == 'push' && github.ref_name == 'master')
         )
       }}
-#    needs: [run_unit-test, run_integration-test, run_contract-test, run_e2e-test]
-    needs: [run_unit-test, run_integration-test, run_e2e-test]
+    needs: [run_unit-test, run_integration-test, run_contract-test, run_e2e-test]
     uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_organize_test_cov_reports.yaml@master
     with:
       test_type: all-test
