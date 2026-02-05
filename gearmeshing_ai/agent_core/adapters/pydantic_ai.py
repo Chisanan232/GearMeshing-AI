@@ -1,4 +1,3 @@
-from collections.abc import AsyncIterator
 from typing import Any
 
 # pydantic_ai imports
@@ -31,19 +30,19 @@ class PydanticAIAdapter(AgentAdapter):
         model_instance = self._get_model(settings.model_settings.provider, settings.model_settings.model)
 
         # Pydantic AI Agent initialization
-        agent = PydanticAgent(
+        return PydanticAgent(
             model=model_instance,
             system_prompt=settings.system_prompt,
             # tools=tools # TODO: Map MCP tools to Pydantic AI tools if necessary
         )
 
         # Attach metadata or settings to the agent instance if needed for debugging
-        return agent
 
     async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         """Runs the Pydantic AI agent."""
         if not isinstance(agent, PydanticAgent):
-            raise ValueError("Agent must be an instance of pydantic_ai.Agent")
+            msg = "Agent must be an instance of pydantic_ai.Agent"
+            raise ValueError(msg)
 
         result = await agent.run(prompt)
         return result.output
@@ -51,7 +50,8 @@ class PydanticAIAdapter(AgentAdapter):
     async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         """Runs the Pydantic AI agent in streaming mode."""
         if not isinstance(agent, PydanticAgent):
-            raise ValueError("Agent must be an instance of pydantic_ai.Agent")
+            msg = "Agent must be an instance of pydantic_ai.Agent"
+            raise ValueError(msg)
 
         async with agent.run_stream(prompt) as result:
             async for message in result.stream_text():

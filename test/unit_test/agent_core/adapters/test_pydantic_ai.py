@@ -1,7 +1,8 @@
 """Unit tests for PydanticAI adapter."""
 
+from collections.abc import AsyncGenerator
+from typing import Any
 from unittest.mock import AsyncMock, Mock, patch
-from typing import Any, Generator, AsyncGenerator
 
 import pytest
 
@@ -55,8 +56,7 @@ class TestPydanticAIAdapter:
     @pytest.fixture  # type: ignore[untyped-decorator]
     def mock_pydantic_agent(self) -> Any:
         """Create a mock PydanticAgent instance."""
-        agent = Mock(spec=MockPydanticAgent)
-        return agent
+        return Mock(spec=MockPydanticAgent)
 
     class TestGetModel:
         """Test the _get_model method."""
@@ -328,7 +328,7 @@ class TestPydanticAIAdapter:
             invalid_agent = Mock()  # Not a PydanticAgent instance
 
             with pytest.raises(ValueError, match="Agent must be an instance of pydantic_ai.Agent"):
-                async for chunk in adapter.run_stream(invalid_agent, "Test prompt"):
+                async for _chunk in adapter.run_stream(invalid_agent, "Test prompt"):
                     pass
 
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
@@ -361,7 +361,7 @@ class TestPydanticAIAdapter:
             # Patch isinstance check
             with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
                 with pytest.raises(Exception, match="Streaming error"):
-                    async for chunk in adapter.run_stream(mock_pydantic_agent, "Test prompt"):
+                    async for _chunk in adapter.run_stream(mock_pydantic_agent, "Test prompt"):
                         pass
 
     class TestIntegration:

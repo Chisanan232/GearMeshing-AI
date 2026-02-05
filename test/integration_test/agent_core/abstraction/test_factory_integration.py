@@ -2,7 +2,8 @@
 Integration tests for AgentFactory with real adapters and MCP client.
 """
 
-from typing import Any, AsyncGenerator, cast
+from collections.abc import AsyncGenerator
+from typing import Any, cast
 from unittest.mock import Mock
 
 import pytest
@@ -288,7 +289,8 @@ class TestAgentFactoryIntegration:
         # Create MCP client that fails
         class FailingMCPClient(MCPClientAbstraction):
             async def get_tools(self, tool_names: list[str]) -> list[Any]:
-                raise RuntimeError("MCP server unavailable")
+                msg = "MCP server unavailable"
+                raise RuntimeError(msg)
 
         factory.mcp_client = FailingMCPClient()
         factory.register_agent_settings(sample_agent_settings)
@@ -326,12 +328,11 @@ class TestAgentFactoryIntegration:
 
         async def create_agents_concurrently() -> list[Any]:
             tasks = []
-            for i in range(5):
+            for _i in range(5):
                 task = factory.get_or_create_agent("assistant")
                 tasks.append(task)
 
-            agents = await asyncio.gather(*tasks)
-            return agents
+            return await asyncio.gather(*tasks)
 
         agents = await create_agents_concurrently()
 

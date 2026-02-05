@@ -3,7 +3,7 @@ Unit tests for MCPClientAbstraction abstract base class.
 """
 
 from abc import ABC
-from typing import Any, Optional
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -14,7 +14,7 @@ from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
 class MockMCPClient(MCPClientAbstraction):
     """Mock implementation of MCPClientAbstraction for testing."""
 
-    def __init__(self, tools_map: Optional[dict[str, Any]] = None) -> None:
+    def __init__(self, tools_map: dict[str, Any] | None = None) -> None:
         self.tools_map = tools_map or {}
         self.get_tools_calls: list[list[str]] = []
 
@@ -137,7 +137,8 @@ class TestMCPClientAbstraction:
 
         class ErrorMCPClient(MCPClientAbstraction):
             async def get_tools(self, tool_names: list[str]) -> list[Any]:
-                raise RuntimeError("MCP connection failed")
+                msg = "MCP connection failed"
+                raise RuntimeError(msg)
 
         client = ErrorMCPClient()
 
@@ -278,14 +279,13 @@ class TestMCPClientAbstraction:
                 task = client.get_tools([f"tool_{i}"])
                 tasks.append(task)
 
-            results = await asyncio.gather(*tasks)
-            return results
+            return await asyncio.gather(*tasks)
 
         results = asyncio.run(make_concurrent_calls())
 
         # Verify all calls completed
         assert len(results) == 10
-        for i, result in enumerate(results):
+        for _i, result in enumerate(results):
             assert len(result) == 1
             assert result[0] is not None
 

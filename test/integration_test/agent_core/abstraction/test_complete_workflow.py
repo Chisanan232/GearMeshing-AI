@@ -3,7 +3,8 @@ Integration tests for complete agent creation and execution workflow.
 """
 
 import asyncio
-from typing import Any, Optional, AsyncGenerator, cast
+from collections.abc import AsyncGenerator
+from typing import Any, cast
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -22,7 +23,7 @@ from gearmeshing_ai.agent_core.abstraction import (
 class ProductionAgentAdapter(AgentAdapter):
     """Production-like adapter implementation for comprehensive testing."""
 
-    def __init__(self, config: Optional[dict[str, Any]] = None) -> None:
+    def __init__(self, config: dict[str, Any] | None = None) -> None:
         self.config = config or {}
         self.created_agents: list[Any] = []
         self.execution_history: list[dict[str, Any]] = []
@@ -136,7 +137,7 @@ class ProductionAgent:
 class ProductionMCPClient(MCPClientAbstraction):
     """Production-like MCP client implementation."""
 
-    def __init__(self, tools_registry: Optional[dict[str, Any]] = None, config: Optional[dict[str, Any]] = None) -> None:
+    def __init__(self, tools_registry: dict[str, Any] | None = None, config: dict[str, Any] | None = None) -> None:
         self.tools_registry = tools_registry or {}
         self.config = config or {}
         self.connection_pool: dict[str, Any] = {}
@@ -149,7 +150,8 @@ class ProductionMCPClient(MCPClientAbstraction):
 
         # Simulate occasional errors
         if self.error_rate > 0 and len(self.request_history) % int(1 / self.error_rate) == 0:
-            raise RuntimeError(f"MCP server error (simulated {self.error_rate * 100}% failure rate)")
+            msg = f"MCP server error (simulated {self.error_rate * 100}% failure rate)"
+            raise RuntimeError(msg)
 
         tools = []
         for name in tool_names:
@@ -287,7 +289,7 @@ class TestCompleteWorkflowIntegration:
 
         # Create all agents
         agents = {}
-        for role in agent_configurations.keys():
+        for role in agent_configurations:
             agents[role] = await factory.get_or_create_agent(role)
 
         # Verify all agents were created correctly
@@ -322,7 +324,7 @@ class TestCompleteWorkflowIntegration:
         # Test streaming for each agent
         streaming_results = {}
 
-        for role in agent_configurations.keys():
+        for role in agent_configurations:
             agent = await factory.get_or_create_agent(role)
             chunks = []
 
@@ -352,7 +354,7 @@ class TestCompleteWorkflowIntegration:
 
         # Create agents
         agents = {}
-        for role in agent_configurations.keys():
+        for role in agent_configurations:
             agents[role] = await factory.get_or_create_agent(role)
 
         # Execute concurrent tasks
@@ -436,7 +438,7 @@ class TestCompleteWorkflowIntegration:
         successful_creations = []
         failed_creations = []
 
-        for i in range(10):
+        for _i in range(10):
             # Clear cache to force MCP client call each time
             factory.cache.clear()
             try:
@@ -514,7 +516,7 @@ class TestCompleteWorkflowIntegration:
 
         # Create agents
         creation_times = []
-        for role in agent_configurations.keys():
+        for role in agent_configurations:
             agent_start = time.time()
             agent = await factory.get_or_create_agent(role)
             agent_end = time.time()
@@ -522,7 +524,7 @@ class TestCompleteWorkflowIntegration:
 
         # Execute agents
         execution_times = []
-        for role in agent_configurations.keys():
+        for role in agent_configurations:
             agent = await factory.get_or_create_agent(role)
             exec_start = time.time()
             await factory.adapter.run(agent, f"Test prompt for {role}")
@@ -540,7 +542,7 @@ class TestCompleteWorkflowIntegration:
         if len(creation_times) >= 2:
             # Recreate first agent to test caching
             cache_start = time.time()
-            await factory.get_or_create_agent(list(agent_configurations.keys())[0])
+            await factory.get_or_create_agent(next(iter(agent_configurations.keys())))
             cache_time = time.time() - cache_start
             assert cache_time < 0.01  # Cached creation should be very fast
 

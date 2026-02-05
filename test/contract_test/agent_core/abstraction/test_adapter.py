@@ -3,7 +3,8 @@ Unit tests for AgentAdapter abstract base class.
 """
 
 from abc import ABC
-from typing import Any, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -166,16 +167,19 @@ class TestAgentAdapter:
 
         class ErrorAgentAdapter(AgentAdapter):
             def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
-                raise ValueError("Cannot create agent")
+                msg = "Cannot create agent"
+                raise ValueError(msg)
 
             async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
-                raise RuntimeError("Run failed")
+                msg = "Run failed"
+                raise RuntimeError(msg)
 
             async def run_stream(self, agent: Any, prompt: str, **kwargs: Any) -> AsyncGenerator[str, None]:  # type: ignore[override]
                 # This needs to be an async generator that raises an exception
                 if False:  # Never enters, but makes it a generator
                     yield None
-                raise RuntimeError("Stream failed")
+                msg = "Stream failed"
+                raise RuntimeError(msg)
 
         adapter = ErrorAgentAdapter()
         model_settings = ModelSettings(customized_name="test", provider="openai", model="gpt-4")
@@ -197,7 +201,7 @@ class TestAgentAdapter:
             async def test_stream() -> None:
                 error_adapter = ErrorAgentAdapter()
                 try:
-                    async for chunk in error_adapter.run_stream(Mock(), "test"):
+                    async for _chunk in error_adapter.run_stream(Mock(), "test"):
                         pass
                 except RuntimeError:
                     raise

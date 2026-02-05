@@ -3,8 +3,8 @@ Unit tests for EnvManager implementation.
 """
 
 import os
-from unittest.mock import Mock, patch
 from typing import Any
+from unittest.mock import Mock, patch
 
 from pydantic import SecretStr
 
