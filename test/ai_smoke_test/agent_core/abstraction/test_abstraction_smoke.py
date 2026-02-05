@@ -71,7 +71,10 @@ class TestAgentAdapterSmoke:
 
         # Create test settings
         model_settings = ModelSettings(
-            customized_name="test_openai", provider="openai", model="gpt-4", api_key=test_settings.ai_provider.openai.api_key
+            customized_name="test_openai",
+            provider="openai",
+            model="gpt-4",
+            api_key=test_settings.ai_provider.openai.api_key
         )
 
         agent_settings = AgentSettings(
@@ -235,7 +238,10 @@ class TestAgentSettingsSmoke:
         """Test settings with real OpenAI API key."""
         if test_settings.has_provider("openai"):
             model_settings = ModelSettings(
-                customized_name="real_openai", provider="openai", model="gpt-4", api_key=test_settings.ai_provider.openai.api_key
+                customized_name="real_openai",
+                provider="openai",
+                model="gpt-4",
+                api_key=test_settings.ai_provider.openai.api_key
             )
             assert model_settings.api_key is not None
             assert model_settings.api_key.get_secret_value() is not None

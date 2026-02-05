@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-from pydantic import BaseModel, Field, SecretStr, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load test environment variables
@@ -97,10 +97,18 @@ class TestAgentSettings(BaseModel):
 class AIProviderConfig(BaseModel):
     """AI provider configuration container for tests."""
 
-    openai: TestOpenAIConfig = Field(default_factory=TestOpenAIConfig, description="OpenAI test configuration")
-    anthropic: TestAnthropicConfig = Field(default_factory=TestAnthropicConfig, description="Anthropic test configuration")
-    gemini: TestGeminiConfig = Field(default_factory=TestGeminiConfig, description="Gemini test configuration")
-    xai: TestXAIConfig = Field(default_factory=TestXAIConfig, description="xAI test configuration")
+    openai: TestOpenAIConfig = Field(
+        default_factory=TestOpenAIConfig, description="OpenAI test configuration"
+    )
+    anthropic: TestAnthropicConfig = Field(
+        default_factory=TestAnthropicConfig, description="Anthropic test configuration"
+    )
+    gemini: TestGeminiConfig = Field(
+        default_factory=TestGeminiConfig, description="Gemini test configuration"
+    )
+    xai: TestXAIConfig = Field(
+        default_factory=TestXAIConfig, description="xAI test configuration"
+    )
     
     model_config = ConfigDict(strict=False)
 
@@ -117,7 +125,9 @@ class TestSettings(BaseSettings):
     """
 
     # AI Provider configurations (nested)
-    ai_provider: AIProviderConfig = Field(default_factory=lambda: AIProviderConfig(), description="AI provider configurations")
+    ai_provider: AIProviderConfig = Field(
+        default_factory=lambda: AIProviderConfig(), description="AI provider configurations"
+    )
 
     # Test execution flags
     run_ai_tests: bool = Field(True, description="Whether to run tests that call real AI models")
@@ -233,11 +243,11 @@ class TestSettings(BaseSettings):
         provider = provider.lower()
         if provider == "openai":
             return bool(self.ai_provider.openai.api_key)
-        elif provider == "anthropic":
+        if provider == "anthropic":
             return bool(self.ai_provider.anthropic.api_key)
-        elif provider == "gemini" or provider == "google":
+        if provider == "gemini" or provider == "google":
             return bool(self.ai_provider.gemini.api_key)
-        elif provider == "xai" or provider == "grok":
+        if provider == "xai" or provider == "grok":
             return bool(self.ai_provider.xai.api_key)
         return False
 
