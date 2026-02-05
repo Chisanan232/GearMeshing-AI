@@ -4,6 +4,7 @@ Unit tests for AgentCache singleton implementation.
 
 import threading
 import time
+from typing import Any
 from unittest.mock import Mock
 
 from gearmeshing_ai.agent_core.abstraction.cache import AgentCache
@@ -12,7 +13,7 @@ from gearmeshing_ai.agent_core.abstraction.cache import AgentCache
 class TestAgentCache:
     """Test cases for AgentCache singleton implementation."""
 
-    def test_singleton_behavior(self):
+    def test_singleton_behavior(self) -> None:
         """Test that AgentCache implements singleton pattern correctly."""
         # Create multiple instances
         cache1 = AgentCache()
@@ -24,12 +25,12 @@ class TestAgentCache:
         assert cache2 is cache3
         assert id(cache1) == id(cache2) == id(cache3)
 
-    def test_thread_safety(self):
+    def test_thread_safety(self) -> None:
         """Test that singleton creation is thread-safe."""
         instances = []
         errors = []
 
-        def create_cache():
+        def create_cache() -> None:
             try:
                 cache = AgentCache()
                 instances.append(cache)
@@ -56,7 +57,7 @@ class TestAgentCache:
         for instance in instances[1:]:
             assert instance is first_instance
 
-    def test_get_and_set_operations(self):
+    def test_get_and_set_operations(self) -> None:
         """Test basic get and set operations."""
         cache = AgentCache()
 
@@ -74,7 +75,7 @@ class TestAgentCache:
         assert retrieved_agent is mock_agent
         assert retrieved_agent is not None
 
-    def test_remove_operation(self):
+    def test_remove_operation(self) -> None:
         """Test remove operation."""
         cache = AgentCache()
         cache.clear()
@@ -91,7 +92,7 @@ class TestAgentCache:
         # Removing non-existent agent should not raise error
         cache.remove("non_existent")  # Should not raise
 
-    def test_clear_operation(self):
+    def test_clear_operation(self) -> None:
         """Test clear operation."""
         cache = AgentCache()
 
@@ -113,7 +114,7 @@ class TestAgentCache:
         assert cache.get("agent2") is None
         assert cache.get("agent3") is None
 
-    def test_overwrite_existing_agent(self):
+    def test_overwrite_existing_agent(self) -> None:
         """Test overwriting an existing cached agent."""
         cache = AgentCache()
         cache.clear()
@@ -129,7 +130,7 @@ class TestAgentCache:
         assert cache.get("test_agent") is agent2
         assert cache.get("test_agent") is not agent1
 
-    def test_cache_with_different_agent_types(self):
+    def test_cache_with_different_agent_types(self) -> None:
         """Test cache with various types of agent objects."""
         cache = AgentCache()
         cache.clear()
@@ -150,7 +151,7 @@ class TestAgentCache:
         assert cache.get("dict") is dict_agent
         assert cache.get("class") is class_agent
 
-    def test_cache_key_types(self):
+    def test_cache_key_types(self) -> None:
         """Test cache with different key types."""
         cache = AgentCache()
         cache.clear()
@@ -162,13 +163,14 @@ class TestAgentCache:
         assert cache.get("string_key") is mock_agent
 
         # Test with other hashable types
-        cache.set(123, mock_agent)
-        assert cache.get(123) is mock_agent
+        # Test with integer keys (should work but type warning)
+        cache.set(123, mock_agent)  # type: ignore[arg-type]
+        assert cache.get(123) is mock_agent  # type: ignore[arg-type]
 
-        cache.set(("tuple", "key"), mock_agent)
-        assert cache.get(("tuple", "key")) is mock_agent
+        cache.set(("tuple", "key"), mock_agent)  # type: ignore[arg-type]
+        assert cache.get(("tuple", "key")) is mock_agent  # type: ignore[arg-type]
 
-    def test_cache_isolation_between_tests(self):
+    def test_cache_isolation_between_tests(self) -> None:
         """Test that cache state doesn't leak between test instances."""
         # This test verifies that the singleton doesn't cause test pollution
         cache1 = AgentCache()
@@ -186,7 +188,7 @@ class TestAgentCache:
         assert cache1.get("test_key") is None
         assert cache2.get("test_key") is None
 
-    def test_concurrent_operations(self):
+    def test_concurrent_operations(self) -> None:
         """Test concurrent cache operations."""
         cache = AgentCache()
         cache.clear()
@@ -194,7 +196,7 @@ class TestAgentCache:
         results = []
         errors = []
 
-        def worker(worker_id):
+        def worker(worker_id: int) -> None:
             try:
                 for i in range(10):
                     agent = Mock(name=f"agent_{worker_id}_{i}")
@@ -236,7 +238,7 @@ class TestAgentCache:
         successful_operations = sum(1 for _, _, success in results if success)
         assert successful_operations >= 45  # Allow for some removals
 
-    def test_cache_memory_behavior(self):
+    def test_cache_memory_behavior(self) -> None:
         """Test cache behavior with memory considerations."""
         cache = AgentCache()
         cache.clear()
@@ -250,15 +252,16 @@ class TestAgentCache:
 
         # Verify all agents are cached
         for i in range(100):
-            agent = cache.get(f"agent_{i}")
-            assert agent is agents[i]
+            cached_agent: Any = cache.get(f"agent_{i}")
+            assert cached_agent is not None
+            assert cached_agent is agents[i]
 
         # Clear and verify memory is released
         cache.clear()
         for i in range(100):
             assert cache.get(f"agent_{i}") is None
 
-    def test_cache_edge_cases(self):
+    def test_cache_edge_cases(self) -> None:
         """Test edge cases and boundary conditions."""
         cache = AgentCache()
         cache.clear()
@@ -280,7 +283,7 @@ class TestAgentCache:
         cache.clear()  # Should not raise
         assert cache.get("anything") is None
 
-    def test_cache_instance_attributes(self):
+    def test_cache_instance_attributes(self) -> None:
         """Test cache instance attributes and their types."""
         cache = AgentCache()
 
