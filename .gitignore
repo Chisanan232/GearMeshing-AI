@@ -38,6 +38,10 @@ build/
 dist/
 *.egg-info/
 
+## Configuration
+.env*
+!.env*example
+
 ## Script
 scripts/ci/get-all-tests.sh
 
