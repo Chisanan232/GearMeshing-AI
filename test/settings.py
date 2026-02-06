@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from core.models.setting import MCPConfig
+
 # Load test environment variables
 TEST_ENV_PATH = Path(__file__).parent / ".env"
 if TEST_ENV_PATH.exists():
@@ -121,6 +123,14 @@ class TestSettings(BaseSettings):
     # AI Provider configurations (nested)
     ai_provider: AIProviderConfig = Field(
         default_factory=lambda: AIProviderConfig(), description="AI provider configurations"
+    )
+
+    # =====================================================================
+    # MCP Configuration for Tests
+    # =====================================================================
+    mcp: MCPConfig = Field(
+        default_factory=MCPConfig,
+        description="MCP configuration (Slack, ClickUp, GitHub, Gateway)",
     )
 
     # Test execution flags
