@@ -52,9 +52,8 @@ jobs:
       test_type: e2e-test
       test_folder: './test/e2e_test'
       install_dependency_with_group: 'dev'
-      max-parallel: 1
-      python-versions: '["3.13"]'
-      operating-systems: '["ubuntu-latest", "ubuntu-22.04", "macos-latest", "macos-14"]'
+      python-versions: '["3.12", "3.13"]'
+      operating-systems: '["ubuntu-latest", "ubuntu-22.04"]'
     secrets:
       e2e_test_api_token: ${{ secrets.e2e_test_api_token }}
 
