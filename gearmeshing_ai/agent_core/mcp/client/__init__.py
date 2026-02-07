@@ -1,5 +1,4 @@
-"""
-MCP Client Package - Core client implementations for Model Context Protocol servers.
+"""MCP Client Package - Core client implementations for Model Context Protocol servers.
 
 This package provides comprehensive client implementations for interacting with MCP servers
 using different transport protocols (SSE, HTTP, stdio) with advanced features like
@@ -120,39 +119,39 @@ The package is designed to be easily extensible:
 
 """
 
-from .core import (
-    MCPClient,
-    EasyMCPClient,
-    AsyncMCPClient,
-)
-from .transports import (
-    BaseTransport,
-    SSETransport,
-    HTTPTransport,
-    StdioTransport,
-)
-from .factory import (
-    MCPClientFactory,
-    EasyMCPClientFactory,
-)
 from .config import (
     MCPClientConfig,
-    TransportConfig,
     RetryConfig,
+    TransportConfig,
 )
-from .pool import (
-    ServerPool,
-    ConnectionPool,
+from .core import (
+    AsyncMCPClient,
+    EasyMCPClient,
+    MCPClient,
+)
+from .exceptions import (
+    ConnectionError,
+    MCPClientError,
+    ServerError,
+    TimeoutError,
+)
+from .factory import (
+    EasyMCPClientFactory,
+    MCPClientFactory,
 )
 from .monitoring import (
     ClientMetrics,
     HealthChecker,
 )
-from .exceptions import (
-    MCPClientError,
-    ConnectionError,
-    TimeoutError,
-    ServerError,
+from .pool import (
+    ConnectionPool,
+    ServerPool,
+)
+from .transports import (
+    BaseTransport,
+    HTTPTransport,
+    SSETransport,
+    StdioTransport,
 )
 
 __version__ = "1.0.0"
@@ -162,32 +161,26 @@ __author__ = "GearMeshing AI Team"
 __all__ = [
     # Core clients
     "MCPClient",
-    "EasyMCPClient", 
+    "EasyMCPClient",
     "AsyncMCPClient",
-    
     # Transports
     "BaseTransport",
     "SSETransport",
     "HTTPTransport",
     "StdioTransport",
-    
     # Factory
     "MCPClientFactory",
     "EasyMCPClientFactory",
-    
     # Configuration
     "MCPClientConfig",
     "TransportConfig",
     "RetryConfig",
-    
     # Pooling
     "ServerPool",
     "ConnectionPool",
-    
     # Monitoring
     "ClientMetrics",
     "HealthChecker",
-    
     # Exceptions
     "MCPClientError",
     "ConnectionError",
@@ -195,21 +188,23 @@ __all__ = [
     "ServerError",
 ]
 
+
 # Version compatibility check
 def _check_compatibility():
     """Check for version compatibility with dependencies."""
     import sys
     import warnings
-    
+
     if sys.version_info < (3, 8):
         raise RuntimeError("MCP Client requires Python 3.8 or higher")
-    
+
     # Check for required dependencies
     try:
-        import mcp
         import httpx
+        import mcp
         import pydantic
     except ImportError as e:
         raise ImportError(f"Required dependency missing: {e}")
+
 
 _check_compatibility()
