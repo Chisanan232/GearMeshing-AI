@@ -1,0 +1,237 @@
+services:
+  # -------------------------------------------------------
+  # Core Infrastructure
+  # -------------------------------------------------------
+#  postgres:
+#    image: postgres:18
+#    container_name: postgres
+#    restart: unless-stopped
+#    networks:
+#      - ai-dev-net
+#    ports:
+#      - "5432:5432"
+#    environment:
+#      POSTGRES_DB: ${DATABASE__POSTGRES__DB}
+#      POSTGRES_USER: ${DATABASE__POSTGRES__USER}
+#      POSTGRES_PASSWORD: ${DATABASE__POSTGRES__PASSWORD}
+#    volumes:
+#      - pgdata:/var/lib/postgresql
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 10
+
+  redis:
+    image: redis:8
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - ai-dev-net
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+#  zookeeper:
+#    image: zookeeper:3.9
+#    container_name: zookeeper
+#    restart: unless-stopped
+#    networks:
+#      - ai-dev-net
+#    environment:
+#      - ALLOW_ANONYMOUS_LOGIN=yes
+#    ports:
+#      - "2181:2181"
+#    volumes:
+#      - zookeeper_data:/bitnami/zookeeper
+
+#  kafka:
+#    image: apache/kafka:4.1.1
+#    container_name: kafka
+#    restart: unless-stopped
+#    networks:
+#      - ai-dev-net
+#    depends_on:
+#      - zookeeper
+#    environment:
+#      - KAFKA_NODE_ID=1
+#      - KAFKA_PROCESS_ROLES=broker,controller
+#      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+#      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+#      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+#      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+#      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
+#      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+#      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+#      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+#      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+#      - KAFKA_NUM_PARTITIONS=3
+#    ports:
+#      - "9092:9092"
+#    volumes:
+#      - kafka_data:/bitnami/kafka
+
+  # -------------------------------------------------------
+  # MCP Gateway (ContextForge)
+  # -------------------------------------------------------
+  mcp-gateway:
+    # Replace this with your actual gateway image or build context
+    image: ghcr.io/ibm/mcp-context-forge:0.9.0
+    container_name: mcp-gateway
+    restart: unless-stopped
+    networks:
+      - ai-dev-net
+    depends_on:
+#      postgres:
+#        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4444
+
+      BASIC_AUTH_USER: admin
+      BASIC_AUTH_PASSWORD: ${MCP__GATEWAY__ADMIN_PASSWORD}
+      AUTH_REQUIRED: "true"
+      JWT_SECRET_KEY: ${MCP__GATEWAY__JWT_SECRET}
+
+      PLATFORM_ADMIN_EMAIL: ${MCP__GATEWAY__ADMIN_EMAIL}
+      PLATFORM_ADMIN_PASSWORD: ${MCP__GATEWAY__ADMIN_PASSWORD}
+      PLATFORM_ADMIN_FULL_NAME: ${MCP__GATEWAY__ADMIN_FULL_NAME}
+
+      DB_URL: ${MCP__GATEWAY__DB_URL}
+      CACHE_TYPE: redis
+      REDIS_URL: ${MCP__GATEWAY__REDIS_URL}
+      MCPGATEWAY_UI_ENABLED: "true"
+      MCPGATEWAY_ADMIN_API_ENABLED: "true"
+      # Preload default MCP servers into the gateway from catalog
+      MCPGATEWAY_CATALOG_ENABLED: "true"
+      MCPGATEWAY_CATALOG_FILE: /data/mcp-catalog.yml
+    ports:
+      - "4444:4444"
+    volumes:
+      - ./mcp-catalog_e2e.yml:/data/mcp-catalog.yml:ro
+
+
+  # -------------------------------------------------------
+  # MCP Servers
+  # -------------------------------------------------------
+
+  # Communication tools
+  # --------------------------
+
+  # Slack MCP Server
+#  slack-mcp:
+#    image: chisanan232/slack-mcp-server:0.1.0
+#    container_name: slack-mcp
+#    restart: unless-stopped
+#    networks:
+#      - ai-dev-net
+#    environment:
+#      # MCP server configuration
+#      MCP_HOST: ${MCP__SLACK__HOST}
+#      MCP_PORT: ${MCP__SLACK__PORT}
+#      MCP_TRANSPORT: ${MCP__SLACK__MCP_TRANSPORT}
+#      MCP_INTEGRATED: true
+#      # For Slack configuration
+#      SLACK_BOT_TOKEN: ${MCP__SLACK__BOT_TOKEN}
+#      SLACK_SIGNING_SECRET: ${MCP__SLACK__SIGNING_SECRET}
+#      MQ_BACKEND: ${MCP__SERVER__CLICKUP__MQ_BACKEND}
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      KAFKA_TOPIC: ${MQ__SLACK_KAFKA_TOPIC}
+#    depends_on:
+#      - kafka
+#    ports:
+#      - ${MCP__SLACK__PORT}:${MCP__SLACK__PORT}
+
+  # Project management tools
+  # --------------------------
+
+  # ClickUp MCP Server
+  clickup-mcp:
+    image: chisanan232/clickup-mcp-server:0.1.0
+    container_name: clickup-mcp
+    restart: unless-stopped
+    networks:
+      - ai-dev-net
+    environment:
+      # MCP server configuration
+      SERVER_HOST: ${MCP__SERVER__CLICKUP__SERVER_HOST}
+      SERVER_PORT: ${MCP__SERVER__CLICKUP__SERVER_PORT}
+      MCP_TRANSPORT: ${MCP__SERVER__CLICKUP__MCP_TRANSPORT}
+      # For ClickUp configuration
+      CLICKUP_API_TOKEN: ${MCP__SERVER__CLICKUP__API_TOKEN}
+      MQ_BACKEND: ${MCP__SERVER__CLICKUP__MQ_BACKEND}
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      KAFKA_TOPIC: ${MQ__CLICKUP_KAFKA_TOPIC}
+#    depends_on:
+#      - kafka
+    ports:
+      - ${MCP__SERVER__CLICKUP__SERVER_PORT}:${MCP__SERVER__CLICKUP__SERVER_PORT}
+
+  # Atlassian / Jira MCP Server
+#  atlassian-mcp:
+#    image: ghcr.io/sooperset/mcp-atlassian:0.11.9
+#    container_name: atlassian-mcp
+#    restart: unless-stopped
+#    networks:
+#      - ai-dev-net
+#    environment:
+#      ATLASSIAN_BASE_URL: ${MCP__SERVER__ATLASSIAN_BASE_URL}
+#      ATLASSIAN_EMAIL: ${MCP__SERVER__ATLASSIAN_EMAIL}
+#      ATLASSIAN_API_TOKEN: ${MCP__SERVER__ATLASSIAN_API_TOKEN}
+
+  # Source code versioning management tools
+  # --------------------------
+
+  # GitHub MCP Server
+#  github-mcp:
+#    image: ghcr.io/github/github-mcp-server
+#    container_name: github-mcp
+#    stdin_open: true
+#    tty: true
+#    restart: on-failure
+#    networks:
+#      - ai-dev-net
+#    environment:
+#      GITHUB_PERSONAL_ACCESS_TOKEN: ${MCP__SERVER__GITHUB__TOKEN}
+#      GITHUB_TOOLSETS: "all"
+##      GITHUB_HOST: ${MCP__SERVER__GITHUB_DEFAULT_REPO}
+
+  # Observability tools
+  # --------------------------
+
+  # Grafana MCP Server
+#  grafana-mcp:
+#    build:
+#      context: ./mcp/mcp-grafana
+#    container_name: grafana-mcp
+#    restart: unless-stopped
+#    networks:
+#      - ai-dev-net
+#    environment:
+#      GRAFANA_URL: ${MCP__SERVER__GRAFANA_URL}
+#      GRAFANA_API_TOKEN: ${MCP__SERVER__GRAFANA_API_TOKEN}
+
+  # Loki MCP Server
+#  loki-mcp:
+#    build:
+#      context: ./mcp/loki-mcp
+#    container_name: loki-mcp
+#    restart: unless-stopped
+#    networks:
+#      - ai-dev-net
+#    environment:
+#      LOKI_URL: ${MCP__SERVER__LOKI_URL}
+#      LOKI_API_TOKEN: ${MCP__SERVER__LOKI_API_TOKEN}
+
+networks:
+  ai-dev-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
+  zookeeper_data:
+  kafka_data:
