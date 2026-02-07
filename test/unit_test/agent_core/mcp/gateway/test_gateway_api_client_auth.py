@@ -39,9 +39,6 @@ def test_generate_bearer_token_passes_cli_username_and_secret(monkeypatch: pytes
     assert captured["timeout"] == 5.0
 
 
-essential_env = {"MCPGATEWAY_JWT_SECRET": "k", "FOO": "bar"}
-
-
 def test_generate_bearer_token_merges_extra_env_and_defaults_username(monkeypatch: pytest.MonkeyPatch) -> None:
     captured: Dict[str, Any] = {}
 
@@ -196,10 +193,15 @@ def test_generate_bearer_token_raises_if_secret_missing(monkeypatch: pytest.Monk
     def fail_if_called(*args, **kwargs):
         raise AssertionError("subprocess.check_output should not be called when secret missing")
 
+    # Mock settings to return empty secret
+    from unittest.mock import MagicMock
+    mock_settings = MagicMock()
+    mock_settings.mcp.gateway.jwt_secret.get_secret_value.return_value = ""
+    
     monkeypatch.setattr(importlib, "import_module", fake_import_module)
     monkeypatch.setattr(subprocess, "check_output", fail_if_called)
-    # Ensure no env secret present
-    monkeypatch.delenv("MCPGATEWAY_JWT_SECRET", raising=False)
+    # Mock the settings import inside the function
+    monkeypatch.setattr("gearmeshing_ai.core.models.setting.settings", mock_settings)
 
     with pytest.raises(GatewayApiError):
         GatewayApiClient.generate_bearer_token(jwt_secret_key=None)
