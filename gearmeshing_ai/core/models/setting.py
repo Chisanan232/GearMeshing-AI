@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -56,7 +54,7 @@ class MCPGatewayConfig(BaseModel):
     """MCP Gateway configuration."""
 
     url: str = Field(default="http://mcp-gateway:4444", description="MCP Gateway base URL")
-    token: Optional[SecretStr] = Field(default=None, description="MCP Gateway authentication token")
+    token: SecretStr | None = Field(default=None, description="MCP Gateway authentication token")
     db_url: SecretStr = Field(
         default=SecretStr("postgresql+psycopg://ai_dev:changeme@postgres:5432/ai_dev"),
         description="MCP Gateway PostgreSQL database URL",
@@ -117,5 +115,6 @@ class AIProviderSettings(BaseSettings):
         extra="ignore",
         case_sensitive=False,
     )
+
 
 settings = AIProviderSettings()

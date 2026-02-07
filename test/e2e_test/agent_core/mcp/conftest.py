@@ -3,16 +3,15 @@ from __future__ import annotations
 import logging
 import os
 import time
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, List
 
 import httpx
 import pytest
 from testcontainers.compose import DockerCompose
 
-from gearmeshing_ai.agent_core.mcp.gateway import GatewayApiClient
-from gearmeshing_ai.agent_core.mcp.gateway.schemas.config import ServerConfig
 from gearmeshing_ai.agent_core.mcp.client import EasyMCPClient
+from gearmeshing_ai.agent_core.mcp.gateway import GatewayApiClient
 from gearmeshing_ai.core.models.setting import settings
 from test.settings import TestSettings
 
@@ -25,7 +24,7 @@ def clickup_port() -> int:
     return 8082  # Default fallback
 
 
-def endpoint_candidates(host: str, port: int) -> List[str]:
+def endpoint_candidates(host: str, port: int) -> list[str]:
     """Create a list of common SSE endpoint candidates for testing."""
     return [
         f"http://{host}:{port}/sse/sse",
@@ -36,10 +35,10 @@ def wait_clickup_ready(urls: Iterable[str], timeout: float = 5.0) -> str:
     """Wait for ClickUp MCP server to be ready and return the working URL."""
     import asyncio
     import time
-    
+
     async def _wait_for_ready():
         start_time = time.time()
-        
+
         # If no URL is ready immediately, wait and retry
         while time.time() - start_time < timeout:
             for url in urls:
@@ -50,12 +49,12 @@ def wait_clickup_ready(urls: Iterable[str], timeout: float = 5.0) -> str:
                     # If we got tools (or empty list), server is ready
                     return url
                 except Exception:
-                    logging.error(f"Fail to connect to ClickUp MCP server", exc_info=True)
+                    logging.error("Fail to connect to ClickUp MCP server", exc_info=True)
                     pass
             await asyncio.sleep(0.5)
-        
+
         raise RuntimeError(f"No ClickUp MCP server became ready within {timeout}s")
-    
+
     try:
         return asyncio.run(_wait_for_ready())
     except Exception as e:
@@ -286,7 +285,7 @@ def gateway_client_with_register_servers(gateway_client: GatewayApiClient):
         mcp_registry = gateway_client.admin.mcp_registry.list()
         for mr in mcp_registry.servers:
             register_result = gateway_client.admin.mcp_registry.register(mr.id)
-            assert (
-                register_result.success
-            ), f"Register the MCP server fail. Please check it. Error: {register_result.error}"
+            assert register_result.success, (
+                f"Register the MCP server fail. Please check it. Error: {register_result.error}"
+            )
     return gateway_client

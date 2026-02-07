@@ -27,7 +27,7 @@ Endpoint mapping (selected)
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import AliasChoices, AnyHttpUrl, ConfigDict, Field, model_validator
 
@@ -54,31 +54,32 @@ class ListServersQuery(BaseSchema):
     References:
         - Used by clients to build query strings for catalog list endpoints.
         - OpenAPI: GET /admin/mcp-registry/servers (see docs/openapi_spec/mcp_gateway.json)
+
     """
 
-    include_inactive: Optional[bool] = Field(
+    include_inactive: bool | None = Field(
         default=None,
         description="If true, include inactive servers in results. If false, only active servers. If omitted, server default applies.",
         examples=[True, False],
     )
-    tags: Optional[str] = Field(
+    tags: str | None = Field(
         default=None,
         description="Comma-separated list of tags to filter servers by (logical OR). e.g., 'prod,search'.",
         examples=["prod,search"],
     )
-    team_id: Optional[str] = Field(
+    team_id: str | None = Field(
         default=None,
         description="Team ID scope for the results.",
         examples=["team-123"],
     )
-    visibility: Optional[str] = Field(
+    visibility: str | None = Field(
         default=None,
         description="Visibility filter (e.g., public/team/private).",
         examples=["team"],
     )
 
-    def to_params(self) -> Dict[str, str]:
-        params: Dict[str, str] = {}
+    def to_params(self) -> dict[str, str]:
+        params: dict[str, str] = {}
         if self.include_inactive is not None:
             params["include_inactive"] = str(self.include_inactive).lower()
         if self.tags is not None:
@@ -100,22 +101,22 @@ class ServerReadDTO(BaseSchema):
     name: str = Field(..., description="Human-readable name of the server.")
     url: AnyHttpUrl = Field(..., description="Underlying MCP server base URL configured in the Gateway.")
     transport: GatewayTransport = Field(..., description="Transport used to reach the underlying MCP server.")
-    description: Optional[str] = Field(None, description="Optional description of the server entry.")
-    tags: Optional[List[str]] = Field(None, description="Tags associated with the server entry.")
-    visibility: Optional[str] = Field(None, description="Visibility (public/team/private).")
-    team_id: Optional[str] = Field(
+    description: str | None = Field(None, description="Optional description of the server entry.")
+    tags: list[str] | None = Field(None, description="Tags associated with the server entry.")
+    visibility: str | None = Field(None, description="Visibility (public/team/private).")
+    team_id: str | None = Field(
         default=None,
         alias="teamId",
         description="Owning team identifier, if applicable.",
         examples=["team-123"],
     )
-    is_active: Optional[bool] = Field(
+    is_active: bool | None = Field(
         default=None,
         alias="isActive",
         description="Whether the server is currently active in the Gateway.",
         examples=[True],
     )
-    metrics: Optional[Dict[str, Any]] = Field(
+    metrics: dict[str, Any] | None = Field(
         default=None, description="Optional metrics object reported by the Gateway for this server."
     )
 
@@ -144,7 +145,7 @@ class ServersListPayloadDTO(BaseSchema):
     - `{servers: [...]}` → `{items: [...]}`
     """
 
-    items: List[ServerReadDTO] = Field(
+    items: list[ServerReadDTO] = Field(
         ..., description="Normalized list of servers returned by the Gateway list endpoints."
     )
 
@@ -184,22 +185,22 @@ class GatewayServerCreate(BaseSchema):
         description="Transport used to connect the Gateway to the underlying MCP server.",
         examples=[GatewayTransport.STREAMABLE_HTTP],
     )
-    auth_token: Optional[str] = Field(
+    auth_token: str | None = Field(
         None,
         description="Optional token the Gateway should use when calling the underlying server.",
         min_length=1,
         max_length=512,
         examples=["Bearer ghp_exampletoken"],
     )
-    tags: Optional[List[str]] = Field(
+    tags: list[str] | None = Field(
         default=None,
         description="Optional tags to associate with the server upon creation.",
     )
-    visibility: Optional[str] = Field(
+    visibility: str | None = Field(
         default=None,
         description="Desired visibility (e.g., team/private).",
     )
-    team_id: Optional[str] = Field(
+    team_id: str | None = Field(
         default=None,
         description="Team ID to associate with this server.",
         max_length=128,
@@ -223,6 +224,7 @@ class CatalogServerDTO(BaseSchema):
     References:
       - OpenAPI: components.schemas.CatalogServer
       - Endpoint: ``GET /admin/mcp-registry/servers``
+
     """
 
     id: str = Field(..., description="Catalog identifier (unique within registry).", examples=["clickup"])
@@ -238,18 +240,16 @@ class CatalogServerDTO(BaseSchema):
     )
     provider: str = Field(..., description="Provider name for catalog grouping.", examples=["E2E"])
     description: str = Field(..., description="Brief description of the server.", examples=["Project management tool"])
-    requires_api_key: Optional[bool] = Field(False, description="True if server requires an API key to operate.")
-    secure: Optional[bool] = Field(False, description="True if transport is considered secure (TLS, etc.).")
-    tags: Optional[List[str]] = Field(None, description="Associated tags for search and grouping.")
-    transport: Optional[str] = Field(
+    requires_api_key: bool | None = Field(False, description="True if server requires an API key to operate.")
+    secure: bool | None = Field(False, description="True if transport is considered secure (TLS, etc.).")
+    tags: list[str] | None = Field(None, description="Associated tags for search and grouping.")
+    transport: str | None = Field(
         None, description="Preferred transport type (e.g., SSE, STREAMABLEHTTP).", examples=["SSE"]
     )
-    logo_url: Optional[str] = Field(None, description="URL to a logo image if available.")
-    documentation_url: Optional[str] = Field(None, description="URL to provider documentation if available.")
-    is_registered: Optional[bool] = Field(
-        False, description="True if this server is already registered in the Gateway."
-    )
-    is_available: Optional[bool] = Field(True, description="True if the server is currently available.")
+    logo_url: str | None = Field(None, description="URL to a logo image if available.")
+    documentation_url: str | None = Field(None, description="URL to provider documentation if available.")
+    is_registered: bool | None = Field(False, description="True if this server is already registered in the Gateway.")
+    is_available: bool | None = Field(True, description="True if the server is currently available.")
 
 
 class CatalogListResponseDTO(BaseSchema):
@@ -309,14 +309,15 @@ class CatalogListResponseDTO(BaseSchema):
            ]
         }
         ```
+
     """
 
-    servers: List[CatalogServerDTO] = Field(..., description="List of catalog servers matching the query.")
+    servers: list[CatalogServerDTO] = Field(..., description="List of catalog servers matching the query.")
     total: int = Field(..., description="Total number of servers that match the filter criteria.")
-    categories: List[str] = Field(..., description="Available categories for faceting.")
-    auth_types: List[str] = Field(..., description="Available authentication types for faceting.")
-    providers: List[str] = Field(..., description="Available providers for faceting.")
-    all_tags: Optional[List[str]] = Field(None, description="All tags seen in the result set for faceting.")
+    categories: list[str] = Field(..., description="Available categories for faceting.")
+    auth_types: list[str] = Field(..., description="Available authentication types for faceting.")
+    providers: list[str] = Field(..., description="Available providers for faceting.")
+    all_tags: list[str] | None = Field(None, description="All tags seen in the result set for faceting.")
 
 
 class CatalogServerRegisterResponseDTO(BaseSchema):
@@ -340,12 +341,13 @@ class CatalogServerRegisterResponseDTO(BaseSchema):
            "error":null
         }
         ```
+
     """
 
     success: bool = Field(..., description="True if registration succeeded.")
     server_id: str = Field(..., description="The Gateway-assigned server id after registration.")
     message: str = Field(..., description="Human-readable summary of the registration outcome.")
-    error: Optional[str] = Field(None, description="Error message when registration fails.")
+    error: str | None = Field(None, description="Error message when registration fails.")
 
 
 class CatalogServerStatusResponseDTO(BaseSchema):
@@ -364,14 +366,15 @@ class CatalogServerStatusResponseDTO(BaseSchema):
            "error":null
         }
         ```
+
     """
 
     server_id: str = Field(..., description="Server identifier in the catalog.")
     is_available: bool = Field(..., description="Current availability of the catalog server.")
     is_registered: bool = Field(..., description="Whether the server has been registered in the Gateway.")
-    last_checked: Optional[str] = Field(None, description="Timestamp of last health check.")
-    response_time_ms: Optional[float] = Field(None, description="Observed response time during last check (ms).")
-    error: Optional[str] = Field(None, description="Diagnostic error message if last check failed.")
+    last_checked: str | None = Field(None, description="Timestamp of last health check.")
+    response_time_ms: float | None = Field(None, description="Observed response time during last check (ms).")
+    error: str | None = Field(None, description="Diagnostic error message if last check failed.")
 
 
 class CatalogBulkRegisterResponseDTO(BaseSchema):
@@ -381,10 +384,11 @@ class CatalogBulkRegisterResponseDTO(BaseSchema):
     -----
     The ``failed`` field is normalized from an array of free-form objects into a
     list of ``{server_id, error}`` entries in the pre-validation step.
+
     """
 
-    successful: List[str] = Field(..., description="List of server ids that were registered successfully.")
-    failed: List["CatalogRegisterFailureDTO"] = Field(..., description="List of failures with server ids and reasons.")
+    successful: list[str] = Field(..., description="List of server ids that were registered successfully.")
+    failed: list[CatalogRegisterFailureDTO] = Field(..., description="List of failures with server ids and reasons.")
     total_attempted: int = Field(..., description="Number of servers attempted to register.")
     total_successful: int = Field(..., description="Number of successful registrations.")
 
@@ -439,22 +443,19 @@ class OAuthConfigDTO(BaseSchema):
     provider-specific fields.
     """
 
-    grant_type: Optional[str] = Field(
-        None, description="OAuth grant type (e.g., client_credentials, authorization_code)."
-    )
-    client_id: Optional[str] = Field(None, description="OAuth client id.")
-    client_secret: Optional[str] = Field(None, description="OAuth client secret (if applicable).")
-    authorization_url: Optional[str] = Field(None, description="Authorization endpoint URL.")
-    token_url: Optional[str] = Field(None, description="Token endpoint URL.")
-    scopes: Optional[List[str]] = Field(None, description="Requested scopes for the token.")
-    redirect_uri: Optional[str] = Field(None, description="Redirect URI registered with the provider.")
-    audience: Optional[str] = Field(None, description="Intended audience for the token (if required).")
+    grant_type: str | None = Field(None, description="OAuth grant type (e.g., client_credentials, authorization_code).")
+    client_id: str | None = Field(None, description="OAuth client id.")
+    client_secret: str | None = Field(None, description="OAuth client secret (if applicable).")
+    authorization_url: str | None = Field(None, description="Authorization endpoint URL.")
+    token_url: str | None = Field(None, description="Token endpoint URL.")
+    scopes: list[str] | None = Field(None, description="Requested scopes for the token.")
+    redirect_uri: str | None = Field(None, description="Redirect URI registered with the provider.")
+    audience: str | None = Field(None, description="Intended audience for the token (if required).")
     model_config = ConfigDict(extra="allow")
 
 
 class GatewayReadDTO(BaseSchema):
-    """
-    Gateway instance representation as returned by admin endpoints.
+    """Gateway instance representation as returned by admin endpoints.
 
     API
     ---
@@ -533,52 +534,51 @@ class GatewayReadDTO(BaseSchema):
            "slug":"clickup"
         }
         ```
+
     """
 
     id: str = Field(..., description="Gateway identifier.")
     name: str = Field(..., description="Gateway name (human-readable).")
     url: str = Field(..., description="Gateway connection URL (e.g., SSE endpoint).")
-    description: Optional[str] = Field(None, description="Description of the Gateway instance.")
+    description: str | None = Field(None, description="Description of the Gateway instance.")
     transport: str = Field("SSE", description="Transport type used by the Gateway (e.g., SSE).")
-    capabilities: Optional[GatewayCapabilitiesDTO] = Field(None, description="Feature flags and capability subtrees.")
-    createdAt: Optional[str] = Field(None, description="Creation timestamp (ISO 8601).")
-    updatedAt: Optional[str] = Field(None, description="Last update timestamp (ISO 8601).")
-    enabled: Optional[bool] = Field(True, description="Whether the Gateway is enabled.")
-    reachable: Optional[bool] = Field(True, description="Whether the Gateway is currently reachable.")
-    lastSeen: Optional[str] = Field(None, description="Last observed active timestamp.")
-    passthroughHeaders: Optional[List[str]] = Field(
-        None, description="Header names to pass through to upstream services."
-    )
-    authType: Optional[str] = Field(None, description="Authentication type configured for the Gateway.")
-    authValue: Optional[str] = Field(None, description="Authentication value (masked).")
-    authHeaders: Optional[List[HeaderMapDTO]] = Field(None, description="Configured authentication headers (masked).")
-    authHeadersUnmasked: Optional[List[HeaderMapDTO]] = Field(None, description="Authentication headers (unmasked).")
-    oauthConfig: Optional[OAuthConfigDTO] = Field(None, description="OAuth configuration, when applicable.")
-    authUsername: Optional[str] = Field(None, description="Username for basic auth, if configured.")
-    authPassword: Optional[str] = Field(None, description="Password for basic auth (masked).")
-    authToken: Optional[str] = Field(None, description="Bearer token (masked).")
-    authHeaderKey: Optional[str] = Field(None, description="Custom authorization header key, if used.")
-    authHeaderValue: Optional[str] = Field(None, description="Custom authorization header value (masked).")
-    tags: Optional[List[str]] = Field(None, description="Tags associated with this Gateway instance.")
-    authPasswordUnmasked: Optional[str] = Field(None, description="Password (unmasked) – privileged view.")
-    authTokenUnmasked: Optional[str] = Field(None, description="Token (unmasked) – privileged view.")
-    authHeaderValueUnmasked: Optional[str] = Field(None, description="Custom auth header value (unmasked).")
-    teamId: Optional[str] = Field(None, description="Owning team identifier, if applicable.")
-    team: Optional[str] = Field(None, description="Owning team name or reference, if available.")
-    ownerEmail: Optional[str] = Field(None, description="Owner email address, if tracked.")
-    visibility: Optional[str] = Field(None, description="Visibility setting (e.g., public/team/private).")
-    createdBy: Optional[str] = Field(None, description="Creator identity, if tracked.")
-    createdFromIp: Optional[str] = Field(None, description="Origin IP for creation, if tracked.")
-    createdVia: Optional[str] = Field(None, description="Channel/feature used for creation (e.g., catalog).")
-    createdUserAgent: Optional[str] = Field(None, description="User agent observed at creation time.")
-    modifiedBy: Optional[str] = Field(None, description="Last modifier identity, if tracked.")
-    modifiedFromIp: Optional[str] = Field(None, description="Origin IP for last modification, if tracked.")
-    modifiedVia: Optional[str] = Field(None, description="Channel/feature used for modification.")
-    modifiedUserAgent: Optional[str] = Field(None, description="User agent observed at last modification.")
-    importBatchId: Optional[str] = Field(None, description="Import batch identifier, if federated.")
-    federationSource: Optional[str] = Field(None, description="Source of federation/import (e.g., catalog).")
-    version: Optional[int] = Field(1, description="Version number for the Gateway entity.")
-    slug: Optional[str] = Field(None, description="URL/path-safe slug representing the Gateway.")
+    capabilities: GatewayCapabilitiesDTO | None = Field(None, description="Feature flags and capability subtrees.")
+    createdAt: str | None = Field(None, description="Creation timestamp (ISO 8601).")
+    updatedAt: str | None = Field(None, description="Last update timestamp (ISO 8601).")
+    enabled: bool | None = Field(True, description="Whether the Gateway is enabled.")
+    reachable: bool | None = Field(True, description="Whether the Gateway is currently reachable.")
+    lastSeen: str | None = Field(None, description="Last observed active timestamp.")
+    passthroughHeaders: list[str] | None = Field(None, description="Header names to pass through to upstream services.")
+    authType: str | None = Field(None, description="Authentication type configured for the Gateway.")
+    authValue: str | None = Field(None, description="Authentication value (masked).")
+    authHeaders: list[HeaderMapDTO] | None = Field(None, description="Configured authentication headers (masked).")
+    authHeadersUnmasked: list[HeaderMapDTO] | None = Field(None, description="Authentication headers (unmasked).")
+    oauthConfig: OAuthConfigDTO | None = Field(None, description="OAuth configuration, when applicable.")
+    authUsername: str | None = Field(None, description="Username for basic auth, if configured.")
+    authPassword: str | None = Field(None, description="Password for basic auth (masked).")
+    authToken: str | None = Field(None, description="Bearer token (masked).")
+    authHeaderKey: str | None = Field(None, description="Custom authorization header key, if used.")
+    authHeaderValue: str | None = Field(None, description="Custom authorization header value (masked).")
+    tags: list[str] | None = Field(None, description="Tags associated with this Gateway instance.")
+    authPasswordUnmasked: str | None = Field(None, description="Password (unmasked) – privileged view.")
+    authTokenUnmasked: str | None = Field(None, description="Token (unmasked) – privileged view.")
+    authHeaderValueUnmasked: str | None = Field(None, description="Custom auth header value (unmasked).")
+    teamId: str | None = Field(None, description="Owning team identifier, if applicable.")
+    team: str | None = Field(None, description="Owning team name or reference, if available.")
+    ownerEmail: str | None = Field(None, description="Owner email address, if tracked.")
+    visibility: str | None = Field(None, description="Visibility setting (e.g., public/team/private).")
+    createdBy: str | None = Field(None, description="Creator identity, if tracked.")
+    createdFromIp: str | None = Field(None, description="Origin IP for creation, if tracked.")
+    createdVia: str | None = Field(None, description="Channel/feature used for creation (e.g., catalog).")
+    createdUserAgent: str | None = Field(None, description="User agent observed at creation time.")
+    modifiedBy: str | None = Field(None, description="Last modifier identity, if tracked.")
+    modifiedFromIp: str | None = Field(None, description="Origin IP for last modification, if tracked.")
+    modifiedVia: str | None = Field(None, description="Channel/feature used for modification.")
+    modifiedUserAgent: str | None = Field(None, description="User agent observed at last modification.")
+    importBatchId: str | None = Field(None, description="Import batch identifier, if federated.")
+    federationSource: str | None = Field(None, description="Source of federation/import (e.g., catalog).")
+    version: int | None = Field(1, description="Version number for the Gateway entity.")
+    slug: str | None = Field(None, description="URL/path-safe slug representing the Gateway.")
 
 
 # -----------------------------
@@ -597,10 +597,10 @@ class ToolMetricsDTO(BaseSchema):
     successfulExecutions: int = Field(..., description="Total number of successful executions.")
     failedExecutions: int = Field(..., description="Total number of failed executions.")
     failureRate: float = Field(..., description="Failure rate as a fraction (0.0 - 1.0).")
-    minResponseTime: Optional[float] = Field(None, description="Minimum observed response time (ms).")
-    maxResponseTime: Optional[float] = Field(None, description="Maximum observed response time (ms).")
-    avgResponseTime: Optional[float] = Field(None, description="Average observed response time (ms).")
-    lastExecutionTime: Optional[str] = Field(None, description="Timestamp of most recent execution.")
+    minResponseTime: float | None = Field(None, description="Minimum observed response time (ms).")
+    maxResponseTime: float | None = Field(None, description="Maximum observed response time (ms).")
+    avgResponseTime: float | None = Field(None, description="Average observed response time (ms).")
+    lastExecutionTime: str | None = Field(None, description="Timestamp of most recent execution.")
 
 
 class AuthenticationValuesDTO(BaseSchema):
@@ -610,13 +610,13 @@ class AuthenticationValuesDTO(BaseSchema):
     ``token`` (for bearer), ``username``/``password`` (basic), or custom headers.
     """
 
-    authType: Optional[str] = Field(None, description="Authentication type (e.g., Bearer, Basic, Custom).")
-    authValue: Optional[str] = Field(None, description="Primary auth value (masked).")
-    username: Optional[str] = Field(None, description="Username for Basic auth, if applicable.")
-    password: Optional[str] = Field(None, description="Password for Basic auth (masked).")
-    token: Optional[str] = Field(None, description="Bearer token (masked).")
-    authHeaderKey: Optional[str] = Field(None, description="Custom auth header key, when using header-based auth.")
-    authHeaderValue: Optional[str] = Field(None, description="Custom auth header value (masked).")
+    authType: str | None = Field(None, description="Authentication type (e.g., Bearer, Basic, Custom).")
+    authValue: str | None = Field(None, description="Primary auth value (masked).")
+    username: str | None = Field(None, description="Username for Basic auth, if applicable.")
+    password: str | None = Field(None, description="Password for Basic auth (masked).")
+    token: str | None = Field(None, description="Bearer token (masked).")
+    authHeaderKey: str | None = Field(None, description="Custom auth header key, when using header-based auth.")
+    authHeaderValue: str | None = Field(None, description="Custom auth header value (masked).")
 
 
 class JSONSchemaDTO(BaseSchema):
@@ -642,8 +642,7 @@ class HeadersDTO(BaseSchema):
 
 
 class ToolReadDTO(BaseSchema):
-    """
-    Tool definition federated by a Gateway.
+    """Tool definition federated by a Gateway.
 
     API
     ---
@@ -917,58 +916,59 @@ class ToolReadDTO(BaseSchema):
            "_meta":null
         }
         ```
+
     """
 
     id: str = Field(..., description="Tool identifier inside the Gateway.")
     originalName: str = Field(..., description="Original MCP tool name as exposed by the upstream server.")
-    url: Optional[str] = Field(None, description="Gateway URL serving this tool.")
-    description: Optional[str] = Field(None, description="Description of the tool and its purpose.")
+    url: str | None = Field(None, description="Gateway URL serving this tool.")
+    description: str | None = Field(None, description="Description of the tool and its purpose.")
     requestType: str = Field(..., description="Transport type used to execute the tool (e.g., SSE).")
     integrationType: str = Field(..., description="Integration classification (e.g., MCP).")
-    headers: Optional[HeadersDTO] = Field(None, description="Custom headers to apply when executing the tool.")
+    headers: HeadersDTO | None = Field(None, description="Custom headers to apply when executing the tool.")
     inputSchema: JSONSchemaDTO = Field(..., description="JSON Schema describing the tool's input parameters.")
-    outputSchema: Optional[JSONSchemaDTO] = Field(None, description="JSON Schema for the tool's output payload.")
-    annotations: Optional[FreeformObjectDTO] = Field(None, description="Freeform annotations.")
-    jsonpathFilter: Optional[str] = Field(None, description="Optional JSONPath filter applied to outputs.")
-    auth: Optional[AuthenticationValuesDTO] = Field(None, description="Authentication to use when invoking the tool.")
+    outputSchema: JSONSchemaDTO | None = Field(None, description="JSON Schema for the tool's output payload.")
+    annotations: FreeformObjectDTO | None = Field(None, description="Freeform annotations.")
+    jsonpathFilter: str | None = Field(None, description="Optional JSONPath filter applied to outputs.")
+    auth: AuthenticationValuesDTO | None = Field(None, description="Authentication to use when invoking the tool.")
     createdAt: str = Field(..., description="Creation timestamp (ISO 8601).")
     updatedAt: str = Field(..., description="Last update timestamp (ISO 8601).")
     enabled: bool = Field(..., description="Whether the tool is enabled.")
     reachable: bool = Field(..., description="Whether the tool is reachable.")
-    gatewayId: Optional[str] = Field(None, description="Owning Gateway identifier.")
+    gatewayId: str | None = Field(None, description="Owning Gateway identifier.")
     executionCount: int = Field(..., description="Total observed execution count.")
     metrics: ToolMetricsDTO = Field(..., description="Aggregated execution metrics.")
     name: str = Field(..., description="Stable tool name (slug) within the Gateway.")
-    displayName: Optional[str] = Field(None, description="End-user friendly display name.")
+    displayName: str | None = Field(None, description="End-user friendly display name.")
     gatewaySlug: str = Field(..., description="Gateway slug where this tool resides.")
     customName: str = Field(..., description="Customized name mapped from upstream, when applicable.")
     customNameSlug: str = Field(..., description="Slugified custom name.")
-    tags: Optional[List[str]] = Field(None, description="Tags associated with this tool.")
-    createdBy: Optional[str] = Field(None, description="Creator identity, if tracked.")
-    createdFromIp: Optional[str] = Field(None, description="Origin IP for creation, if tracked.")
-    createdVia: Optional[str] = Field(None, description="Channel/feature used for creation.")
-    createdUserAgent: Optional[str] = Field(None, description="User agent at creation time.")
-    modifiedBy: Optional[str] = Field(None, description="Last modifier identity, if tracked.")
-    modifiedFromIp: Optional[str] = Field(None, description="Origin IP for last modification, if tracked.")
-    modifiedVia: Optional[str] = Field(None, description="Channel/feature used for modification.")
-    modifiedUserAgent: Optional[str] = Field(None, description="User agent observed at last modification.")
-    importBatchId: Optional[str] = Field(None, description="Import batch identifier, if federated.")
-    federationSource: Optional[str] = Field(None, description="Federation source for this tool.")
-    version: Optional[int] = Field(1, description="Version of the tool entity.")
-    teamId: Optional[str] = Field(None, description="Owning team id, if applicable.")
-    team: Optional[str] = Field(None, description="Owning team name or reference, if available.")
-    ownerEmail: Optional[str] = Field(None, description="Owner email address, if tracked.")
-    visibility: Optional[str] = Field(None, description="Visibility setting (e.g., public/team/private).")
-    baseUrl: Optional[str] = Field(None, description="Base URL used for HTTP-style adapters, if applicable.")
-    pathTemplate: Optional[str] = Field(None, description="Path template for HTTP-style adapters, if applicable.")
-    queryMapping: Optional[FreeformObjectDTO] = Field(None, description="Mapping for query parameters.")
-    headerMapping: Optional[FreeformObjectDTO] = Field(None, description="Mapping for header parameters.")
-    timeoutMs: Optional[int] = Field(20000, description="Timeout for tool execution in milliseconds.")
-    exposePassthrough: Optional[bool] = Field(True, description="Whether to expose passthrough behavior to clients.")
-    allowlist: Optional[List[str]] = Field(None, description="Explicit allowlist of consumers/principals.")
-    pluginChainPre: Optional[List[str]] = Field(None, description="Pre-execution plugin chain identifiers.")
-    pluginChainPost: Optional[List[str]] = Field(None, description="Post-execution plugin chain identifiers.")
-    meta: Optional[FreeformObjectDTO] = Field(
+    tags: list[str] | None = Field(None, description="Tags associated with this tool.")
+    createdBy: str | None = Field(None, description="Creator identity, if tracked.")
+    createdFromIp: str | None = Field(None, description="Origin IP for creation, if tracked.")
+    createdVia: str | None = Field(None, description="Channel/feature used for creation.")
+    createdUserAgent: str | None = Field(None, description="User agent at creation time.")
+    modifiedBy: str | None = Field(None, description="Last modifier identity, if tracked.")
+    modifiedFromIp: str | None = Field(None, description="Origin IP for last modification, if tracked.")
+    modifiedVia: str | None = Field(None, description="Channel/feature used for modification.")
+    modifiedUserAgent: str | None = Field(None, description="User agent observed at last modification.")
+    importBatchId: str | None = Field(None, description="Import batch identifier, if federated.")
+    federationSource: str | None = Field(None, description="Federation source for this tool.")
+    version: int | None = Field(1, description="Version of the tool entity.")
+    teamId: str | None = Field(None, description="Owning team id, if applicable.")
+    team: str | None = Field(None, description="Owning team name or reference, if available.")
+    ownerEmail: str | None = Field(None, description="Owner email address, if tracked.")
+    visibility: str | None = Field(None, description="Visibility setting (e.g., public/team/private).")
+    baseUrl: str | None = Field(None, description="Base URL used for HTTP-style adapters, if applicable.")
+    pathTemplate: str | None = Field(None, description="Path template for HTTP-style adapters, if applicable.")
+    queryMapping: FreeformObjectDTO | None = Field(None, description="Mapping for query parameters.")
+    headerMapping: FreeformObjectDTO | None = Field(None, description="Mapping for header parameters.")
+    timeoutMs: int | None = Field(20000, description="Timeout for tool execution in milliseconds.")
+    exposePassthrough: bool | None = Field(True, description="Whether to expose passthrough behavior to clients.")
+    allowlist: list[str] | None = Field(None, description="Explicit allowlist of consumers/principals.")
+    pluginChainPre: list[str] | None = Field(None, description="Pre-execution plugin chain identifiers.")
+    pluginChainPost: list[str] | None = Field(None, description="Post-execution plugin chain identifiers.")
+    meta: FreeformObjectDTO | None = Field(
         default=None,
         validation_alias=AliasChoices("_meta", "meta"),
         serialization_alias="_meta",
@@ -978,25 +978,24 @@ class ToolReadDTO(BaseSchema):
 class PaginationDTO(BaseSchema):
     """Pagination metadata (extensible)."""
 
-    page: Optional[int] = Field(None, description="Current page number (1-based), if pagination is page-based.")
-    perPage: Optional[int] = Field(None, description="Items per page, if pagination is page-based.")
-    total: Optional[int] = Field(None, description="Total items matching the filter criteria.")
-    totalPages: Optional[int] = Field(None, description="Total number of pages, if known.")
+    page: int | None = Field(None, description="Current page number (1-based), if pagination is page-based.")
+    perPage: int | None = Field(None, description="Items per page, if pagination is page-based.")
+    total: int | None = Field(None, description="Total items matching the filter criteria.")
+    totalPages: int | None = Field(None, description="Total number of pages, if known.")
     model_config = ConfigDict(extra="allow")
 
 
 class LinksDTO(BaseSchema):
     """Pagination links (extensible)."""
 
-    self: Optional[str] = Field(None, description="Self link for the current page.")
-    next: Optional[str] = Field(None, description="Link to the next page, if available.")
-    prev: Optional[str] = Field(None, description="Link to the previous page, if available.")
+    self: str | None = Field(None, description="Self link for the current page.")
+    next: str | None = Field(None, description="Link to the next page, if available.")
+    prev: str | None = Field(None, description="Link to the previous page, if available.")
     model_config = ConfigDict(extra="allow")
 
 
 class AdminToolsListResponseDTO(BaseSchema):
-    """
-    Admin tools listing response wrapper.
+    """Admin tools listing response wrapper.
 
     API
     ---
@@ -1543,8 +1542,9 @@ class AdminToolsListResponseDTO(BaseSchema):
            }
         }
         ```
+
     """
 
-    data: Optional[List[ToolReadDTO]] = Field(None, description="List of tools for the current page.")
-    pagination: Optional[PaginationDTO] = Field(None, description="Pagination metadata for the list response.")
-    links: Optional[LinksDTO] = Field(None, description="Navigation links for the list response.")
+    data: list[ToolReadDTO] | None = Field(None, description="List of tools for the current page.")
+    pagination: PaginationDTO | None = Field(None, description="Pagination metadata for the list response.")
+    links: LinksDTO | None = Field(None, description="Navigation links for the list response.")

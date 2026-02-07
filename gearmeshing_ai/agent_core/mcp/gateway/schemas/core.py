@@ -7,7 +7,7 @@ including server references, tools, invocation results, and pagination.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import AnyHttpUrl, Field
 
@@ -68,11 +68,9 @@ class McpServerRef(BaseSchema):
             "https://gateway.internal/servers/16f3f52c/mcp/",
         ],
     )
-    auth_token: Optional[str] = Field(
+    auth_token: str | None = Field(
         None,
-        description=(
-            "Optional token that should be sent as an Authorization header " "when talking to this MCP server."
-        ),
+        description=("Optional token that should be sent as an Authorization header when talking to this MCP server."),
         min_length=1,
         max_length=512,
         examples=["Bearer ghp_exampletoken", "Bearer hg_123e4567"],
@@ -83,21 +81,21 @@ class ToolArgument(BaseSchema):
     name: str = Field(..., description="Argument name", min_length=1, max_length=128)
     type: str = Field(..., description="JSON Schema type of the argument", min_length=1, max_length=64)
     required: bool = Field(False, description="Whether this argument is required by the tool")
-    description: Optional[str] = Field(None, description="Human-friendly description of the argument.")
+    description: str | None = Field(None, description="Human-friendly description of the argument.")
 
 
 class McpTool(BaseSchema):
     name: str = Field(..., description="Tool name.", min_length=1, max_length=128)
-    description: Optional[str] = Field(None, description="Short description of what the tool does.")
+    description: str | None = Field(None, description="Short description of what the tool does.")
     mutating: bool = Field(
         default=False,
         description="Whether the tool is expected to mutate external state (used for read-only policies).",
     )
-    arguments: List[ToolArgument] = Field(
+    arguments: list[ToolArgument] = Field(
         default_factory=list,
         description="List of arguments as a simplified domain view derived from schemas.",
     )
-    raw_parameters_schema: Dict[str, Any] = Field(
+    raw_parameters_schema: dict[str, Any] = Field(
         default_factory=dict,
         description="Raw JSON schema for parameters as provided by MCP server or gateway.",
     )
@@ -105,13 +103,12 @@ class McpTool(BaseSchema):
 
 class ToolCallResult(BaseSchema):
     ok: bool = Field(True, description="Whether the tool invocation succeeded.")
-    data: Dict[str, Any] = Field(default_factory=dict, description="Arbitrary JSON payload returned by the tool.")
-    error: Optional[str] = Field(None, description="Error message if invocation failed.")
+    data: dict[str, Any] = Field(default_factory=dict, description="Arbitrary JSON payload returned by the tool.")
+    error: str | None = Field(None, description="Error message if invocation failed.")
 
 
 class ToolsPage(BaseSchema):
-    """
-    Paginated tools result used by strategies/clients when backends support pagination.
+    """Paginated tools result used by strategies/clients when backends support pagination.
 
     - items: list of tools for this page
     - next_cursor: opaque cursor to request the next page; None means no further pages
@@ -131,7 +128,7 @@ class ToolsPage(BaseSchema):
             tools.extend(page.items)
     """
 
-    items: List[McpTool] = Field(default_factory=list, description="Tools returned for the current page.")
-    next_cursor: Optional[str] = Field(
+    items: list[McpTool] = Field(default_factory=list, description="Tools returned for the current page.")
+    next_cursor: str | None = Field(
         default=None, alias="nextCursor", description="Opaque cursor for fetching the next page, if available."
     )

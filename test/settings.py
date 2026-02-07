@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from gearmeshing_ai.core.models.setting import MCPConfig as BaseMCPConfig, MCPGatewayConfig
+from gearmeshing_ai.core.models.setting import MCPConfig as BaseMCPConfig
 
 # Load test environment variables
 TEST_ENV_PATH = Path(__file__).parent / ".env"
@@ -161,9 +161,9 @@ class TestMCPServerConfig(BaseModel):
 
 class TestMCPConfig(BaseMCPConfig):
     """Test MCP configuration with server support."""
-    
+
     server: TestMCPServerConfig | None = Field(None, description="MCP server configurations")
-    
+
     model_config = ConfigDict(strict=False)
 
 
@@ -292,7 +292,7 @@ class TestSettings(BaseSettings):
 
     def _setup_default_configurations(self) -> None:
         """Setup default test configurations if API keys are available."""
-        
+
         # Initialize MCP server configurations if not already set
         if self.mcp.server is None:
             self.mcp.server = TestMCPServerConfig()

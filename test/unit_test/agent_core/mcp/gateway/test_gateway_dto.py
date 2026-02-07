@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from gearmeshing_ai.agent_core.mcp.gateway.models.dto import (
     AdminToolsListResponseDTO,
@@ -14,7 +14,7 @@ from gearmeshing_ai.agent_core.mcp.gateway.models.dto import (
 
 
 def _sample_tools_payload() -> dict:
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     base = {
         "requestType": "SSE",
         "integrationType": "MCP",

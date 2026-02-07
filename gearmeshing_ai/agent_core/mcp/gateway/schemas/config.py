@@ -6,16 +6,13 @@ client and strategies. Field descriptions capture expected usage and examples.
 
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import Field
 
 from .base import BaseSchema
 
 
 class MCPConfig(BaseSchema):
-    """
-    Minimal configuration for AsyncHTTPStrategy.
+    """Minimal configuration for AsyncHTTPStrategy.
 
     Note: Kept intentionally simple to satisfy current unit tests. Can be
     expanded later per full spec (GatewayConfig, ServerConfig, etc.).
@@ -44,7 +41,7 @@ class GatewayConfig(BaseSchema):
         min_length=1,
         max_length=512,
     )
-    auth_token: Optional[str] = Field(
+    auth_token: str | None = Field(
         None,
         description="Optional bearer token sent as Authorization header when calling the Gateway.",
         examples=["hg_123e4567-e89b-12d3-a456-426614174000"],
@@ -78,7 +75,7 @@ class ServerConfig(BaseSchema):
         min_length=1,
         max_length=512,
     )
-    auth_token: Optional[str] = Field(
+    auth_token: str | None = Field(
         None,
         description="Optional bearer token sent as Authorization header when calling the server.",
         examples=["Bearer ghp_exampletoken"],
@@ -88,7 +85,7 @@ class ServerConfig(BaseSchema):
 
 
 class McpClientConfig(BaseSchema):
-    gateway: Optional[GatewayConfig] = Field(
+    gateway: GatewayConfig | None = Field(
         None,
         description="Optional Gateway configuration. If provided, Gateway strategy can be enabled.",
     )
@@ -110,9 +107,9 @@ class McpClientConfig(BaseSchema):
         le=120.0,
         examples=[5.0, 10.0],
     )
-    auth_token: Optional[str] = Field(
+    auth_token: str | None = Field(
         None,
-        description=("Optional bearer token to send as Authorization header when invoking" " tools over HTTP."),
+        description=("Optional bearer token to send as Authorization header when invoking tools over HTTP."),
         examples=["Bearer hg_123e4567"],
         min_length=1,
         max_length=512,

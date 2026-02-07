@@ -13,7 +13,7 @@ Usage:
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 
 class GatewayApiError(Exception):
@@ -23,9 +23,10 @@ class GatewayApiError(Exception):
         message: Human-readable error description.
         status_code: Optional HTTP status code associated with the failure.
         details: Optional structured payload from the server (e.g., JSON body).
+
     """
 
-    def __init__(self, message: str, *, status_code: Optional[int] = None, details: Optional[Any] = None) -> None:
+    def __init__(self, message: str, *, status_code: int | None = None, details: Any | None = None) -> None:
         super().__init__(message)
         self.status_code = status_code
         self.details = details

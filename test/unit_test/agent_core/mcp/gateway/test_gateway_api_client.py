@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import httpx
 import pytest
@@ -16,7 +16,7 @@ from gearmeshing_ai.agent_core.mcp.gateway.models.dto import (
 
 
 def _sample_tools_payload() -> dict:
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     def tool(tool_id: str, name: str, custom: str) -> dict:
         return {

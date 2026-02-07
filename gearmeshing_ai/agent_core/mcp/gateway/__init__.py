@@ -13,7 +13,7 @@ from .models import (
 
 __all__ = [
     "GatewayApiClient",
+    "GatewayApiError",
     "GatewayServer",
     "GatewayTransport",
-    "GatewayApiError",
 ]

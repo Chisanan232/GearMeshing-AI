@@ -8,7 +8,7 @@ by higher-level clients.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import AnyHttpUrl, Field
 
@@ -59,29 +59,29 @@ class GatewayServer(BaseSchema):
         description=("Transport type used by the Gateway when talking to the underlying MCP server."),
         examples=[GatewayTransport.STREAMABLE_HTTP],
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
         None,
         description="Optional description for the server as stored in the Gateway.",
         max_length=1024,
     )
-    tags: Optional[List[str]] = Field(
+    tags: list[str] | None = Field(
         default=None,
         description="Optional list of tags associated with the server in the Gateway.",
     )
-    visibility: Optional[str] = Field(
+    visibility: str | None = Field(
         default=None,
         description="Visibility level of the server (e.g., public/team/private).",
     )
-    team_id: Optional[str] = Field(
+    team_id: str | None = Field(
         default=None,
         description="Team identifier that owns or manages this server entry.",
         max_length=128,
     )
-    is_active: Optional[bool] = Field(
+    is_active: bool | None = Field(
         default=None,
         description="Whether the server is currently active within the Gateway.",
     )
-    metrics: Optional[Dict[str, Any]] = Field(
+    metrics: dict[str, Any] | None = Field(
         default=None,
         description="Optional metrics object reported by the Gateway for this server.",
     )
@@ -98,6 +98,7 @@ class GatewayServer(BaseSchema):
 
         Returns:
             A `McpServerRef` pointing to the Gateway-managed MCP base for this server.
+
         """
         if self.transport == GatewayTransport.STREAMABLE_HTTP:
             t = TransportType.STREAMABLE_HTTP

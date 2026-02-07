@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import importlib
 import subprocess
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -11,7 +11,7 @@ from gearmeshing_ai.agent_core.mcp.gateway.errors import GatewayApiError
 
 
 def test_generate_bearer_token_passes_cli_username_and_secret(monkeypatch: pytest.MonkeyPatch) -> None:
-    captured: Dict[str, Any] = {}
+    captured: dict[str, Any] = {}
 
     def fake_check_output(cmd, env=None, timeout=None):
         captured["cmd"] = list(cmd)
@@ -40,7 +40,7 @@ def test_generate_bearer_token_passes_cli_username_and_secret(monkeypatch: pytes
 
 
 def test_generate_bearer_token_merges_extra_env_and_defaults_username(monkeypatch: pytest.MonkeyPatch) -> None:
-    captured: Dict[str, Any] = {}
+    captured: dict[str, Any] = {}
 
     def fake_check_output(cmd, env=None, timeout=None):
         captured["cmd"] = list(cmd)
@@ -195,9 +195,10 @@ def test_generate_bearer_token_raises_if_secret_missing(monkeypatch: pytest.Monk
 
     # Mock settings to return empty secret
     from unittest.mock import MagicMock
+
     mock_settings = MagicMock()
     mock_settings.mcp.gateway.jwt_secret.get_secret_value.return_value = ""
-    
+
     monkeypatch.setattr(importlib, "import_module", fake_import_module)
     monkeypatch.setattr(subprocess, "check_output", fail_if_called)
     # Mock the settings import inside the function

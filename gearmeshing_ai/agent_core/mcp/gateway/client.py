@@ -49,12 +49,14 @@ typed return DTOs.
 
 from __future__ import annotations
 
+import builtins
 import importlib
 import logging
 import os
 import subprocess
 import sys
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 import httpx
 
@@ -91,15 +93,15 @@ class GatewayApiClient:
         self,
         base_url: str,
         *,
-        auth_token: Optional[str] = None,
-        token_provider: Optional[Callable[[], str]] = None,
+        auth_token: str | None = None,
+        token_provider: Callable[[], str] | None = None,
         timeout: float = 10.0,
-        client: Optional[httpx.Client] = None,
+        client: httpx.Client | None = None,
         # Auto bearer token generation controls
         auto_bearer: bool = False,
-        jwt_secret_key: Optional[str] = None,
-        bearer_username: Optional[str] = None,
-        token_env: Optional[Dict[str, str]] = None,
+        jwt_secret_key: str | None = None,
+        bearer_username: str | None = None,
+        token_env: dict[str, str] | None = None,
         token_timeout: float = 5.0,
     ) -> None:
         """Create a Gateway API client.
@@ -118,6 +120,7 @@ class GatewayApiClient:
             bearer_username: Username to embed in the generated JWT when ``auto_bearer`` is used.
             token_env: Extra environment variables for the token generation subprocess.
             token_timeout: Subprocess timeout for token generation in seconds.
+
         """
         self.base_url = base_url.rstrip("/")
         self.auth_token = auth_token
@@ -143,8 +146,7 @@ class GatewayApiClient:
                 self._logger.warning("GatewayApiClient auto_bearer failed: %s", e)
 
     def _ensure_token(self) -> None:
-        """
-        Ensure an auth token is available.
+        """Ensure an auth token is available.
 
         Checks if a ``token_provider`` was supplied during initialization.
         If so, invokes it to refresh or obtain the current token.
@@ -158,14 +160,14 @@ class GatewayApiClient:
                 self._logger.warning("GatewayApiClient token_provider failed: %s", e)
 
     def _headers(self) -> dict[str, str]:
-        """
-        Build standard JSON headers and include Authorization when provided.
+        """Build standard JSON headers and include Authorization when provided.
 
         Constructs the default headers dictionary for requests. Adds the
         ``Authorization`` header if ``auth_token`` is set.
 
         Returns:
             A dictionary with `Content-Type` and optional `Authorization`.
+
         """
         headers: dict[str, str] = {"Content-Type": "application/json"}
         if self.auth_token:
@@ -174,10 +176,10 @@ class GatewayApiClient:
 
     @staticmethod
     def generate_bearer_token(
-        jwt_secret_key: Optional[str] = None,
-        username: Optional[str] = None,
+        jwt_secret_key: str | None = None,
+        username: str | None = None,
         *,
-        extra_env: Optional[Dict[str, str]] = None,
+        extra_env: dict[str, str] | None = None,
         timeout: float = 5.0,
     ) -> str:
         """Generate a Bearer JWT via ``mcpgateway.utils.create_jwt_token`` CLI.
@@ -206,6 +208,7 @@ class GatewayApiClient:
 
         Raises:
             GatewayApiError: If the generator is not importable or the subprocess fails.
+
         """
         # Ensure mcpgateway tooling is importable before attempting to execute it
         try:
@@ -225,13 +228,14 @@ class GatewayApiClient:
         if jwt_secret_key is None:
             # Import settings here to avoid circular imports
             from gearmeshing_ai.core.models.setting import settings
+
             jwt_secret_key = settings.mcp.gateway.jwt_secret.get_secret_value()
-        
+
         if not jwt_secret_key:
             raise GatewayApiError(
                 "JWT secret missing: provide 'jwt_secret_key' or configure MCP__GATEWAY__JWT_SECRET in environment."
             )
-        
+
         user = username or "admin"
         try:
             out = subprocess.check_output(
@@ -253,18 +257,19 @@ class GatewayApiClient:
         return f"Bearer {token}"
 
     @property
-    def admin(self) -> "_AdminNamespace":
+    def admin(self) -> _AdminNamespace:
         """Namespaced admin API access: ``mcp_registry``, ``gateway``, ``tools``.
 
         Returns:
             ``_AdminNamespace``: Holder exposing the Gateway admin endpoints.
+
         """
         return self._admin
 
     # Backward-compatible admin_* wrappers have been removed in favor of the
     # descriptive namespaced interface available via `client.admin`.
 
-    def health(self) -> Dict[str, Any]:
+    def health(self) -> dict[str, Any]:
         """Check Gateway service health.
 
         API
@@ -277,6 +282,7 @@ class GatewayApiClient:
 
         Raises:
             GatewayApiError: When the response status is non-2xx.
+
         """
         try:
             self._ensure_token()
@@ -300,10 +306,10 @@ class _McpRegistryNamespace:
 
     def list(
         self,
-        include_inactive: Optional[bool] = None,
-        tags: Optional[str] = None,
-        team_id: Optional[str] = None,
-        visibility: Optional[str] = None,
+        include_inactive: bool | None = None,
+        tags: str | None = None,
+        team_id: str | None = None,
+        visibility: str | None = None,
     ) -> CatalogListResponseDTO:
         """List catalog/registry servers.
 
@@ -318,9 +324,10 @@ class _McpRegistryNamespace:
 
         Returns:
             ``CatalogListResponseDTO``: Typed listing payload (servers, totals, facets).
+
         """
         self._client._ensure_token()
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         if include_inactive is not None:
             params["include_inactive"] = str(include_inactive).lower()
         if tags is not None:
@@ -353,6 +360,7 @@ class _McpRegistryNamespace:
 
         Returns:
             ``CatalogServerRegisterResponseDTO`` with success flag, server_id, and message.
+
         """
         self._client._ensure_token()
         r = self._client._client.post(
@@ -367,7 +375,7 @@ class _GatewayMgmtNamespace:
     def __init__(self, client: GatewayApiClient) -> None:
         self._client = client
 
-    def list(self, include_inactive: Optional[bool] = None) -> List[GatewayReadDTO]:
+    def list(self, include_inactive: bool | None = None) -> builtins.list[GatewayReadDTO]:
         """List Gateway instances.
 
         API
@@ -381,11 +389,13 @@ class _GatewayMgmtNamespace:
         Some deployments return a list directly, others an object with ``items``;
         both shapes are normalized here and returned as a flat list of DTOs.
 
-        Returns:
+        Returns
+        -------
             ``List[GatewayReadDTO]``
+
         """
         self._client._ensure_token()
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         if include_inactive is not None:
             params["include_inactive"] = str(include_inactive).lower()
         r = self._client._client.get(
@@ -411,6 +421,7 @@ class _GatewayMgmtNamespace:
 
         Returns:
             ``GatewayReadDTO``
+
         """
         self._client._ensure_token()
         r = self._client._client.get(
@@ -424,9 +435,7 @@ class _ToolsNamespace:
     def __init__(self, client: GatewayApiClient) -> None:
         self._client = client
 
-    def list(
-        self, offset: int = 0, limit: int = 50, include_inactive: Optional[bool] = None
-    ) -> AdminToolsListResponseDTO:
+    def list(self, offset: int = 0, limit: int = 50, include_inactive: bool | None = None) -> AdminToolsListResponseDTO:
         """List federated tools available via the Gateway.
 
         API
@@ -440,9 +449,10 @@ class _ToolsNamespace:
         Returns:
             ``AdminToolsListResponseDTO`` containing ``data`` (list of tools) and
             optional paging/links metadata depending on deployment.
+
         """
         self._client._ensure_token()
-        params: Dict[str, Any] = {"offset": offset, "limit": limit}
+        params: dict[str, Any] = {"offset": offset, "limit": limit}
         if include_inactive is not None:
             params["include_inactive"] = str(include_inactive).lower()
         r = self._client._client.get(
@@ -464,6 +474,7 @@ class _ToolsNamespace:
 
         Returns:
             ``ToolReadDTO`` with definition, schemas, metrics, and metadata.
+
         """
         self._client._ensure_token()
         r = self._client._client.get(f"{self._client.base_url}/admin/tools/{tool_id}", headers=self._client._headers())
