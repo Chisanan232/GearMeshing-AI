@@ -12,13 +12,11 @@ from testcontainers.compose import DockerCompose
 
 from gearmeshing_ai.agent_core.mcp.client import EasyMCPClient
 from gearmeshing_ai.agent_core.mcp.gateway import GatewayApiClient
-from gearmeshing_ai.core.models.setting import settings
-from test.settings import TestSettings
+from test.settings import test_settings
 
 
 def clickup_port() -> int:
     """Get ClickUp MCP server port from test settings."""
-    test_settings = TestSettings()
     if test_settings.mcp.server and test_settings.mcp.server.clickup:
         return int(test_settings.mcp.server.clickup.server_port)
     return 8082  # Default fallback
@@ -70,9 +68,6 @@ def _compose_env() -> Iterable[None]:
         if k in os.environ:
             prev[k] = os.environ[k]
         os.environ[k] = v
-
-    # Load test settings to get MCP server configurations
-    test_settings = TestSettings()
 
     # MCP Gateway *IBM/mcp-context-forge* - get all secrets from test settings model
     mcp_gateway_config = test_settings.mcp.gateway
@@ -245,9 +240,9 @@ def _wait_gateway_ready(base_url: str, timeout: float = 30.0) -> None:
 @pytest.fixture(scope="session")
 def gateway_client(compose_stack: DockerCompose):
     base = f"http://127.0.0.1:{gateway_port()}"
-    # Generate token once
-    user: str = settings.mcp.gateway.admin_email
-    secret: str = settings.mcp.gateway.admin_password.get_secret_value()
+    # Generate token once using correct JWT secret from test settings
+    user: str = test_settings.mcp.gateway.admin_email
+    secret: str = test_settings.mcp.gateway.jwt_secret.get_secret_value()
     token = GatewayApiClient.generate_bearer_token(jwt_secret_key=secret, username=user)
 
     mgmt_client = httpx.Client(base_url=base)

@@ -9,19 +9,10 @@ import os
 from pathlib import Path
 from typing import Any
 
-from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from gearmeshing_ai.core.models.setting import MCPConfig as BaseMCPConfig
-
-# Load test environment variables
-TEST_ENV_PATH = Path(__file__).parent / ".env"
-if TEST_ENV_PATH.exists():
-    load_dotenv(TEST_ENV_PATH)
-elif (Path(__file__).parent.parent / ".env").exists():
-    # Try parent directory .env as fallback
-    load_dotenv(Path(__file__).parent.parent / ".env")
 
 
 class TestOpenAIConfig(BaseModel):
@@ -71,11 +62,11 @@ class TestXAIConfig(BaseModel):
 class TestClickUpServerConfig(BaseModel):
     """Test ClickUp MCP server configuration settings."""
 
-    server_host: str = Field("localhost", description="ClickUp MCP server host")
-    server_port: str = Field("8080", description="ClickUp MCP server port")
-    mcp_transport: str = Field("stdio", description="MCP transport method")
-    api_token: SecretStr | None = Field(None, description="ClickUp API token")
-    mq_backend: str = Field("kafka", description="Message queue backend for ClickUp MCP server")
+    server_host: str = Field("0.0.0.0", description="ClickUp MCP server host")
+    server_port: str = Field("8082", description="ClickUp MCP server port")
+    mcp_transport: str = Field("sse", description="MCP transport method")
+    api_token: SecretStr | None = Field(SecretStr("your-clickup-api-token"), description="ClickUp API token")
+    mq_backend: str = Field("redis", description="Message queue backend for ClickUp MCP server")
 
     model_config = ConfigDict(strict=False)
 
@@ -121,15 +112,15 @@ class TestLokiServerConfig(BaseModel):
 class TestSlackServerConfig(BaseModel):
     """Test Slack MCP server configuration settings."""
 
-    host: str = Field("localhost", description="Slack MCP server host")
-    port: str = Field("8082", description="Slack MCP server port")
-    mcp_transport: str = Field("stdio", description="MCP transport method")
+    host: str = Field("0.0.0", description="Slack MCP server host")
+    port: str = Field("8081", description="Slack MCP server port")
+    mcp_transport: str = Field("sse", description="MCP transport method")
     bot_token: SecretStr | None = Field(None, description="Slack bot token")
     bot_id: str | None = Field(None, description="Slack bot ID")
     app_id: str | None = Field(None, description="Slack app ID")
     user_token: SecretStr | None = Field(None, description="Slack user token")
     signing_secret: SecretStr | None = Field(None, description="Slack signing secret")
-    mq_backend: str = Field("kafka", description="Message queue backend for Slack MCP server")
+    mq_backend: str = Field("redis", description="Message queue backend for Slack MCP server")
 
     model_config = ConfigDict(strict=False)
 
@@ -279,8 +270,6 @@ class TestSettings(BaseSettings):
     test_agents: dict[str, TestAgentSettings] = Field(default_factory=dict, description="Test agent configurations")
 
     model_config = SettingsConfigDict(
-        env_file=str(TEST_ENV_PATH),
-        env_file_encoding="utf-8",
         env_nested_delimiter="__",
         case_sensitive=False,
         extra="ignore",
