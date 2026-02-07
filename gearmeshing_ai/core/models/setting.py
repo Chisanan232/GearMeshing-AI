@@ -117,3 +117,5 @@ class AIProviderSettings(BaseSettings):
         extra="ignore",
         case_sensitive=False,
     )
+
+settings = AIProviderSettings()
