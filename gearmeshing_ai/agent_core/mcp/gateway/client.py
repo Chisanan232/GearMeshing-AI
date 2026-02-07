@@ -25,8 +25,8 @@ Authentication
 - Provide ``auth_token`` directly (e.g., ``"Bearer <jwt>"``), or
 - Provide a ``token_provider`` callable that returns the token on demand, or
 - Enable ``auto_bearer=True`` to spawn ``python -m mcpgateway.utils.create_jwt_token``.
-  The secret can be supplied via ``jwt_secret_key`` or environment variable
-  ``MCPGATEWAY_JWT_SECRET``. Additional environment variables may be injected via
+  The secret can be supplied via ``jwt_secret_key`` or read from settings model
+  (MCP__GATEWAY__JWT_SECRET). Additional environment variables may be injected via
   ``token_env``.
 
 Errors
@@ -113,8 +113,8 @@ class GatewayApiClient:
             client: Optional preconfigured ``httpx.Client`` to use.
             auto_bearer: If ``True`` and no token is provided, attempt to generate a
                 token via ``python -m mcpgateway.utils.create_jwt_token``.
-            jwt_secret_key: Secret injected as ``MCPGATEWAY_JWT_SECRET`` when generating
-                a token. If omitted, environment is used.
+            jwt_secret_key: Secret used when generating a token. If omitted, reads from
+                settings model (MCP__GATEWAY__JWT_SECRET).
             bearer_username: Username to embed in the generated JWT when ``auto_bearer`` is used.
             token_env: Extra environment variables for the token generation subprocess.
             token_timeout: Subprocess timeout for token generation in seconds.
@@ -195,10 +195,9 @@ class GatewayApiClient:
         a ``GatewayApiError`` is raised.
 
         Args:
-            jwt_secret_key: Secret used by the JWT generator. If ``None``, attempts to read
-                from environment variable ``MCPGATEWAY_JWT_SECRET``; if still missing, raises ``GatewayApiError``.
-            username: Username to embed in the token claims. If ``None``, attempts to read
-                from environment variable ``BASIC_AUTH_USER``; defaults to ``"admin"`` as a last resort.
+            jwt_secret_key: Secret used by the JWT generator. If ``None``, reads from settings model.
+                Raises ``GatewayApiError`` if still missing.
+            username: Username to embed in the token claims. If ``None``, defaults to ``"admin"``.
             extra_env: Additional environment variables to pass to the subprocess.
             timeout: Subprocess timeout in seconds.
 
@@ -222,13 +221,18 @@ class GatewayApiClient:
         if extra_env:
             env.update(extra_env)
 
-        # Resolve required arguments
-        secret = jwt_secret_key or env.get("MCPGATEWAY_JWT_SECRET")
-        if not secret:
+        # Resolve required arguments from settings model or parameters
+        if jwt_secret_key is None:
+            # Import settings here to avoid circular imports
+            from gearmeshing_ai.core.models.setting import settings
+            jwt_secret_key = settings.mcp.gateway.jwt_secret.get_secret_value()
+        
+        if not jwt_secret_key:
             raise GatewayApiError(
-                "JWT secret missing: provide 'jwt_secret_key' or set MCPGATEWAY_JWT_SECRET in environment."
+                "JWT secret missing: provide 'jwt_secret_key' or configure MCP__GATEWAY__JWT_SECRET in environment."
             )
-        user = username or env.get("BASIC_AUTH_USER") or "admin"
+        
+        user = username or "admin"
         try:
             out = subprocess.check_output(
                 [
@@ -238,7 +242,7 @@ class GatewayApiClient:
                     "--username",
                     user,
                     "--secret",
-                    secret,
+                    jwt_secret_key,
                 ],
                 env=env,
                 timeout=timeout,
