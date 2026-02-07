@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from core.models.setting import MCPConfig
+from gearmeshing_ai.core.models.setting import MCPConfig as BaseMCPConfig, MCPGatewayConfig
 
 # Load test environment variables
 TEST_ENV_PATH = Path(__file__).parent / ".env"
@@ -68,6 +68,105 @@ class TestXAIConfig(BaseModel):
     model_config = ConfigDict(strict=False)
 
 
+class TestClickUpServerConfig(BaseModel):
+    """Test ClickUp MCP server configuration settings."""
+
+    server_host: str = Field("localhost", description="ClickUp MCP server host")
+    server_port: str = Field("8080", description="ClickUp MCP server port")
+    mcp_transport: str = Field("stdio", description="MCP transport method")
+    api_token: SecretStr | None = Field(None, description="ClickUp API token")
+    mq_backend: str = Field("kafka", description="Message queue backend for ClickUp MCP server")
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestGitHubServerConfig(BaseModel):
+    """Test GitHub MCP server configuration settings."""
+
+    token: SecretStr | None = Field(None, description="GitHub personal access token")
+    toolsets: str = Field("all", description="GitHub toolsets to use")
+    default_repo: str | None = Field(None, description="Default GitHub repository")
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestAtlassianServerConfig(BaseModel):
+    """Test Atlassian/Jira MCP server configuration settings."""
+
+    base_url: str | None = Field(None, description="Atlassian base URL")
+    email: str | None = Field(None, description="Atlassian email")
+    api_token: SecretStr | None = Field(None, description="Atlassian API token")
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestGrafanaServerConfig(BaseModel):
+    """Test Grafana MCP server configuration settings."""
+
+    url: str | None = Field(None, description="Grafana URL")
+    api_token: SecretStr | None = Field(None, description="Grafana API token")
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestLokiServerConfig(BaseModel):
+    """Test Loki MCP server configuration settings."""
+
+    url: str | None = Field(None, description="Loki URL")
+    api_token: SecretStr | None = Field(None, description="Loki API token")
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestSlackServerConfig(BaseModel):
+    """Test Slack MCP server configuration settings."""
+
+    host: str = Field("localhost", description="Slack MCP server host")
+    port: str = Field("8082", description="Slack MCP server port")
+    mcp_transport: str = Field("stdio", description="MCP transport method")
+    bot_token: SecretStr | None = Field(None, description="Slack bot token")
+    bot_id: str | None = Field(None, description="Slack bot ID")
+    app_id: str | None = Field(None, description="Slack app ID")
+    user_token: SecretStr | None = Field(None, description="Slack user token")
+    signing_secret: SecretStr | None = Field(None, description="Slack signing secret")
+    mq_backend: str = Field("kafka", description="Message queue backend for Slack MCP server")
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestMCPServerConfig(BaseModel):
+    """Test MCP server configurations container."""
+
+    slack: TestSlackServerConfig = Field(
+        default_factory=TestSlackServerConfig, description="Slack MCP server configuration"
+    )
+    clickup: TestClickUpServerConfig = Field(
+        default_factory=TestClickUpServerConfig, description="ClickUp MCP server configuration"
+    )
+    github: TestGitHubServerConfig = Field(
+        default_factory=TestGitHubServerConfig, description="GitHub MCP server configuration"
+    )
+    atlassian: TestAtlassianServerConfig = Field(
+        default_factory=TestAtlassianServerConfig, description="Atlassian MCP server configuration"
+    )
+    grafana: TestGrafanaServerConfig = Field(
+        default_factory=TestGrafanaServerConfig, description="Grafana MCP server configuration"
+    )
+    loki: TestLokiServerConfig = Field(
+        default_factory=TestLokiServerConfig, description="Loki MCP server configuration"
+    )
+
+    model_config = ConfigDict(strict=False)
+
+
+class TestMCPConfig(BaseMCPConfig):
+    """Test MCP configuration with server support."""
+    
+    server: TestMCPServerConfig | None = Field(None, description="MCP server configurations")
+    
+    model_config = ConfigDict(strict=False)
+
+
 class TestModelSettings(BaseModel):
     """Test settings for a specific AI model configuration."""
 
@@ -118,6 +217,38 @@ class TestSettings(BaseSettings):
     - AI_PROVIDER__ANTHROPIC__API_KEY
     - AI_PROVIDER__GEMINI__API_KEY
     - AI_PROVIDER__XAI__API_KEY
+    - MCP__GATEWAY__JWT_SECRET
+    - MCP__GATEWAY__ADMIN_EMAIL
+    - MCP__GATEWAY__ADMIN_PASSWORD
+    - MCP__GATEWAY__ADMIN_FULL_NAME
+    - MCP__GATEWAY__URL
+    - MCP__GATEWAY__TOKEN
+    - MCP__GATEWAY__DB_URL
+    - MCP__GATEWAY__REDIS_URL
+    - MCP__SERVER__SLACK__HOST
+    - MCP__SERVER__SLACK__PORT
+    - MCP__SERVER__SLACK__MCP_TRANSPORT
+    - MCP__SERVER__SLACK__BOT_TOKEN
+    - MCP__SERVER__SLACK__BOT_ID
+    - MCP__SERVER__SLACK__APP_ID
+    - MCP__SERVER__SLACK__USER_TOKEN
+    - MCP__SERVER__SLACK__SIGNING_SECRET
+    - MCP__SERVER__SLACK__MQ_BACKEND
+    - MCP__SERVER__CLICKUP__SERVER_HOST
+    - MCP__SERVER__CLICKUP__SERVER_PORT
+    - MCP__SERVER__CLICKUP__MCP_TRANSPORT
+    - MCP__SERVER__CLICKUP__API_TOKEN
+    - MCP__SERVER__CLICKUP__MQ_BACKEND
+    - MCP__SERVER__GITHUB__TOKEN
+    - MCP__SERVER__GITHUB__TOOLSETS
+    - MCP__SERVER__GITHUB__DEFAULT_REPO
+    - MCP__SERVER__ATLASSIAN__BASE_URL
+    - MCP__SERVER__ATLASSIAN__EMAIL
+    - MCP__SERVER__ATLASSIAN__API_TOKEN
+    - MCP__SERVER__GRAFANA__URL
+    - MCP__SERVER__GRAFANA__API_TOKEN
+    - MCP__SERVER__LOKI__URL
+    - MCP__SERVER__LOKI__API_TOKEN
     """
 
     # AI Provider configurations (nested)
@@ -128,10 +259,15 @@ class TestSettings(BaseSettings):
     # =====================================================================
     # MCP Configuration for Tests
     # =====================================================================
-    mcp: MCPConfig = Field(
-        default_factory=MCPConfig,
+    mcp: TestMCPConfig = Field(
+        default_factory=TestMCPConfig,
         description="MCP configuration (Slack, ClickUp, GitHub, Gateway)",
     )
+
+    # MCP Server configurations (nested)
+    # mcp_server: TestMCPServerConfig = Field(
+    #     default_factory=TestMCPServerConfig, description="MCP server configurations"
+    # )
 
     # Test execution flags
     run_ai_tests: bool = Field(True, description="Whether to run tests that call real AI models")
@@ -156,6 +292,10 @@ class TestSettings(BaseSettings):
 
     def _setup_default_configurations(self) -> None:
         """Setup default test configurations if API keys are available."""
+        
+        # Initialize MCP server configurations if not already set
+        if self.mcp.server is None:
+            self.mcp.server = TestMCPServerConfig()
 
         # Default OpenAI model configuration
         if self.ai_provider.openai.api_key:
@@ -228,6 +368,11 @@ class TestSettings(BaseSettings):
     def xai(self) -> TestXAIConfig:
         """Get xAI configuration."""
         return self.ai_provider.xai
+
+    @property
+    def server(self) -> TestMCPServerConfig:
+        """Get MCP server configurations."""
+        return self.mcp.server
 
     def get_available_providers(self) -> list[str]:
         """Get list of available AI providers based on API keys."""
