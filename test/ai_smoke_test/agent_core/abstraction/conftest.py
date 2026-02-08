@@ -23,6 +23,7 @@ def pytest_configure(config: Any) -> None:
     config.addinivalue_line("markers", "openai: mark test as requiring OpenAI API key")
     config.addinivalue_line("markers", "anthropic: mark test as requiring Anthropic API key")
     config.addinivalue_line("markers", "google: mark test as requiring Google API key")
+    config.addinivalue_line("markers", "smoke: mark test as a smoke test")
 
 
 def pytest_collection_modifyitems(config: Any, items: Any) -> None:
