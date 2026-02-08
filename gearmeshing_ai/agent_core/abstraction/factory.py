@@ -1,21 +1,25 @@
-from typing import Any
+from typing import Any, Dict, Optional
 
 from .adapter import AgentAdapter
 from .cache import AgentCache
 from .mcp import MCPClientAbstraction
 from .settings import AgentSettings, ModelSettings
+from ..models.actions import MCPToolCatalog
 
 
 class AgentFactory:
     """Factory class for creating and managing AI agents.
 
     Handles settings management, tool retrieval via MCP, and caching.
+    Enhanced to support proposal-only agents.
     """
 
-    def __init__(self, adapter: AgentAdapter, mcp_client: MCPClientAbstraction | None = None) -> None:
+    def __init__(self, adapter: AgentAdapter, mcp_client: MCPClientAbstraction | None = None, proposal_mode: bool = False):
         self.adapter = adapter
         self.mcp_client = mcp_client
+        self.proposal_mode = proposal_mode
         self.cache = AgentCache()
+        self._tool_catalog: Optional[MCPToolCatalog] = None
 
         # In-memory storage for settings templates
         self._agent_settings_registry: dict[str, AgentSettings] = {}
@@ -35,22 +39,26 @@ class AgentFactory:
     def get_model_settings(self, customized_name: str) -> ModelSettings | None:
         return self._model_settings_registry.get(customized_name)
 
+    async def initialize_proposal_mode(self):
+        """Initialize proposal mode with tool discovery."""
+        if self.proposal_mode and self.mcp_client:
+            self._tool_catalog = await self.mcp_client.discover_tools_for_agent()
+            
+            # Update adapter with tool catalog if it's a proposal adapter
+            if hasattr(self.adapter, 'tool_catalog'):
+                self.adapter.tool_catalog = self._tool_catalog
+
     async def get_or_create_agent(self, role: str, override_settings: dict[str, Any] | None = None) -> Any:
         """Retrieve an agent from cache or create a new one.
-
-        Args:
-            role: The role identifier for the agent.
-            override_settings: Optional dictionary to override registered settings (not used if cached).
-
-        Returns:
-            The instantiated agent object.
-
-        Raises:
-            ValueError: If settings for the role are not found.
-
+        Enhanced to support proposal-only mode.
         """
+        # For proposal mode, check if we need to initialize
+        if self.proposal_mode and not self._tool_catalog:
+            await self.initialize_proposal_mode()
+
         # check cache first
-        cached_agent = self.cache.get(role)
+        cache_key = f"{role}_proposal" if self.proposal_mode else role
+        cached_agent = self.cache.get(cache_key)
         if cached_agent and not override_settings:
             return cached_agent
 
@@ -62,20 +70,43 @@ class AgentFactory:
             msg = f"No agent settings registered for role: {role}"
             raise ValueError(msg)
 
-        # Apply overrides if needed (simple shallow merge for now)
+        # Apply overrides if needed
         if override_settings:
             # This is a bit complex with Pydantic, might need copy update
             agent_settings = agent_settings.model_copy(update=override_settings)
 
-        # Get tools
+        # Get tools (only for traditional mode)
         tools = []
-        if self.mcp_client and agent_settings.tools:
+        if not self.proposal_mode and self.mcp_client and agent_settings.tools:
             tools = await self.mcp_client.get_tools(agent_settings.tools)
 
         # Create agent via adapter
         agent = self.adapter.create_agent(agent_settings, tools)
 
         # Cache the agent
-        self.cache.set(role, agent)
+        self.cache.set(cache_key, agent)
 
         return agent
+
+    async def execute_proposal(self, action: str, parameters: Dict) -> Dict:
+        """Execute a proposal using MCP client."""
+        if not self.proposal_mode or not self.mcp_client:
+            raise ValueError("Proposal mode not enabled or MCP client not available")
+        
+        return await self.mcp_client.execute_proposed_tool(action, parameters)
+
+    async def run_proposal_task(self, role: str, task: str, context: Dict = None) -> Dict:
+        """Run a complete proposal task: get proposal + execute."""
+        # Create proposal-only agent
+        agent = await self.get_or_create_agent(role)
+        
+        # Get proposal from agent
+        proposal = await self.adapter.run(agent, task, context=context or {})
+        
+        # Execute the proposal
+        result = await self.execute_proposal(proposal.action, proposal.parameters or {})
+        
+        return {
+            "proposal": proposal.dict(),
+            "execution": result
+        }
