@@ -5,8 +5,6 @@ This module provides common fixtures and configuration for running
 adapter smoke tests that call real AI models.
 """
 
-import pytest
-
 
 def pytest_configure(config: any) -> None:
     """Configure pytest with custom markers."""

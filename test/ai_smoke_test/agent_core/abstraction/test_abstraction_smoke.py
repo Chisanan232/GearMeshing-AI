@@ -49,20 +49,20 @@ class MockMCPClient(MCPClientAbstraction):
         """Mock tool discovery for agent."""
         # Return a simple mock catalog
         from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog, MCPToolInfo
-        
+
         tools_info = []
         for tool_data in self.tools_data:
             if isinstance(tool_data, dict):
                 tool_info = MCPToolInfo(
-                    name=tool_data.get('name', 'unknown'),
-                    description=tool_data.get('description', 'Mock tool'),
-                    mcp_server=tool_data.get('mcp_server', 'test-server'),
-                    parameters=tool_data.get('parameters', {}),
-                    returns=tool_data.get('returns'),
-                    example_usage=tool_data.get('example_usage', f"Use {tool_data.get('name', 'unknown')}")
+                    name=tool_data.get("name", "unknown"),
+                    description=tool_data.get("description", "Mock tool"),
+                    mcp_server=tool_data.get("mcp_server", "test-server"),
+                    parameters=tool_data.get("parameters", {}),
+                    returns=tool_data.get("returns"),
+                    example_usage=tool_data.get("example_usage", f"Use {tool_data.get('name', 'unknown')}"),
                 )
                 tools_info.append(tool_info)
-        
+
         return MCPToolCatalog(tools=tools_info)
 
     async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
@@ -71,7 +71,7 @@ class MockMCPClient(MCPClientAbstraction):
             "success": True,
             "data": f"Mock result from {tool_name}",
             "tool_used": tool_name,
-            "parameters": parameters
+            "parameters": parameters,
         }
 
 

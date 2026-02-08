@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict
-from ..models.actions import MCPToolInfo, MCPToolCatalog
+from typing import Any
+
+from ..models.actions import MCPToolCatalog
 
 
 class MCPClientAbstraction(ABC):
@@ -31,21 +32,23 @@ class MCPClientAbstraction(ABC):
     @abstractmethod
     async def discover_tools_for_agent(self) -> MCPToolCatalog:
         """Discover all available tools and return tool info for LLM understanding.
-        
+
         Returns:
             MCPToolCatalog with tool information formatted for agent consumption.
+
         """
         pass
-    
+
     @abstractmethod
-    async def execute_proposed_tool(self, tool_name: str, parameters: Dict) -> Dict:
+    async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
         """Execute a tool by name (system execution of agent proposal).
-        
+
         Args:
             tool_name: Name of the tool to execute
             parameters: Parameters for the tool execution
-            
+
         Returns:
             Execution result with success/error information
+
         """
         pass

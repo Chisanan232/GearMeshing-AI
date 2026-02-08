@@ -176,24 +176,21 @@ class ProductionMCPClient(MCPClientAbstraction):
             tool.execute = AsyncMock(return_value=f"Result from {name}")
 
         return tool
-    
+
     async def discover_tools_for_agent(self) -> MCPToolCatalog:
         """Discover all available tools for agent consumption."""
         # Return a catalog with all registered tools
         from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
-        
+
         tools = []
         for name in self.tools_registry.keys():
             tool_info = MCPToolInfo(
-                name=name,
-                description=f"Production tool: {name}",
-                mcp_server="production",
-                parameters={}
+                name=name, description=f"Production tool: {name}", mcp_server="production", parameters={}
             )
             tools.append(tool_info)
-        
+
         return MCPToolCatalog(tools=tools)
-    
+
     async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
         """Execute a proposed tool."""
         if tool_name in self.tools_registry:
@@ -201,7 +198,7 @@ class ProductionMCPClient(MCPClientAbstraction):
             if hasattr(tool, "execute"):
                 result = await tool.execute(parameters)
                 return {"success": True, "tool_used": tool_name, "data": result}
-        
+
         return {"success": False, "tool_used": tool_name, "error": f"Tool {tool_name} not found"}
 
 

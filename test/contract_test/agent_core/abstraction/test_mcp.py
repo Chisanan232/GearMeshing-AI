@@ -22,11 +22,11 @@ class MockMCPClient(MCPClientAbstraction):
     async def get_tools(self, tool_names: list[str]) -> list[Any]:
         self.get_tools_calls.append(tool_names)
         return [self.tools_map.get(name, Mock(name=f"tool_{name}")) for name in tool_names]
-    
+
     async def discover_tools_for_agent(self) -> MCPToolCatalog:
         """Mock implementation of discover_tools_for_agent."""
         return MCPToolCatalog(tools=[])
-    
+
     async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
         """Mock implementation of execute_proposed_tool."""
         return {"success": True, "tool_used": tool_name, "data": f"Mock executed {tool_name}"}
@@ -150,11 +150,11 @@ class TestMCPClientAbstraction:
             async def get_tools(self, tool_names: list[str]) -> list[Any]:
                 msg = "MCP connection failed"
                 raise RuntimeError(msg)
-            
+
             async def discover_tools_for_agent(self) -> MCPToolCatalog:
                 """Mock implementation of discover_tools_for_agent."""
                 return MCPToolCatalog(tools=[])
-            
+
             async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
                 """Mock implementation of execute_proposed_tool."""
                 return {"success": True, "tool_used": tool_name, "data": f"Mock executed {tool_name}"}
@@ -234,11 +234,11 @@ class TestMCPClientAbstraction:
                 self.call_count += 1
                 self.tool_requests.append(tool_names)
                 return [Mock(name=f"tool_{name}") for name in tool_names]
-            
+
             async def discover_tools_for_agent(self) -> MCPToolCatalog:
                 """Mock implementation of discover_tools_for_agent."""
                 return MCPToolCatalog(tools=[])
-            
+
             async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
                 """Mock implementation of execute_proposed_tool."""
                 return {"success": True, "tool_used": tool_name, "data": f"Mock executed {tool_name}"}

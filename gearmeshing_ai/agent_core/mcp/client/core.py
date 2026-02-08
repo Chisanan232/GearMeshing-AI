@@ -67,16 +67,16 @@ import time
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 from mcp import ClientSession
 
+from ...abstraction.mcp import MCPClientAbstraction
+from ...models.actions import MCPToolCatalog, MCPToolInfo
 from .config import MCPClientConfig
 from .exceptions import ConnectionError, MCPClientError, ServerError, TimeoutError
 from .monitoring import ClientMetrics
 from .transports import BaseTransport, HTTPTransport, SSETransport, StdioTransport
-from ...abstraction.mcp import MCPClientAbstraction
-from ...models.actions import MCPToolCatalog, MCPToolInfo
 
 logger = logging.getLogger(__name__)
 
@@ -236,7 +236,7 @@ class MCPClient(MCPClientAbstraction):
             tool_obj = {
                 "name": name,
                 "description": f"MCP Tool: {name}",
-                "callable": lambda tn=name, **kwargs: self.call_tool(tn, kwargs)
+                "callable": lambda tn=name, **kwargs: self.call_tool(tn, kwargs),
             }
             tools.append(tool_obj)
         return tools
@@ -373,7 +373,7 @@ class MCPClient(MCPClientAbstraction):
         """Discover tools and format for agent consumption."""
         # Get raw tool list using existing method
         tool_names = await self.list_tools()
-        
+
         # Get detailed tool information
         tools = []
         for tool_name in tool_names:
@@ -381,9 +381,9 @@ class MCPClient(MCPClientAbstraction):
             # This would require extending the transport interface to get tool details
             tool_info = await self._get_tool_details(tool_name)
             tools.append(tool_info)
-        
+
         return MCPToolCatalog(tools=tools)
-    
+
     async def _get_tool_details(self, tool_name: str) -> MCPToolInfo:
         """Get detailed information about a specific tool."""
         # This would need to be implemented in the transport layer
@@ -394,24 +394,16 @@ class MCPClient(MCPClientAbstraction):
             mcp_server="unknown",  # Would be determined by transport
             parameters={},
             returns=None,
-            example_usage=f"Use {tool_name} with appropriate parameters"
+            example_usage=f"Use {tool_name} with appropriate parameters",
         )
-    
-    async def execute_proposed_tool(self, tool_name: str, parameters: Dict) -> Dict:
+
+    async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
         """Execute tool (system execution)."""
         try:
             result = await self.call_tool(tool_name, parameters)
-            return {
-                "success": True,
-                "data": result,
-                "tool_used": tool_name
-            }
+            return {"success": True, "data": result, "tool_used": tool_name}
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e),
-                "tool_used": tool_name
-            }
+            return {"success": False, "error": str(e), "tool_used": tool_name}
 
 
 class EasyMCPClient:
@@ -629,7 +621,7 @@ class EasyMCPClient:
         """Discover tools using SSE transport for agent consumption."""
         transport = SSETransport(url, timeout)
         tool_names = await transport.list_tools()
-        
+
         tools = []
         for tool_name in tool_names:
             tool_info = MCPToolInfo(
@@ -638,10 +630,10 @@ class EasyMCPClient:
                 mcp_server=url,  # Use URL as server identifier
                 parameters={},
                 returns=None,
-                example_usage=f"Use {tool_name} with appropriate parameters"
+                example_usage=f"Use {tool_name} with appropriate parameters",
             )
             tools.append(tool_info)
-        
+
         return MCPToolCatalog(tools=tools)
 
 

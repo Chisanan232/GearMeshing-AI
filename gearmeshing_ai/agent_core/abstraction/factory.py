@@ -1,10 +1,10 @@
-from typing import Any, Dict, Optional
+from typing import Any
 
+from ..models.actions import MCPToolCatalog
 from .adapter import AgentAdapter
 from .cache import AgentCache
 from .mcp import MCPClientAbstraction
 from .settings import AgentSettings, ModelSettings
-from ..models.actions import MCPToolCatalog
 
 
 class AgentFactory:
@@ -14,12 +14,14 @@ class AgentFactory:
     Enhanced to support proposal-only agents.
     """
 
-    def __init__(self, adapter: AgentAdapter, mcp_client: MCPClientAbstraction | None = None, proposal_mode: bool = False):
+    def __init__(
+        self, adapter: AgentAdapter, mcp_client: MCPClientAbstraction | None = None, proposal_mode: bool = False
+    ):
         self.adapter = adapter
         self.mcp_client = mcp_client
         self.proposal_mode = proposal_mode
         self.cache = AgentCache()
-        self._tool_catalog: Optional[MCPToolCatalog] = None
+        self._tool_catalog: MCPToolCatalog | None = None
 
         # In-memory storage for settings templates
         self._agent_settings_registry: dict[str, AgentSettings] = {}
@@ -43,9 +45,9 @@ class AgentFactory:
         """Initialize proposal mode with tool discovery."""
         if self.proposal_mode and self.mcp_client:
             self._tool_catalog = await self.mcp_client.discover_tools_for_agent()
-            
+
             # Update adapter with tool catalog if it's a proposal adapter
-            if hasattr(self.adapter, 'tool_catalog'):
+            if hasattr(self.adapter, "tool_catalog"):
                 self.adapter.tool_catalog = self._tool_catalog
 
     async def get_or_create_agent(self, role: str, override_settings: dict[str, Any] | None = None) -> Any:
@@ -88,25 +90,22 @@ class AgentFactory:
 
         return agent
 
-    async def execute_proposal(self, action: str, parameters: Dict) -> Dict:
+    async def execute_proposal(self, action: str, parameters: dict) -> dict:
         """Execute a proposal using MCP client."""
         if not self.proposal_mode or not self.mcp_client:
             raise ValueError("Proposal mode not enabled or MCP client not available")
-        
+
         return await self.mcp_client.execute_proposed_tool(action, parameters)
 
-    async def run_proposal_task(self, role: str, task: str, context: Dict = None) -> Dict:
+    async def run_proposal_task(self, role: str, task: str, context: dict = None) -> dict:
         """Run a complete proposal task: get proposal + execute."""
         # Create proposal-only agent
         agent = await self.get_or_create_agent(role)
-        
+
         # Get proposal from agent
         proposal = await self.adapter.run(agent, task, context=context or {})
-        
+
         # Execute the proposal
         result = await self.execute_proposal(proposal.action, proposal.parameters or {})
-        
-        return {
-            "proposal": proposal.dict(),
-            "execution": result
-        }
+
+        return {"proposal": proposal.dict(), "execution": result}

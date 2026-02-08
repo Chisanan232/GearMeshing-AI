@@ -1,3 +1,3 @@
-from .actions import ActionProposal, MCPToolInfo, MCPToolCatalog
+from .actions import ActionProposal, MCPToolCatalog, MCPToolInfo
 
-__all__ = ["ActionProposal", "MCPToolInfo", "MCPToolCatalog"]
+__all__ = ["ActionProposal", "MCPToolCatalog", "MCPToolInfo"]
