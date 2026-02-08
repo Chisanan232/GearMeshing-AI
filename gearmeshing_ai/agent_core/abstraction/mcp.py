@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+from ..models.actions import MCPToolCatalog
+
 
 class MCPClientAbstraction(ABC):
     """Abstract base class for an MCP (Model Context Protocol) Client.
@@ -22,6 +24,31 @@ class MCPClientAbstraction(ABC):
         Returns:
             A list of tool objects compatible with the agent framework
             (or generic objects that the adapter can convert).
+
+        """
+        pass
+
+    # NEW METHODS FOR PROPOSAL-ONLY AGENTS
+    @abstractmethod
+    async def discover_tools_for_agent(self) -> MCPToolCatalog:
+        """Discover all available tools and return tool info for LLM understanding.
+
+        Returns:
+            MCPToolCatalog with tool information formatted for agent consumption.
+
+        """
+        pass
+
+    @abstractmethod
+    async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
+        """Execute a tool by name (system execution of agent proposal).
+
+        Args:
+            tool_name: Name of the tool to execute
+            parameters: Parameters for the tool execution
+
+        Returns:
+            Execution result with success/error information
 
         """
         pass

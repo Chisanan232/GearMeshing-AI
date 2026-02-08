@@ -13,6 +13,7 @@ from gearmeshing_ai.agent_core.abstraction.cache import AgentCache
 from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
 from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
 from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog
 
 
 class ConcreteAgentAdapter(AgentAdapter):
@@ -74,6 +75,32 @@ class ConcreteMCPClient(MCPClientAbstraction):
                 tools.append(tool)
 
         return tools
+
+    async def discover_tools_for_agent(self) -> MCPToolCatalog:
+        """Discover all available tools and return tool info for LLM understanding."""
+        from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
+
+        tools_info = []
+        for name, tool in self.tools_registry.items():
+            tool_info = MCPToolInfo(
+                name=name,
+                description=getattr(tool, "description", f"Mock MCP tool: {name}"),
+                mcp_server="test-server",
+                parameters={},
+                returns=None,
+                example_usage=f"Use {name} with appropriate parameters",
+            )
+            tools_info.append(tool_info)
+
+        return MCPToolCatalog(tools=tools_info)
+
+    async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
+        """Execute a tool by name (system execution of agent proposal)."""
+        if tool_name in self.tools_registry:
+            tool = self.tools_registry[tool_name]
+            # Mock execution - in real implementation this would call the tool
+            return {"success": True, "data": f"Mock result from {tool_name}", "tool_used": tool_name}
+        return {"success": False, "error": f"Tool {tool_name} not found", "tool_used": tool_name}
 
 
 @pytest.mark.asyncio
@@ -301,6 +328,16 @@ class TestAgentFactoryIntegration:
         # Create MCP client that fails
         class FailingMCPClient(MCPClientAbstraction):
             async def get_tools(self, tool_names: list[str]) -> list[Any]:
+                msg = "MCP server unavailable"
+                raise RuntimeError(msg)
+
+            async def discover_tools_for_agent(self) -> MCPToolCatalog:
+                """Discover all available tools and return tool info for LLM understanding."""
+                msg = "MCP server unavailable"
+                raise RuntimeError(msg)
+
+            async def execute_proposed_tool(self, tool_name: str, parameters: dict) -> dict:
+                """Execute a tool by name (system execution of agent proposal)."""
                 msg = "MCP server unavailable"
                 raise RuntimeError(msg)
 

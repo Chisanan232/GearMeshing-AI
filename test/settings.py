@@ -269,6 +269,7 @@ class TestSettings(BaseSettings):
     test_agents: dict[str, TestAgentSettings] = Field(default_factory=dict, description="Test agent configurations")
 
     model_config = SettingsConfigDict(
+        env_file="./test/.env",
         env_nested_delimiter="__",
         case_sensitive=False,
         extra="ignore",
