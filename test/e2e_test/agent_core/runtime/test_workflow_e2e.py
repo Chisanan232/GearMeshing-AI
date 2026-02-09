@@ -81,9 +81,7 @@ class TestWorkflowE2E:
     ) -> None:
         """Test workflow handling agent creation error."""
         # Setup mock to raise error
-        mock_agent_factory.get_or_create_agent = AsyncMock(
-            side_effect=ValueError("Agent role not found")
-        )
+        mock_agent_factory.get_or_create_agent = AsyncMock(side_effect=ValueError("Agent role not found"))
 
         # Create workflow
         workflow = create_agent_workflow(mock_agent_factory, mock_mcp_client)

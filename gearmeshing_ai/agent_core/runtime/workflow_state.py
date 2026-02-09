@@ -20,6 +20,7 @@ class ExecutionContext(BaseModel):
         agent_role: Role of the agent performing the task
         user_id: ID of the user initiating the workflow
         metadata: Additional context information
+
     """
 
     task_description: str = Field(..., description="Task description")
@@ -38,6 +39,7 @@ class WorkflowStatus(BaseModel):
         state: Current workflow state (PENDING, RUNNING, PAUSED, COMPLETED, FAILED)
         message: Status message
         error: Error message if failed
+
     """
 
     state: str = Field(..., description="Current workflow state")
@@ -62,6 +64,7 @@ class WorkflowState(BaseModel):
         approvals: List of approval records
         created_at: Workflow creation timestamp
         updated_at: Last update timestamp
+
     """
 
     run_id: str = Field(..., description="Workflow run ID")

@@ -34,11 +34,9 @@ async def agent_decision_node(
     Raises:
         ValueError: If agent role is not found in factory
         RuntimeError: If agent creation or execution fails
+
     """
-    logger.debug(
-        f"Agent decision node started for run_id={state.run_id}, "
-        f"agent_role={state.context.agent_role}"
-    )
+    logger.debug(f"Agent decision node started for run_id={state.run_id}, agent_role={state.context.agent_role}")
 
     try:
         # Create or retrieve agent from factory
@@ -57,10 +55,7 @@ async def agent_decision_node(
             logger.error(msg)
             raise TypeError(msg)
 
-        logger.info(
-            f"Agent proposal obtained: action={proposal.action}, "
-            f"reason={proposal.reason}"
-        )
+        logger.info(f"Agent proposal obtained: action={proposal.action}, reason={proposal.reason}")
 
         # Update state with new proposal
         updated_state = state.model_copy(

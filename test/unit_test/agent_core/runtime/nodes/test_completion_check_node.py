@@ -37,9 +37,7 @@ class TestCompletionCheckNode:
         workflow_state_base: WorkflowState,
     ) -> None:
         """Test completion check node with RESULTS_PROCESSED state."""
-        state = workflow_state_base.model_copy(
-            update={"status": WorkflowStatus(state="RESULTS_PROCESSED")}
-        )
+        state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="RESULTS_PROCESSED")})
 
         result = await completion_check_node(state)
 
@@ -52,9 +50,7 @@ class TestCompletionCheckNode:
         workflow_state_base: WorkflowState,
     ) -> None:
         """Test completion check node with POLICY_REJECTED state."""
-        state = workflow_state_base.model_copy(
-            update={"status": WorkflowStatus(state="POLICY_REJECTED")}
-        )
+        state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="POLICY_REJECTED")})
 
         result = await completion_check_node(state)
 
@@ -67,9 +63,7 @@ class TestCompletionCheckNode:
         workflow_state_base: WorkflowState,
     ) -> None:
         """Test completion check node with ERROR_HANDLED state."""
-        state = workflow_state_base.model_copy(
-            update={"status": WorkflowStatus(state="ERROR_HANDLED")}
-        )
+        state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="ERROR_HANDLED")})
 
         result = await completion_check_node(state)
 
@@ -82,9 +76,7 @@ class TestCompletionCheckNode:
         workflow_state_base: WorkflowState,
     ) -> None:
         """Test completion check node with continuing state."""
-        state = workflow_state_base.model_copy(
-            update={"status": WorkflowStatus(state="PROPOSAL_OBTAINED")}
-        )
+        state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="PROPOSAL_OBTAINED")})
 
         result = await completion_check_node(state)
 
@@ -97,9 +89,7 @@ class TestCompletionCheckNode:
         workflow_state_base: WorkflowState,
     ) -> None:
         """Test completion check node preserves run_id."""
-        state = workflow_state_base.model_copy(
-            update={"status": WorkflowStatus(state="RESULTS_PROCESSED")}
-        )
+        state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="RESULTS_PROCESSED")})
 
         result = await completion_check_node(state)
 
@@ -112,9 +102,7 @@ class TestCompletionCheckNode:
         workflow_state_base: WorkflowState,
     ) -> None:
         """Test completion check node preserves context."""
-        state = workflow_state_base.model_copy(
-            update={"status": WorkflowStatus(state="RESULTS_PROCESSED")}
-        )
+        state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="RESULTS_PROCESSED")})
 
         result = await completion_check_node(state)
 

@@ -25,15 +25,13 @@ async def error_handler_node(
 
     Returns:
         Dictionary containing updated workflow state with error status
+
     """
     logger.debug(f"Error handler node started for run_id={state.run_id}")
 
     # Check if there's an error in the current status
     if state.status.error:
-        logger.error(
-            f"Error detected in workflow: {state.status.error}, "
-            f"state={state.status.state}"
-        )
+        logger.error(f"Error detected in workflow: {state.status.error}, state={state.status.state}")
 
         # Log error details
         error_record: dict[str, Any] = {

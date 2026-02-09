@@ -25,6 +25,7 @@ async def result_processing_node(
 
     Returns:
         Dictionary containing updated workflow state with processed results
+
     """
     logger.debug(f"Result processing node started for run_id={state.run_id}")
 
@@ -44,9 +45,7 @@ async def result_processing_node(
 
         # Get the latest execution result
         latest_execution = state.executions[-1]
-        logger.info(
-            f"Processing execution result: {latest_execution.get('action', 'unknown')}"
-        )
+        logger.info(f"Processing execution result: {latest_execution.get('action', 'unknown')}")
 
         # Validate execution result
         if "error" in latest_execution:

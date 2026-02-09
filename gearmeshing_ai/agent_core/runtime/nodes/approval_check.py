@@ -28,6 +28,7 @@ async def approval_check_node(
 
     Raises:
         ValueError: If no current proposal exists
+
     """
     logger.debug(f"Approval check node started for run_id={state.run_id}")
 

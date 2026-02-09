@@ -28,6 +28,7 @@ async def policy_validation_node(
 
     Raises:
         ValueError: If no current proposal exists
+
     """
     logger.debug(f"Policy validation node started for run_id={state.run_id}")
 
@@ -41,10 +42,7 @@ async def policy_validation_node(
         proposal = state.current_proposal
 
         # Basic policy validation (can be extended with actual policy engine)
-        logger.info(
-            f"Validating proposal: action={proposal.action}, "
-            f"reason={proposal.reason}"
-        )
+        logger.info(f"Validating proposal: action={proposal.action}, reason={proposal.reason}")
 
         # For now, all proposals are allowed (policy engine will be added in Phase 3)
         policy_approved = True

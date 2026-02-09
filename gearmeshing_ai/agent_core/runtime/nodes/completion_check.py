@@ -25,6 +25,7 @@ async def completion_check_node(
 
     Returns:
         Dictionary containing updated workflow state with completion status
+
     """
     logger.debug(f"Completion check node started for run_id={state.run_id}")
 
@@ -37,10 +38,7 @@ async def completion_check_node(
         is_complete = current_status in completion_states
 
         if is_complete:
-            logger.info(
-                f"Workflow completed for run_id={state.run_id}, "
-                f"final_state={current_status}"
-            )
+            logger.info(f"Workflow completed for run_id={state.run_id}, final_state={current_status}")
             updated_state = state.model_copy(
                 update={
                     "status": WorkflowStatus(
@@ -50,10 +48,7 @@ async def completion_check_node(
                 }
             )
         else:
-            logger.debug(
-                f"Workflow continuing for run_id={state.run_id}, "
-                f"current_state={current_status}"
-            )
+            logger.debug(f"Workflow continuing for run_id={state.run_id}, current_state={current_status}")
             updated_state = state.model_copy(
                 update={
                     "status": WorkflowStatus(

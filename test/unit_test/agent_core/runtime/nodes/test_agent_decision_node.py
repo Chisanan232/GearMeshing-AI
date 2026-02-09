@@ -4,7 +4,7 @@ Tests cover agent creation, proposal generation, error handling,
 and integration with AgentFactory.
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -127,9 +127,7 @@ class TestAgentDecisionNode:
     ) -> None:
         """Test agent decision node when agent role not found."""
         # Setup mock to raise ValueError
-        mock_agent_factory.get_or_create_agent = AsyncMock(
-            side_effect=ValueError("Agent role not found")
-        )
+        mock_agent_factory.get_or_create_agent = AsyncMock(side_effect=ValueError("Agent role not found"))
 
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)
@@ -150,9 +148,7 @@ class TestAgentDecisionNode:
         # Setup mock to raise RuntimeError
         mock_agent = MagicMock()
         mock_agent_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
-        mock_agent_factory.adapter.run = AsyncMock(
-            side_effect=RuntimeError("Agent execution failed")
-        )
+        mock_agent_factory.adapter.run = AsyncMock(side_effect=RuntimeError("Agent execution failed"))
 
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)

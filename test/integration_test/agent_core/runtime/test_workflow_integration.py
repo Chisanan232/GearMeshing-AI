@@ -136,9 +136,7 @@ class TestWorkflowIntegration:
     ) -> None:
         """Test workflow error handling across nodes."""
         # Setup mock to raise error
-        mock_agent_factory.get_or_create_agent = AsyncMock(
-            side_effect=ValueError("Agent not found")
-        )
+        mock_agent_factory.get_or_create_agent = AsyncMock(side_effect=ValueError("Agent not found"))
 
         workflow = create_agent_workflow(mock_agent_factory, mock_mcp_client)
 
@@ -180,9 +178,7 @@ class TestWorkflowIntegration:
             )
         )
 
-        mock_mcp_client.execute_proposed_tool = AsyncMock(
-            return_value={"status": "success"}
-        )
+        mock_mcp_client.execute_proposed_tool = AsyncMock(return_value={"status": "success"})
 
         # Create workflow
         workflow = create_agent_workflow(mock_agent_factory, mock_mcp_client)

@@ -13,9 +13,9 @@ from .result_processing import result_processing_node
 
 __all__ = [
     "agent_decision_node",
-    "policy_validation_node",
     "approval_check_node",
-    "error_handler_node",
-    "result_processing_node",
     "completion_check_node",
+    "error_handler_node",
+    "policy_validation_node",
+    "result_processing_node",
 ]
