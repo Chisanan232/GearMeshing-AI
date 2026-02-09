@@ -18,6 +18,13 @@ from .definitions import (
     CommandRunOutput,
 )
 
+# Security utilities
+from .security import (
+    ValidationResult,
+    validate_file_path,
+    validate_command,
+)
+
 __all__ = [
     # Base definitions
     "ToolInput",
@@ -34,4 +41,9 @@ __all__ = [
     # Command operations
     "CommandRunInput",
     "CommandRunOutput",
+
+    # Security
+    "ValidationResult",
+    "validate_file_path",
+    "validate_command",
 ]
