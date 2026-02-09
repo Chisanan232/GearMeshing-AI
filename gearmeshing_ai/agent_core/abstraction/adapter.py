@@ -108,25 +108,25 @@ class AgentAdapter(ABC):
 
         Subclasses MUST implement this method for their specific framework.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def _register_tool_write_file(self, agent: Any) -> None:
         """Register write_file tool with the agent.
 
         Subclasses MUST implement this method for their specific framework.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def _register_tool_list_files(self, agent: Any) -> None:
         """Register list_files tool with the agent.
 
         Subclasses MUST implement this method for their specific framework.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def _register_tool_run_command(self, agent: Any) -> None:
         """Register run_command tool with the agent.
 
         Subclasses MUST implement this method for their specific framework.
         """
-        raise NotImplemented
+        raise NotImplementedError
