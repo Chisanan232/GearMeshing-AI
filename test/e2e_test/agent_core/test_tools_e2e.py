@@ -48,27 +48,27 @@ class TestFileReadingE2E:
             "nested/file3.txt": "Nested file content",
             "nested/subdir/file4.txt": "Deeply nested file",
         }
-        
+
         for file_path, content in files.items():
             full_path = Path(temp_dir) / file_path
             full_path.parent.mkdir(parents=True, exist_ok=True)
             full_path.write_text(content)
-        
-        return {k: str(Path(temp_dir) / k) for k in files.keys()}
+
+        return {k: str(Path(temp_dir) / k) for k in files}
 
     @pytest.mark.asyncio
     async def test_read_single_file(self, sample_files: dict[str, str]) -> None:
         """Test reading a single file."""
         file_path = sample_files["file1.txt"]
-        
+
         # Validate path
         validation = validate_file_path(file_path, "read")
         assert validation.valid is True
-        
+
         # Read file
         input_data = FileReadInput(file_path=file_path)
         result = await read_file_handler(input_data)
-        
+
         assert result.success is True
         assert "Content of file 1" in result.content
 
@@ -77,14 +77,14 @@ class TestFileReadingE2E:
         """Test reading multiple files sequentially."""
         file_paths = [sample_files["file1.txt"], sample_files["file2.txt"]]
         results = []
-        
+
         for file_path in file_paths:
             validation = validate_file_path(file_path, "read")
             assert validation.valid is True
             input_data = FileReadInput(file_path=file_path)
             result = await read_file_handler(input_data)
             results.append(result)
-        
+
         assert len(results) == 2
         assert results[0].success is True
         assert results[1].success is True
@@ -95,13 +95,13 @@ class TestFileReadingE2E:
     async def test_read_nested_file(self, sample_files: dict[str, str]) -> None:
         """Test reading a file from nested directory."""
         file_path = sample_files["nested/file3.txt"]
-        
+
         validation = validate_file_path(file_path, "read")
         assert validation.valid is True
-        
+
         input_data = FileReadInput(file_path=file_path)
         result = await read_file_handler(input_data)
-        
+
         assert result.success is True
         assert "Nested file content" in result.content
 
@@ -109,13 +109,13 @@ class TestFileReadingE2E:
     async def test_read_deeply_nested_file(self, sample_files: dict[str, str]) -> None:
         """Test reading a file from deeply nested directory."""
         file_path = sample_files["nested/subdir/file4.txt"]
-        
+
         validation = validate_file_path(file_path, "read")
         assert validation.valid is True
-        
+
         input_data = FileReadInput(file_path=file_path)
         result = await read_file_handler(input_data)
-        
+
         assert result.success is True
         assert "Deeply nested file" in result.content
 
@@ -125,13 +125,13 @@ class TestFileReadingE2E:
         file_path = Path(temp_dir) / "utf8_file.txt"
         content = "Hello 世界 🌍"
         file_path.write_text(content, encoding="utf-8")
-        
+
         validation = validate_file_path(str(file_path), "read")
         assert validation.valid is True
-        
+
         input_data = FileReadInput(file_path=str(file_path), encoding="utf-8")
         result = await read_file_handler(input_data)
-        
+
         assert result.success is True
         assert "世界" in result.content
         assert "🌍" in result.content
@@ -140,13 +140,13 @@ class TestFileReadingE2E:
     async def test_read_nonexistent_file(self, temp_dir: str) -> None:
         """Test reading a nonexistent file returns error."""
         file_path = str(Path(temp_dir) / "nonexistent.txt")
-        
+
         validation = validate_file_path(file_path, "read")
         assert validation.valid is True
-        
+
         input_data = FileReadInput(file_path=file_path)
         result = await read_file_handler(input_data)
-        
+
         assert result.success is False
         assert "not found" in result.error_message.lower()
 
@@ -159,13 +159,13 @@ class TestFileWritingE2E:
         """Test writing a single file."""
         file_path = str(Path(temp_dir) / "output.txt")
         content = "This is test content"
-        
+
         validation = validate_file_path(file_path, "write")
         assert validation.valid is True
-        
+
         input_data = FileWriteInput(file_path=file_path, content=content)
         result = await write_file_handler(input_data)
-        
+
         assert result.success is True
         assert Path(file_path).exists()
         assert Path(file_path).read_text() == content
@@ -178,15 +178,15 @@ class TestFileWritingE2E:
             "file2.txt": "Content 2",
             "file3.txt": "Content 3",
         }
-        
+
         for filename, content in files_to_write.items():
             file_path = str(Path(temp_dir) / filename)
             validation = validate_file_path(file_path, "write")
             assert validation.valid is True
-            
+
             input_data = FileWriteInput(file_path=file_path, content=content)
             result = await write_file_handler(input_data)
-            
+
             assert result.success is True
             assert Path(file_path).read_text() == content
 
@@ -195,13 +195,13 @@ class TestFileWritingE2E:
         """Test writing a file to nested directory (creates if needed)."""
         file_path = str(Path(temp_dir) / "nested" / "subdir" / "file.txt")
         content = "Nested content"
-        
+
         validation = validate_file_path(file_path, "write")
         assert validation.valid is True
-        
+
         input_data = FileWriteInput(file_path=file_path, content=content, create_dirs=True)
         result = await write_file_handler(input_data)
-        
+
         assert result.success is True
         assert Path(file_path).exists()
         assert Path(file_path).read_text() == content
@@ -211,13 +211,13 @@ class TestFileWritingE2E:
         """Test writing a file with different encoding."""
         file_path = str(Path(temp_dir) / "utf8_file.txt")
         content = "Hello 世界 🌍"
-        
+
         validation = validate_file_path(file_path, "write")
         assert validation.valid is True
-        
+
         input_data = FileWriteInput(file_path=file_path, content=content, encoding="utf-8")
         result = await write_file_handler(input_data)
-        
+
         assert result.success is True
         assert Path(file_path).read_text(encoding="utf-8") == content
 
@@ -225,18 +225,18 @@ class TestFileWritingE2E:
     async def test_overwrite_existing_file(self, temp_dir: str) -> None:
         """Test overwriting an existing file."""
         file_path = str(Path(temp_dir) / "file.txt")
-        
+
         # Write initial content
         Path(file_path).write_text("Initial content")
-        
+
         # Overwrite with new content
         new_content = "New content"
         validation = validate_file_path(file_path, "write")
         assert validation.valid is True
-        
+
         input_data = FileWriteInput(file_path=file_path, content=new_content)
         result = await write_file_handler(input_data)
-        
+
         assert result.success is True
         assert Path(file_path).read_text() == new_content
 
@@ -244,13 +244,13 @@ class TestFileWritingE2E:
     async def test_write_empty_file(self, temp_dir: str) -> None:
         """Test writing an empty file."""
         file_path = str(Path(temp_dir) / "empty.txt")
-        
+
         validation = validate_file_path(file_path, "write")
         assert validation.valid is True
-        
+
         input_data = FileWriteInput(file_path=file_path, content="")
         result = await write_file_handler(input_data)
-        
+
         assert result.success is True
         assert Path(file_path).exists()
         assert Path(file_path).read_text() == ""
@@ -261,13 +261,13 @@ class TestFileWritingE2E:
         file_path = str(Path(temp_dir) / "large.txt")
         # Create 1MB of content
         content = "x" * (1024 * 1024)
-        
+
         validation = validate_file_path(file_path, "write")
         assert validation.valid is True
-        
+
         input_data = FileWriteInput(file_path=file_path, content=content)
         result = await write_file_handler(input_data)
-        
+
         assert result.success is True
         assert Path(file_path).stat().st_size == len(content)
 
@@ -282,14 +282,14 @@ class TestFileListingE2E:
         Path(temp_dir).joinpath("subdir1").mkdir()
         Path(temp_dir).joinpath("subdir2").mkdir()
         Path(temp_dir).joinpath("subdir1/nested").mkdir()
-        
+
         # Create files
         Path(temp_dir).joinpath("file1.txt").write_text("content1")
         Path(temp_dir).joinpath("file2.py").write_text("print('hello')")
         Path(temp_dir).joinpath("subdir1/file3.txt").write_text("content3")
         Path(temp_dir).joinpath("subdir1/nested/file4.txt").write_text("content4")
         Path(temp_dir).joinpath("subdir2/file5.md").write_text("# Markdown")
-        
+
         return temp_dir
 
     @pytest.mark.asyncio
@@ -297,10 +297,10 @@ class TestFileListingE2E:
         """Test listing contents of a directory."""
         validation = validate_file_path(temp_dir_with_files, "list")
         assert validation.valid is True
-        
+
         input_data = FileListInput(directory_path=temp_dir_with_files)
         result = await list_files_handler(input_data)
-        
+
         assert result.success is True
         files_str = " ".join(result.files)
         assert "file1.txt" in files_str
@@ -313,10 +313,10 @@ class TestFileListingE2E:
         """Test listing files matching a pattern."""
         validation = validate_file_path(temp_dir_with_files, "list")
         assert validation.valid is True
-        
+
         input_data = FileListInput(directory_path=temp_dir_with_files, pattern="*.txt")
         result = await list_files_handler(input_data)
-        
+
         assert result.success is True
         files_str = " ".join(result.files)
         assert "file1.txt" in files_str
@@ -327,10 +327,10 @@ class TestFileListingE2E:
         """Test listing files recursively."""
         validation = validate_file_path(temp_dir_with_files, "list")
         assert validation.valid is True
-        
+
         input_data = FileListInput(directory_path=temp_dir_with_files, recursive=True)
         result = await list_files_handler(input_data)
-        
+
         assert result.success is True
         files_str = " ".join(result.files)
         assert "file1.txt" in files_str
@@ -344,10 +344,10 @@ class TestFileListingE2E:
         nested_dir = str(Path(temp_dir_with_files) / "subdir1")
         validation = validate_file_path(nested_dir, "list")
         assert validation.valid is True
-        
+
         input_data = FileListInput(directory_path=nested_dir)
         result = await list_files_handler(input_data)
-        
+
         assert result.success is True
         files_str = " ".join(result.files)
         assert "file3.txt" in files_str
@@ -358,13 +358,13 @@ class TestFileListingE2E:
         """Test listing an empty directory."""
         empty_dir = str(Path(temp_dir) / "empty")
         Path(empty_dir).mkdir()
-        
+
         validation = validate_file_path(empty_dir, "list")
         assert validation.valid is True
-        
+
         input_data = FileListInput(directory_path=empty_dir)
         result = await list_files_handler(input_data)
-        
+
         assert result.success is True
 
 
@@ -376,10 +376,10 @@ class TestCommandExecutionE2E:
         """Test running a simple echo command."""
         validation = validate_command("echo hello")
         assert validation.valid is True
-        
+
         input_data = CommandRunInput(command="echo hello")
         result = await run_command_handler(input_data)
-        
+
         assert result.success is True
         assert "hello" in result.stdout.lower()
 
@@ -388,10 +388,10 @@ class TestCommandExecutionE2E:
         """Test running pwd command."""
         validation = validate_command("pwd")
         assert validation.valid is True
-        
+
         input_data = CommandRunInput(command="pwd")
         result = await run_command_handler(input_data)
-        
+
         assert result.success is True
         assert len(result.stdout) > 0
 
@@ -400,10 +400,10 @@ class TestCommandExecutionE2E:
         """Test running command with timeout."""
         validation = validate_command("sleep 1")
         assert validation.valid is True
-        
+
         input_data = CommandRunInput(command="sleep 1", timeout=5)
         result = await run_command_handler(input_data)
-        
+
         # Should complete successfully
         assert result.success is True
 
@@ -412,10 +412,10 @@ class TestCommandExecutionE2E:
         """Test command timeout when exceeded."""
         validation = validate_command("sleep 10")
         assert validation.valid is True
-        
+
         input_data = CommandRunInput(command="sleep 10", timeout=1)
         result = await run_command_handler(input_data)
-        
+
         # Should timeout
         assert result.success is False
 
@@ -425,13 +425,13 @@ class TestCommandExecutionE2E:
         # Create a test file in temp directory
         test_file = Path(temp_dir) / "test.txt"
         test_file.write_text("test content")
-        
+
         validation = validate_command("ls")
         assert validation.valid is True
-        
+
         input_data = CommandRunInput(command="ls", cwd=temp_dir)
         result = await run_command_handler(input_data)
-        
+
         assert result.success is True
         assert "test.txt" in result.stdout
 
@@ -444,12 +444,12 @@ class TestMixedOperationsE2E:
         """Test writing a file then reading it back."""
         file_path = str(Path(temp_dir) / "test.txt")
         original_content = "Test content for write-read cycle"
-        
+
         # Write file
         write_input = FileWriteInput(file_path=file_path, content=original_content)
         write_result = await write_file_handler(write_input)
         assert write_result.success is True
-        
+
         # Read file back
         read_input = FileReadInput(file_path=file_path)
         read_result = await read_file_handler(read_input)
@@ -464,20 +464,20 @@ class TestMixedOperationsE2E:
             "file2.txt": "Content 2",
             "file3.txt": "Content 3",
         }
-        
+
         # Write files
         for filename, content in files.items():
             file_path = str(Path(temp_dir) / filename)
             write_input = FileWriteInput(file_path=file_path, content=content)
             await write_file_handler(write_input)
-        
+
         # List files
         list_input = FileListInput(directory_path=temp_dir)
         list_result = await list_files_handler(list_input)
-        
+
         assert list_result.success is True
         files_str = " ".join(list_result.files)
-        for filename in files.keys():
+        for filename in files:
             assert filename in files_str
 
     @pytest.mark.asyncio
@@ -490,25 +490,21 @@ class TestMixedOperationsE2E:
             "src/utils.py": "def helper(): pass",
             "tests/test_main.py": "def test_main(): pass",
         }
-        
+
         # Create all files
         for file_path, content in structure.items():
             full_path = str(Path(temp_dir) / file_path)
-            write_input = FileWriteInput(
-                file_path=full_path,
-                content=content,
-                create_dirs=True
-            )
+            write_input = FileWriteInput(file_path=full_path, content=content, create_dirs=True)
             result = await write_file_handler(write_input)
             assert result.success is True
-        
+
         # Verify structure with recursive listing
         list_input = FileListInput(directory_path=temp_dir, recursive=True)
         list_result = await list_files_handler(list_input)
-        
+
         assert list_result.success is True
         files_str = " ".join(list_result.files)
-        for file_path in structure.keys():
+        for file_path in structure:
             assert file_path.split("/")[-1] in files_str
 
     @pytest.mark.asyncio
@@ -516,16 +512,16 @@ class TestMixedOperationsE2E:
         """Test reading and writing files with special characters."""
         file_path = str(Path(temp_dir) / "special.txt")
         content = "Special chars: !@#$%^&*()_+-=[]{}|;:',.<>?/~`"
-        
+
         # Write file with special characters
         write_input = FileWriteInput(file_path=file_path, content=content)
         write_result = await write_file_handler(write_input)
         assert write_result.success is True
-        
+
         # Read file back
         read_input = FileReadInput(file_path=file_path)
         read_result = await read_file_handler(read_input)
-        
+
         assert read_result.success is True
         assert read_result.content == content
 
@@ -537,7 +533,7 @@ class TestSecurityValidationE2E:
         """Test that path traversal attacks are prevented."""
         # Try to traverse outside the allowed directory
         dangerous_path = "../../etc/passwd"
-        
+
         # Should be blocked by validation
         validation = validate_file_path(dangerous_path, "read")
         assert validation.valid is False
@@ -547,7 +543,7 @@ class TestSecurityValidationE2E:
         """Test that command injection is prevented."""
         # Try to inject a command
         dangerous_command = "echo test; rm -rf /"
-        
+
         # Should be blocked by validation
         validation = validate_command(dangerous_command)
         assert validation.valid is False
@@ -560,7 +556,7 @@ class TestSecurityValidationE2E:
             "chmod 777 /etc/passwd",
             "sudo rm -rf /",
         ]
-        
+
         for cmd in dangerous_commands:
             validation = validate_command(cmd)
             assert validation.valid is False
@@ -574,7 +570,7 @@ class TestSecurityValidationE2E:
             "echo test `whoami`",
             "echo test $(whoami)",
         ]
-        
+
         for cmd in injection_patterns:
             validation = validate_command(cmd)
             assert validation.valid is False

@@ -1,7 +1,8 @@
-from typing import Any, Optional
+from typing import Any
 
 # pydantic_ai imports
-from pydantic_ai import Agent as PydanticAgent, RunContext
+from pydantic_ai import Agent as PydanticAgent
+from pydantic_ai import RunContext
 from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.models.gemini import GeminiModel
 from pydantic_ai.models.openai import OpenAIModel
@@ -9,8 +10,14 @@ from pydantic_ai.models.openai import OpenAIModel
 from ..abstraction.adapter import AgentAdapter
 from ..abstraction.settings import AgentSettings
 from ..abstraction.tools import (
-    read_file_handler, write_file_handler, list_files_handler, run_command_handler,
-    FileReadInput, FileWriteInput, FileListInput, CommandRunInput
+    CommandRunInput,
+    FileListInput,
+    FileReadInput,
+    FileWriteInput,
+    list_files_handler,
+    read_file_handler,
+    run_command_handler,
+    write_file_handler,
 )
 from ..models.actions import ActionProposal, MCPToolCatalog
 
@@ -56,21 +63,22 @@ class PydanticAIAdapter(AgentAdapter):
             # Register only file tools for proposal mode (no command execution)
             self._register_file_tools(agent)
             return agent
-        
+
         # Create traditional agent with tools
         agent = PydanticAgent(
             model=model_instance,
             system_prompt=settings.system_prompt,
         )
-        
+
         # Register all tools (file + command) using the template method
         self._register_tools(agent)
-        
+
         return agent
 
     # Implement protected tool registration methods
     def _register_tool_read_file(self, agent: PydanticAgent) -> None:
         """Register read_file tool with Pydantic AI agent"""
+
         @agent.tool
         async def read_file(ctx: RunContext, file_path: str, encoding: str = "utf-8") -> str:
             """Read a file from the filesystem"""
@@ -80,6 +88,7 @@ class PydanticAIAdapter(AgentAdapter):
 
     def _register_tool_write_file(self, agent: PydanticAgent) -> None:
         """Register write_file tool with Pydantic AI agent"""
+
         @agent.tool
         async def write_file(
             ctx: RunContext,
@@ -90,49 +99,39 @@ class PydanticAIAdapter(AgentAdapter):
         ) -> str:
             """Write content to a file"""
             input_data = FileWriteInput(
-                file_path=file_path,
-                content=content,
-                encoding=encoding,
-                create_dirs=create_dirs
+                file_path=file_path, content=content, encoding=encoding, create_dirs=create_dirs
             )
             result = await write_file_handler(input_data)
             return result.model_dump_json()
 
     def _register_tool_list_files(self, agent: PydanticAgent) -> None:
         """Register list_files tool with Pydantic AI agent"""
+
         @agent.tool
         async def list_files(
             ctx: RunContext,
             directory_path: str,
-            pattern: Optional[str] = None,
+            pattern: str | None = None,
             recursive: bool = False,
         ) -> str:
             """List files in a directory"""
-            input_data = FileListInput(
-                directory_path=directory_path,
-                pattern=pattern,
-                recursive=recursive
-            )
+            input_data = FileListInput(directory_path=directory_path, pattern=pattern, recursive=recursive)
             result = await list_files_handler(input_data)
             return result.model_dump_json()
 
     def _register_tool_run_command(self, agent: PydanticAgent) -> None:
         """Register run_command tool with Pydantic AI agent"""
+
         @agent.tool
         async def run_command(
             ctx: RunContext,
             command: str,
-            cwd: Optional[str] = None,
+            cwd: str | None = None,
             timeout: float = 30.0,
             shell: bool = True,
         ) -> str:
             """Execute a shell command"""
-            input_data = CommandRunInput(
-                command=command,
-                cwd=cwd,
-                timeout=timeout,
-                shell=shell
-            )
+            input_data = CommandRunInput(command=command, cwd=cwd, timeout=timeout, shell=shell)
             result = await run_command_handler(input_data)
             return result.model_dump_json()
 

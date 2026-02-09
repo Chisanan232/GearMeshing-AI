@@ -386,7 +386,7 @@ class TestPydanticAIAdapter:
                 # Setup mocks
                 mock_model_instance = Mock()
                 mock_model.return_value = mock_model_instance
-                
+
                 # Setup mock agent with tool decorator support
                 mock_pydantic_agent.tool = Mock(side_effect=lambda f: f)  # tool decorator that returns the function
                 mock_agent_class.return_value = mock_pydantic_agent
@@ -424,7 +424,7 @@ class TestPydanticAIAdapter:
                 # Setup mocks with error
                 mock_model_instance = Mock()
                 mock_model.return_value = mock_model_instance
-                
+
                 # Setup mock agent with tool decorator support
                 mock_pydantic_agent.tool = Mock(side_effect=lambda f: f)  # tool decorator that returns the function
                 mock_agent_class.return_value = mock_pydantic_agent
