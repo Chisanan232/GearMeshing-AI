@@ -4,6 +4,14 @@ This module provides tool handlers, definitions, and security validation
 for AI agent operations including file operations and command execution.
 """
 
+# Tool handlers
+from .handlers import (
+    read_file_handler,
+    write_file_handler,
+    list_files_handler,
+    run_command_handler,
+)
+
 # Tool definitions
 from .definitions import (
     ToolInput,
@@ -26,6 +34,12 @@ from .security import (
 )
 
 __all__ = [
+    # Handlers
+    "read_file_handler",
+    "write_file_handler",
+    "list_files_handler",
+    "run_command_handler",
+
     # Base definitions
     "ToolInput",
     "ToolOutput",
