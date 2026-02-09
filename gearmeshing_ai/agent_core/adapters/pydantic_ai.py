@@ -2,17 +2,28 @@ from typing import Any
 
 # pydantic_ai imports
 from pydantic_ai import Agent as PydanticAgent
+from pydantic_ai import RunContext
 from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.models.gemini import GeminiModel
 from pydantic_ai.models.openai import OpenAIModel
 
 from ..abstraction.adapter import AgentAdapter
 from ..abstraction.settings import AgentSettings
+from ..abstraction.tools import (
+    CommandRunInput,
+    FileListInput,
+    FileReadInput,
+    FileWriteInput,
+    list_files_handler,
+    read_file_handler,
+    run_command_handler,
+    write_file_handler,
+)
 from ..models.actions import ActionProposal, MCPToolCatalog
 
 
 class PydanticAIAdapter(AgentAdapter):
-    """Adapter implementation for Pydantic AI framework with proposal-only support."""
+    """Adapter implementation for Pydantic AI framework with tool registration support."""
 
     def __init__(self, proposal_mode: bool = False, tool_catalog: MCPToolCatalog | None = None):
         """Initialize adapter with optional proposal-only mode.
@@ -38,25 +49,91 @@ class PydanticAIAdapter(AgentAdapter):
         return f"{provider}:{model_name}"
 
     def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
-        """Create a Pydantic AI Agent instance."""
+        """Create a Pydantic AI Agent instance with tool registration."""
         model_instance = self._get_model(settings.model_settings.provider, settings.model_settings.model)
 
         if self.proposal_mode:
             # Create proposal-only agent
             system_prompt = self._build_proposal_prompt(settings.system_prompt)
-            return PydanticAgent(
+            agent = PydanticAgent(
                 model=model_instance,
                 system_prompt=system_prompt,
                 output_type=ActionProposal,
             )
+            # Register only file tools for proposal mode (no command execution)
+            self._register_file_tools(agent)
+            return agent
+
         # Create traditional agent with tools
-        return PydanticAgent(
+        agent = PydanticAgent(
             model=model_instance,
             system_prompt=settings.system_prompt,
-            # tools=tools # TODO: Map MCP tools to Pydantic AI tools if necessary
         )
 
-        # Attach metadata or settings to the agent instance if needed for debugging
+        # Register all tools (file + command) using the template method
+        self._register_tools(agent)
+
+        return agent
+
+    # Implement protected tool registration methods
+    def _register_tool_read_file(self, agent: PydanticAgent) -> None:
+        """Register read_file tool with Pydantic AI agent"""
+
+        @agent.tool
+        async def read_file(ctx: RunContext, file_path: str, encoding: str = "utf-8") -> str:
+            """Read a file from the filesystem"""
+            input_data = FileReadInput(file_path=file_path, encoding=encoding)
+            result = await read_file_handler(input_data)
+            return result.model_dump_json()
+
+    def _register_tool_write_file(self, agent: PydanticAgent) -> None:
+        """Register write_file tool with Pydantic AI agent"""
+
+        @agent.tool
+        async def write_file(
+            ctx: RunContext,
+            file_path: str,
+            content: str,
+            encoding: str = "utf-8",
+            create_dirs: bool = True,
+        ) -> str:
+            """Write content to a file"""
+            input_data = FileWriteInput(
+                file_path=file_path, content=content, encoding=encoding, create_dirs=create_dirs
+            )
+            result = await write_file_handler(input_data)
+            return result.model_dump_json()
+
+    def _register_tool_list_files(self, agent: PydanticAgent) -> None:
+        """Register list_files tool with Pydantic AI agent"""
+
+        @agent.tool
+        async def list_files(
+            ctx: RunContext,
+            directory_path: str,
+            pattern: str | None = None,
+            recursive: bool = False,
+        ) -> str:
+            """List files in a directory"""
+            input_data = FileListInput(directory_path=directory_path, pattern=pattern, recursive=recursive)
+            result = await list_files_handler(input_data)
+            return result.model_dump_json()
+
+    def _register_tool_run_command(self, agent: PydanticAgent) -> None:
+        """Register run_command tool with Pydantic AI agent"""
+
+        @agent.tool
+        async def run_command(
+            ctx: RunContext,
+            command: str,
+            cwd: str | None = None,
+            timeout: float = 30.0,
+            shell: bool = True,
+        ) -> str:
+            """Execute a shell command"""
+            input_data = CommandRunInput(command=command, cwd=cwd, timeout=timeout, shell=shell)
+            result = await run_command_handler(input_data)
+            return result.model_dump_json()
 
     async def run(self, agent: Any, prompt: str, **kwargs: Any) -> Any:
         """Run the Pydantic AI agent."""

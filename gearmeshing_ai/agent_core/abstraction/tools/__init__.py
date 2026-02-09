@@ -1,10 +1,12 @@
-from .adapter import AgentAdapter
-from .cache import AgentCache
-from .env_manager import EnvManager
-from .factory import AgentFactory
-from .mcp import MCPClientAbstraction
-from .settings import AgentSettings, ModelSettings
-from .tools import (
+"""AI Agent Tools Module.
+
+This module provides tool handlers, definitions, and security validation
+for AI agent operations including file operations and command execution.
+"""
+
+# Tool handlers
+# Tool definitions
+from .definitions import (
     CommandRunInput,
     CommandRunOutput,
     FileListInput,
@@ -13,43 +15,43 @@ from .tools import (
     FileReadOutput,
     FileWriteInput,
     FileWriteOutput,
-    # Tool definitions
     ToolInput,
     ToolOutput,
-    # Security utilities
-    ValidationResult,
+)
+from .handlers import (
     list_files_handler,
-    # Tool handlers
     read_file_handler,
     run_command_handler,
-    validate_command,
-    validate_file_path,
     write_file_handler,
 )
 
+# Security utilities
+from .security import (
+    ValidationResult,
+    validate_command,
+    validate_file_path,
+)
+
 __all__ = [
-    "AgentAdapter",
-    "AgentCache",
-    "AgentFactory",
-    "AgentSettings",
-    "EnvManager",
-    "MCPClientAbstraction",
-    "ModelSettings",
-    # Tool exports
+    # Handlers
     "read_file_handler",
     "write_file_handler",
     "list_files_handler",
     "run_command_handler",
+    # Base definitions
     "ToolInput",
     "ToolOutput",
+    # File operations
     "FileReadInput",
     "FileReadOutput",
     "FileWriteInput",
     "FileWriteOutput",
     "FileListInput",
     "FileListOutput",
+    # Command operations
     "CommandRunInput",
     "CommandRunOutput",
+    # Security
     "ValidationResult",
     "validate_file_path",
     "validate_command",
