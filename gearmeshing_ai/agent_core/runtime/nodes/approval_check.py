@@ -47,36 +47,27 @@ async def approval_check_node(
 
         if requires_approval:
             logger.info(f"Approval required for action: {proposal.action}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="AWAITING_APPROVAL",
-                        message=f"Awaiting approval for: {proposal.action}",
-                    ),
-                }
-            )
+            return {
+                "status": WorkflowStatus(
+                    state="AWAITING_APPROVAL",
+                    message=f"Awaiting approval for: {proposal.action}",
+                ),
+            }
         else:
             logger.info(f"No approval required for action: {proposal.action}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="APPROVAL_SKIPPED",
-                        message=f"Proceeding without approval: {proposal.action}",
-                    ),
-                }
-            )
-
-        return {"state": updated_state}
+            return {
+                "status": WorkflowStatus(
+                    state="APPROVAL_SKIPPED",
+                    message=f"Proceeding without approval: {proposal.action}",
+                ),
+            }
 
     except ValueError as e:
         logger.error(f"ValueError in approval check: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Approval check failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return {
+            "status": WorkflowStatus(
+                state="FAILED",
+                message="Approval check failed",
+                error=str(e),
+            ),
+        }
