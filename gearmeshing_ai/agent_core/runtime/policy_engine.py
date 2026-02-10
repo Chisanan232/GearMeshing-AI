@@ -2,6 +2,316 @@
 
 This module implements the Policy Engine that manages tool policies, approval policies,
 and safety policies for agent workflows.
+
+POLICY ENGINE ARCHITECTURE
+==========================
+
+Policy Hierarchy:
+
+    PolicyEngine (Central Policy Manager)
+    ├── ToolPolicy (Tool Access Control)
+    │   ├── allowed_tools: list[str] | None
+    │   ├── denied_tools: list[str]
+    │   ├── read_only: bool
+    │   └── max_executions: int | None
+    │
+    ├── ApprovalPolicy (Approval Requirements)
+    │   ├── requires_approval: bool
+    │   ├── approval_threshold: int
+    │   ├── approvers: list[str]
+    │   └── timeout_seconds: int
+    │
+    └── SafetyPolicy (Safety Constraints)
+        ├── max_retries: int
+        ├── timeout_seconds: int
+        ├── resource_limits: dict
+        └── restricted_operations: list[str]
+
+
+POLICY EVALUATION FLOW
+======================
+
+Tool Execution Request
+    ↓
+PolicyEngine.is_tool_allowed(tool)
+    ├── Check denied_tools list
+    ├── Check allowed_tools list (if specified)
+    ├── Check read_only flag
+    ├── Check max_executions limit
+    └── Return: bool (allowed/denied)
+    ↓
+PolicyEngine.requires_approval(tool)
+    ├── Check approval policy
+    ├── Check tool risk level
+    ├── Check execution context
+    └── Return: bool (approval required/not required)
+    ↓
+PolicyEngine.is_safe_operation(tool, context)
+    ├── Check safety constraints
+    ├── Check resource limits
+    ├── Check timeout constraints
+    └── Return: bool (safe/unsafe)
+    ↓
+Decision: ALLOW / REQUIRE_APPROVAL / DENY
+
+
+POLICY DECISION MATRIX
+======================
+
+Tool Access:
+    ┌─────────────────────────────────────────────────┐
+    │ Tool in denied_tools?                           │
+    ├─────────────────────────────────────────────────┤
+    │ YES → DENY (highest priority)                   │
+    │ NO  → Check allowed_tools                       │
+    │       ├─ allowed_tools is None → ALLOW          │
+    │       ├─ tool in allowed_tools → ALLOW          │
+    │       └─ tool not in allowed_tools → DENY       │
+    └─────────────────────────────────────────────────┘
+
+Read-Only Mode:
+    ┌─────────────────────────────────────────────────┐
+    │ read_only = True?                               │
+    ├─────────────────────────────────────────────────┤
+    │ YES → Only allow read operations                │
+    │ NO  → Allow all operations                      │
+    └─────────────────────────────────────────────────┘
+
+Execution Limit:
+    ┌─────────────────────────────────────────────────┐
+    │ max_executions set?                             │
+    ├─────────────────────────────────────────────────┤
+    │ YES → Check execution_count < max_executions    │
+    │ NO  → No limit                                  │
+    └─────────────────────────────────────────────────┘
+
+
+POLICY ENFORCEMENT CONCERNS
+===========================
+
+1. POLICY CONSISTENCY
+   Concern: Policies must be enforced consistently across all nodes
+   Solution: Centralized PolicyEngine, single source of truth
+   Validation: All policy decisions logged and audited
+
+2. POLICY CONFLICTS
+   Concern: Multiple policies might conflict
+   Solution: Clear priority order (denied > allowed > default)
+   Validation: Tests verify conflict resolution
+
+3. DYNAMIC POLICY UPDATES
+   Concern: Policies might change during workflow execution
+   Solution: Policies are read-only during execution
+   Validation: Policy updates require workflow restart
+
+4. CONTEXT-AWARE POLICIES
+   Concern: Policies might depend on execution context
+   Solution: ExecutionContext passed to policy evaluation
+   Validation: Context is validated before use
+
+5. APPROVAL POLICY ENFORCEMENT
+   Concern: Approval requirements must be enforced
+   Solution: ApprovalPolicy checked before tool execution
+   Validation: Approval decisions tracked and verified
+
+6. SAFETY POLICY ENFORCEMENT
+   Concern: Safety constraints must be enforced
+   Solution: SafetyPolicy checked at multiple points
+   Validation: Safety violations logged and blocked
+
+7. POLICY AUDIT TRAIL
+   Concern: All policy decisions must be auditable
+   Solution: All decisions logged with context
+   Monitoring: Policy decision logs reviewed regularly
+
+
+POLICY TYPES AND RULES
+======================
+
+ToolPolicy Rules:
+    1. If tool in denied_tools → DENY (always)
+    2. If allowed_tools is None → ALLOW (if not denied)
+    3. If allowed_tools is set → ALLOW only if in list
+    4. If read_only → ALLOW only read operations
+    5. If max_executions set → ALLOW only if count < max
+
+ApprovalPolicy Rules:
+    1. If requires_approval → REQUIRE_APPROVAL
+    2. If approval_threshold > 1 → REQUIRE multiple approvals
+    3. If timeout_seconds set → ENFORCE timeout
+    4. If approvers list set → REQUIRE specific approvers
+
+SafetyPolicy Rules:
+    1. If max_retries set → LIMIT retries
+    2. If timeout_seconds set → ENFORCE timeout
+    3. If resource_limits set → ENFORCE limits
+    4. If restricted_operations set → BLOCK operations
+
+
+POLICY LIFECYCLE
+================
+
+1. POLICY CREATION
+   - PolicyEngine created with default policies
+   - Policies can be customized before workflow starts
+
+2. POLICY INITIALIZATION
+   - Policies loaded from configuration
+   - Policies validated for consistency
+   - Policies registered with PolicyEngine
+
+3. POLICY EVALUATION
+   - During workflow execution
+   - For each tool execution request
+   - Against current policies
+
+4. POLICY ENFORCEMENT
+   - Decisions made based on policy evaluation
+   - Decisions logged and tracked
+   - Violations blocked or escalated
+
+5. POLICY AUDIT
+   - All decisions logged
+   - Audit trail maintained
+   - Compliance verified
+
+
+POLICY CONFIGURATION EXAMPLES
+=============================
+
+Example 1: Restrictive Policy (Production)
+    ToolPolicy(
+        allowed_tools=["read_logs", "check_status"],
+        denied_tools=[],
+        read_only=True,
+        max_executions=10,
+    )
+    ApprovalPolicy(
+        requires_approval=True,
+        approval_threshold=2,
+        approvers=["admin", "security"],
+        timeout_seconds=3600,
+    )
+
+Example 2: Permissive Policy (Development)
+    ToolPolicy(
+        allowed_tools=None,  # All tools allowed
+        denied_tools=["delete_database"],
+        read_only=False,
+        max_executions=None,  # Unlimited
+    )
+    ApprovalPolicy(
+        requires_approval=False,
+        approval_threshold=1,
+        approvers=[],
+        timeout_seconds=0,
+    )
+
+Example 3: Role-Based Policy
+    For role="developer":
+        ToolPolicy(
+            allowed_tools=["run_tests", "build", "deploy_staging"],
+            denied_tools=["deploy_production"],
+            read_only=False,
+            max_executions=100,
+        )
+    
+    For role="admin":
+        ToolPolicy(
+            allowed_tools=None,
+            denied_tools=[],
+            read_only=False,
+            max_executions=None,
+        )
+
+
+PERFORMANCE CHARACTERISTICS
+===========================
+
+Policy Evaluation Time:
+    Simple check (denied_tools): <1ms
+    Allowed_tools check: 1-5ms
+    Complex evaluation: 5-10ms
+
+Policy Storage:
+    Single policy: ~1 KB
+    100 policies: ~100 KB
+    1000 policies: ~1 MB
+
+Caching:
+    Policy decisions can be cached
+    Cache invalidation on policy update
+    TTL-based cache expiration
+
+
+MONITORING POLICIES
+===================
+
+Per-Decision Metrics:
+    - Decision type (ALLOW/DENY/REQUIRE_APPROVAL)
+    - Tool name
+    - Agent role
+    - Execution context
+    - Timestamp
+
+Policy-Level Metrics:
+    - Total decisions made
+    - Allow rate
+    - Deny rate
+    - Approval rate
+    - Policy violations
+
+Audit Metrics:
+    - Policy changes
+    - Policy violations
+    - Approval decisions
+    - Escalations
+
+
+EXTENSION POINTS
+================
+
+1. Custom Policy Types
+   - Can extend ToolPolicy, ApprovalPolicy, SafetyPolicy
+   - Must implement policy evaluation logic
+   - Must integrate with PolicyEngine
+
+2. Custom Policy Rules
+   - Can add custom rules to existing policies
+   - Must follow policy evaluation pattern
+   - Must be tested thoroughly
+
+3. Custom Policy Sources
+   - Can load policies from external sources
+   - Must validate policies on load
+   - Must handle policy updates
+
+4. Custom Policy Enforcement
+   - Can implement custom enforcement logic
+   - Must log all enforcement actions
+   - Must handle enforcement failures
+
+
+TESTING POLICIES
+================
+
+Unit Tests:
+    - Test each policy type independently
+    - Test policy evaluation logic
+    - Test policy conflicts
+    - Test edge cases
+
+Integration Tests:
+    - Test policies with workflow nodes
+    - Test policy enforcement
+    - Test policy updates
+    - Test audit logging
+
+E2E Tests:
+    - Test complete policy workflows
+    - Test with real tools
+    - Test approval workflows
+    - Test policy violations
 """
 
 import logging
