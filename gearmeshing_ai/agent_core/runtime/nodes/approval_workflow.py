@@ -2,6 +2,8 @@
 
 This module implements the approval workflow node that manages approval requests
 and resolutions for tool executions.
+
+Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
@@ -10,6 +12,8 @@ from typing import Any
 from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalManager
 from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine
 from gearmeshing_ai.agent_core.runtime.workflow_state import WorkflowState, WorkflowStatus
+from ..node_returns import ApprovalWorkflowNodeReturn, ApprovalResolutionNodeReturn
+from ..workflow_states import WorkflowStateEnum
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +51,12 @@ async def approval_workflow_node(
             logger.info(
                 f"Found {len(pending_approvals)} pending approvals for run_id={state.run_id}"
             )
-            return {
-                "status": WorkflowStatus(
-                    state="AWAITING_APPROVAL",
+            return ApprovalWorkflowNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.AWAITING_APPROVAL.value,
                     message=f"Waiting for {len(pending_approvals)} approval(s)",
                 ),
-            }
+            ).to_dict()
 
         # Check if all approvals are resolved
         all_approvals = approval_manager.get_run_approvals(state.run_id)
@@ -61,50 +65,50 @@ async def approval_workflow_node(
 
         if rejected_count > 0:
             logger.warning(f"Found {rejected_count} rejected approvals for run_id={state.run_id}")
-            return {
-                "status": WorkflowStatus(
-                    state="APPROVAL_REJECTED",
+            return ApprovalWorkflowNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.APPROVAL_REJECTED.value,
                     message=f"{rejected_count} approval(s) rejected",
                 ),
-            }
+            ).to_dict()
 
         if approved_count > 0:
             logger.info(f"All {approved_count} approval(s) approved for run_id={state.run_id}")
-            return {
-                "status": WorkflowStatus(
-                    state="APPROVAL_COMPLETE",
+            return ApprovalWorkflowNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.APPROVAL_COMPLETE.value,
                     message=f"All {approved_count} approval(s) approved",
                 ),
-            }
+            ).to_dict()
 
         # No approvals needed
         logger.debug(f"No approvals needed for run_id={state.run_id}")
-        return {
-            "status": WorkflowStatus(
-                state="APPROVAL_COMPLETE",
+        return ApprovalWorkflowNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.APPROVAL_COMPLETE.value,
                 message="No approvals required",
             ),
-        }
+        ).to_dict()
 
     except RuntimeError as e:
         logger.error(f"RuntimeError in approval workflow: {e}")
-        return {
-            "status": WorkflowStatus(
-                state="FAILED",
+        return ApprovalWorkflowNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
                 message="Approval workflow failed",
                 error=str(e),
             ),
-        }
+        ).to_dict()
 
     except Exception as e:
         logger.error(f"Exception in approval workflow: {e}")
-        return {
-            "status": WorkflowStatus(
-                state="FAILED",
+        return ApprovalWorkflowNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
                 message="Approval workflow failed",
                 error=str(e),
             ),
-        }
+        ).to_dict()
 
 
 async def approval_resolution_node(
@@ -121,7 +125,7 @@ async def approval_resolution_node(
         approval_manager: Manager for approval requests
 
     Returns:
-        Dictionary containing updated workflow state with resolution status
+        ApprovalResolutionNodeReturn with resolution status
 
     Raises:
         RuntimeError: If approval resolution fails
@@ -142,47 +146,47 @@ async def approval_resolution_node(
         # Check if all approvals are resolved
         if stats["pending"] > 0:
             logger.debug(f"Still {stats['pending']} pending approvals")
-            return {
-                "status": WorkflowStatus(
-                    state="AWAITING_APPROVAL",
+            return ApprovalResolutionNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.AWAITING_APPROVAL.value,
                     message=f"Waiting for {stats['pending']} approval(s)",
                 ),
-            }
+            ).to_dict()
 
         # All approvals resolved
         if stats["rejected"] > 0:
             logger.warning(f"Approvals rejected: {stats['rejected']}")
-            return {
-                "status": WorkflowStatus(
-                    state="APPROVAL_REJECTED",
+            return ApprovalResolutionNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.APPROVAL_REJECTED.value,
                     message=f"{stats['rejected']} approval(s) rejected",
                 ),
-            }
+            ).to_dict()
 
         logger.info(f"All approvals resolved successfully for run_id={state.run_id}")
-        return {
-            "status": WorkflowStatus(
-                state="COMPLETED",
+        return ApprovalResolutionNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.COMPLETED.value,
                 message=f"All {stats['approved']} approval(s) resolved and workflow completed",
             ),
-        }
+        ).to_dict()
 
     except RuntimeError as e:
         logger.error(f"RuntimeError in approval resolution: {e}")
-        return {
-            "status": WorkflowStatus(
-                state="FAILED",
+        return ApprovalResolutionNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
                 message="Approval resolution failed",
                 error=str(e),
             ),
-        }
+        ).to_dict()
 
     except Exception as e:
         logger.error(f"Exception in approval resolution: {e}")
-        return {
-            "status": WorkflowStatus(
-                state="FAILED",
+        return ApprovalResolutionNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
                 message="Approval resolution failed",
                 error=str(e),
             ),
-        }
+        ).to_dict()
