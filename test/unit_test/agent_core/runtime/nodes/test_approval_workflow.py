@@ -20,7 +20,7 @@ from gearmeshing_ai.agent_core.runtime.workflow_state import (
     WorkflowStatus,
 )
 
-from .conftest import merge_state_update
+from ..conftest import merge_state_update
 
 
 @pytest.fixture
