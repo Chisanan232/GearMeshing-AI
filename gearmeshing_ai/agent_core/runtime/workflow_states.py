@@ -108,18 +108,20 @@ STATE_CATEGORIES = {
     WorkflowStateEnum.APPROVAL_RESOLVED: WorkflowStateCategory.TERMINAL,
 }
 
-# States that indicate workflow completion
+# States that indicate workflow completion (terminal states)
 COMPLETION_STATES = {
     WorkflowStateEnum.COMPLETED,
     WorkflowStateEnum.FAILED,
     WorkflowStateEnum.APPROVAL_RESOLVED,
+    WorkflowStateEnum.RESULTS_PROCESSED,
+    WorkflowStateEnum.POLICY_REJECTED,
+    WorkflowStateEnum.ERROR_HANDLED,
 }
 
 # States that indicate workflow should continue processing
 CONTINUING_STATES = {
     WorkflowStateEnum.CONTINUING,
     WorkflowStateEnum.RUNNING,
-    WorkflowStateEnum.PROCESSING,
 }
 
 # States that indicate an error occurred
