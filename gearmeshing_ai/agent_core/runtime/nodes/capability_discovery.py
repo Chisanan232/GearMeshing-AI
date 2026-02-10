@@ -42,53 +42,43 @@ async def capability_discovery_node(
         # Verify capabilities were discovered
         if updated_state.available_capabilities is None:
             logger.warning(f"No capabilities discovered for run_id={state.run_id}")
-            updated_state = updated_state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="CAPABILITY_DISCOVERY_COMPLETE",
-                        message="No capabilities available",
-                    ),
-                }
-            )
+            return {
+                "available_capabilities": None,
+                "status": WorkflowStatus(
+                    state="CAPABILITY_DISCOVERY_COMPLETE",
+                    message="No capabilities available",
+                ),
+            }
         else:
             capability_count = len(updated_state.available_capabilities.tools)
             logger.info(
                 f"Discovered {capability_count} capabilities for run_id={state.run_id}, "
                 f"agent_role={state.context.agent_role}"
             )
-            updated_state = updated_state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="CAPABILITY_DISCOVERY_COMPLETE",
-                        message=f"Discovered {capability_count} capabilities",
-                    ),
-                }
-            )
-
-        return {"state": updated_state}
+            return {
+                "available_capabilities": updated_state.available_capabilities,
+                "status": WorkflowStatus(
+                    state="CAPABILITY_DISCOVERY_COMPLETE",
+                    message=f"Discovered {capability_count} capabilities",
+                ),
+            }
 
     except RuntimeError as e:
         logger.error(f"RuntimeError in capability discovery: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Capability discovery failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return {
+            "status": WorkflowStatus(
+                state="FAILED",
+                message="Capability discovery failed",
+                error=str(e),
+            ),
+        }
 
     except Exception as e:
         logger.error(f"Exception in capability discovery: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Capability discovery failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return {
+            "status": WorkflowStatus(
+                state="FAILED",
+                message="Capability discovery failed",
+                error=str(e),
+            ),
+        }

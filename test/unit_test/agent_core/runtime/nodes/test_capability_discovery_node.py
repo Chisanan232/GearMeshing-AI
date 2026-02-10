@@ -7,6 +7,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from ..conftest import merge_state_update
+
 from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog, MCPToolInfo
 from gearmeshing_ai.agent_core.runtime.capability_registry import CapabilityRegistry
 from gearmeshing_ai.agent_core.runtime.nodes.capability_discovery import capability_discovery_node
@@ -79,11 +81,10 @@ class TestCapabilityDiscoveryNode:
 
         result = await capability_discovery_node(workflow_state_base, mock_capability_registry)
 
-        assert "state" in result
-        updated = result["state"]
-        assert updated.status.state == "CAPABILITY_DISCOVERY_COMPLETE"
-        assert updated.available_capabilities is not None
-        assert len(updated.available_capabilities.tools) == 2
+        updated_state = merge_state_update(workflow_state_base, result)
+        assert updated_state.status.state == "CAPABILITY_DISCOVERY_COMPLETE"
+        assert updated_state.available_capabilities is not None
+        assert len(updated_state.available_capabilities.tools) == 2
 
     @pytest.mark.asyncio
     async def test_capability_discovery_node_no_capabilities(
@@ -103,9 +104,9 @@ class TestCapabilityDiscoveryNode:
 
         result = await capability_discovery_node(workflow_state_base, mock_capability_registry)
 
-        updated = result["state"]
-        assert updated.status.state == "CAPABILITY_DISCOVERY_COMPLETE"
-        assert updated.available_capabilities is None
+        updated_state = merge_state_update(workflow_state_base, result)
+        assert updated_state.status.state == "CAPABILITY_DISCOVERY_COMPLETE"
+        assert updated_state.available_capabilities is None
 
     @pytest.mark.asyncio
     async def test_capability_discovery_node_preserves_run_id(
@@ -125,8 +126,8 @@ class TestCapabilityDiscoveryNode:
 
         result = await capability_discovery_node(workflow_state_base, mock_capability_registry)
 
-        updated = result["state"]
-        assert updated.run_id == "run_123"
+        updated_state = merge_state_update(workflow_state_base, result)
+        assert updated_state.run_id == "run_123"
 
     @pytest.mark.asyncio
     async def test_capability_discovery_node_preserves_context(
@@ -146,9 +147,9 @@ class TestCapabilityDiscoveryNode:
 
         result = await capability_discovery_node(workflow_state_base, mock_capability_registry)
 
-        updated = result["state"]
-        assert updated.context.agent_role == "developer"
-        assert updated.context.user_id == "user_123"
+        updated_state = merge_state_update(workflow_state_base, result)
+        assert updated_state.context.agent_role == "developer"
+        assert updated_state.context.user_id == "user_123"
 
     @pytest.mark.asyncio
     async def test_capability_discovery_node_error_handling(
@@ -164,10 +165,10 @@ class TestCapabilityDiscoveryNode:
 
         result = await capability_discovery_node(workflow_state_base, mock_capability_registry)
 
-        updated = result["state"]
-        assert updated.status.state == "FAILED"
-        assert updated.status.error is not None
-        assert "Discovery failed" in updated.status.error
+        updated_state = merge_state_update(workflow_state_base, result)
+        assert updated_state.status.state == "FAILED"
+        assert updated_state.status.error is not None
+        assert "Discovery failed" in updated_state.status.error
 
     @pytest.mark.asyncio
     async def test_capability_discovery_node_with_multiple_tools(
@@ -195,9 +196,9 @@ class TestCapabilityDiscoveryNode:
 
         result = await capability_discovery_node(workflow_state_base, mock_capability_registry)
 
-        updated = result["state"]
-        assert updated.available_capabilities is not None
-        assert len(updated.available_capabilities.tools) == 10
+        updated_state = merge_state_update(workflow_state_base, result)
+        assert updated_state.available_capabilities is not None
+        assert len(updated_state.available_capabilities.tools) == 10
 
     @pytest.mark.asyncio
     async def test_capability_discovery_node_status_message(
@@ -220,5 +221,5 @@ class TestCapabilityDiscoveryNode:
 
         result = await capability_discovery_node(workflow_state_base, mock_capability_registry)
 
-        updated = result["state"]
-        assert "capabilities" in updated.status.message.lower()
+        updated_state = merge_state_update(workflow_state_base, result)
+        assert "capabilities" in updated_state.status.message.lower()
