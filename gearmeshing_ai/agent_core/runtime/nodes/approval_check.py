@@ -2,12 +2,16 @@
 
 This module implements the approval check node that determines if a proposal
 requires human approval before execution.
+
+Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
 from typing import Any
 
+from ..node_returns import ApprovalCheckNodeReturn
 from ..workflow_state import WorkflowState, WorkflowStatus
+from ..workflow_states import WorkflowStateEnum
 
 logger = logging.getLogger(__name__)
 
@@ -47,27 +51,27 @@ async def approval_check_node(
 
         if requires_approval:
             logger.info(f"Approval required for action: {proposal.action}")
-            return {
-                "status": WorkflowStatus(
-                    state="AWAITING_APPROVAL",
+            return ApprovalCheckNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.AWAITING_APPROVAL.value,
                     message=f"Awaiting approval for: {proposal.action}",
                 ),
-            }
+            ).to_dict()
         else:
             logger.info(f"No approval required for action: {proposal.action}")
-            return {
-                "status": WorkflowStatus(
-                    state="APPROVAL_SKIPPED",
+            return ApprovalCheckNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.APPROVAL_SKIPPED.value,
                     message=f"Proceeding without approval: {proposal.action}",
                 ),
-            }
+            ).to_dict()
 
     except ValueError as e:
         logger.error(f"ValueError in approval check: {e}")
-        return {
-            "status": WorkflowStatus(
-                state="FAILED",
+        return ApprovalCheckNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
                 message="Approval check failed",
                 error=str(e),
             ),
-        }
+        ).to_dict()
