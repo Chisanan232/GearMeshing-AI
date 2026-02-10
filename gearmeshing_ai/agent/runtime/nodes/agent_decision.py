@@ -8,12 +8,12 @@ Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from gearmeshing_ai.agent.abstraction.factory import AgentFactory
 from gearmeshing_ai.agent.models.actions import ActionProposal
-from gearmeshing_ai.agent.roles.selector import RoleSelector
 from gearmeshing_ai.agent.roles.registry import get_global_registry
+from gearmeshing_ai.agent.roles.selector import RoleSelector
 
 from ..models import AgentDecisionNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 async def agent_decision_node(
     state: WorkflowState,
     agent_factory: AgentFactory,
-    role_selector: Optional[RoleSelector] = None,
+    role_selector: RoleSelector | None = None,
     auto_select_role: bool = False,
 ) -> dict[str, Any]:
     """Execute agent decision node with role support.
@@ -66,9 +66,7 @@ async def agent_decision_node(
                 # Auto-select role based on task description
                 agent_role = role_selector.suggest_role(state.context.task_description)
                 if not agent_role:
-                    msg = (
-                        f"Could not auto-select role for task: {state.context.task_description[:50]}..."
-                    )
+                    msg = f"Could not auto-select role for task: {state.context.task_description[:50]}..."
                     logger.error(msg)
                     raise ValueError(msg)
                 logger.info(f"Auto-selected role: {agent_role}")

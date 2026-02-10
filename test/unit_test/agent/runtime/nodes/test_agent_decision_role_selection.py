@@ -31,7 +31,7 @@ from ..conftest import merge_state_update
 def multi_role_registry():
     """Create a registry with multiple roles for testing."""
     registry = RoleRegistry()
-    
+
     roles_data = {
         "dev": {
             "description": "Software Developer",
@@ -54,13 +54,13 @@ def multi_role_registry():
             "authority": "architecture",
         },
     }
-    
+
     for role_name, role_info in roles_data.items():
         metadata = RoleMetadata(
             domain=role_info["domain"],
             decision_authority=role_info["authority"],
         )
-        
+
         role = RoleDefinition(
             role=role_name,
             description=role_info["description"],
@@ -70,9 +70,9 @@ def multi_role_registry():
             system_prompt=f"You are a {role_name}...",
             metadata=metadata,
         )
-        
+
         registry.register(role)
-    
+
     return registry
 
 
@@ -102,26 +102,26 @@ class TestRoleValidation:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="code_implementation",
             reason="Feature requested",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node with role selector
         result = await agent_decision_node(
             state,
             mock_factory,
             role_selector=multi_role_selector,
         )
-        
+
         # Verify
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "PROPOSAL_OBTAINED"
@@ -145,17 +145,17 @@ class TestRoleValidation:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
-        
+
         # Execute node
         result = await agent_decision_node(
             state,
             mock_factory,
             role_selector=multi_role_selector,
         )
-        
+
         # Verify error
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "FAILED"
@@ -179,10 +179,10 @@ class TestRoleValidation:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
-        
+
         # Execute node without auto-select
         result = await agent_decision_node(
             state,
@@ -190,7 +190,7 @@ class TestRoleValidation:
             role_selector=multi_role_selector,
             auto_select_role=False,
         )
-        
+
         # Verify error
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "FAILED"
@@ -217,19 +217,19 @@ class TestAutoRoleSelection:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="test_creation",
             reason="Testing required",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node with auto-select enabled
         result = await agent_decision_node(
             state,
@@ -237,7 +237,7 @@ class TestAutoRoleSelection:
             role_selector=multi_role_selector,
             auto_select_role=True,
         )
-        
+
         # Verify
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "PROPOSAL_OBTAINED"
@@ -262,19 +262,19 @@ class TestAutoRoleSelection:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="code_implementation",
             reason="Feature requested",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node with auto-select enabled
         result = await agent_decision_node(
             state,
@@ -282,7 +282,7 @@ class TestAutoRoleSelection:
             role_selector=multi_role_selector,
             auto_select_role=True,
         )
-        
+
         # Verify
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "PROPOSAL_OBTAINED"
@@ -306,19 +306,19 @@ class TestAutoRoleSelection:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="deployment",
             reason="Release ready",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node with auto-select enabled
         result = await agent_decision_node(
             state,
@@ -326,7 +326,7 @@ class TestAutoRoleSelection:
             role_selector=multi_role_selector,
             auto_select_role=True,
         )
-        
+
         # Verify
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "PROPOSAL_OBTAINED"
@@ -350,10 +350,10 @@ class TestAutoRoleSelection:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
-        
+
         # Execute node with auto-select enabled
         result = await agent_decision_node(
             state,
@@ -361,7 +361,7 @@ class TestAutoRoleSelection:
             role_selector=multi_role_selector,
             auto_select_role=True,
         )
-        
+
         # Verify error
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "FAILED"
@@ -387,29 +387,29 @@ class TestRoleBasedAgentCreation:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="bug_fix",
             reason="Bug reported",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node
         result = await agent_decision_node(
             state,
             mock_factory,
             role_selector=multi_role_selector,
         )
-        
+
         # Verify agent was created with correct role
         mock_factory.get_or_create_agent.assert_called_once_with("dev")
-        
+
         # Verify adapter was called with agent and task
         mock_factory.adapter.run.assert_called_once()
         call_args = mock_factory.adapter.run.call_args
@@ -432,26 +432,26 @@ class TestRoleBasedAgentCreation:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="test_execution",
             reason="Testing needed",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node
         result = await agent_decision_node(
             state,
             mock_factory,
             role_selector=multi_role_selector,
         )
-        
+
         # Verify agent was created with QA role
         mock_factory.get_or_create_agent.assert_called_once_with("qa")
 
@@ -471,26 +471,26 @@ class TestRoleBasedAgentCreation:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="deployment",
             reason="Release ready",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node
         result = await agent_decision_node(
             state,
             mock_factory,
             role_selector=multi_role_selector,
         )
-        
+
         # Verify agent was created with SRE role
         mock_factory.get_or_create_agent.assert_called_once_with("sre")
 
@@ -513,19 +513,19 @@ class TestRoleSelectionErrorHandling:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="test_action",
             reason="Test reason",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node without role_selector (will use global registry)
         # This should fail because global registry is empty
         result = await agent_decision_node(
@@ -534,7 +534,7 @@ class TestRoleSelectionErrorHandling:
             role_selector=None,
             auto_select_role=False,
         )
-        
+
         # Verify error
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "FAILED"
@@ -547,7 +547,7 @@ class TestRoleSelectionErrorHandling:
         # Create empty registry and selector
         empty_registry = RoleRegistry()
         empty_selector = RoleSelector(empty_registry)
-        
+
         context = ExecutionContext(
             task_description="Some task",
             agent_role="dev",
@@ -558,17 +558,17 @@ class TestRoleSelectionErrorHandling:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
-        
+
         # Execute node
         result = await agent_decision_node(
             state,
             mock_factory,
             role_selector=empty_selector,
         )
-        
+
         # Verify error
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "FAILED"
@@ -582,7 +582,7 @@ class TestRoleSelectionErrorHandling:
         # Create empty registry and selector
         empty_registry = RoleRegistry()
         empty_selector = RoleSelector(empty_registry)
-        
+
         context = ExecutionContext(
             task_description="Implement new feature",
             agent_role="",
@@ -593,10 +593,10 @@ class TestRoleSelectionErrorHandling:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
-        
+
         # Execute node with auto-select
         result = await agent_decision_node(
             state,
@@ -604,7 +604,7 @@ class TestRoleSelectionErrorHandling:
             role_selector=empty_selector,
             auto_select_role=True,
         )
-        
+
         # Verify error
         updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "FAILED"
@@ -630,26 +630,26 @@ class TestRoleSelectionIntegration:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="implementation",
             reason="Feature requested",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node
         result = await agent_decision_node(
             state,
             mock_factory,
             role_selector=multi_role_selector,
         )
-        
+
         # Verify role is in status message
         updated_state = merge_state_update(state, result)
         assert "dev" in updated_state.status.message
@@ -671,19 +671,19 @@ class TestRoleSelectionIntegration:
             status=WorkflowStatus(state="PENDING"),
             context=context,
         )
-        
+
         # Setup mock factory
         mock_factory = MagicMock(spec=AgentFactory)
         mock_agent = MagicMock()
         mock_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_factory.adapter = MagicMock()
-        
+
         proposal = ActionProposal(
             action="test_creation",
             reason="Testing needed",
         )
         mock_factory.adapter.run = AsyncMock(return_value=proposal)
-        
+
         # Execute node with auto-select
         result = await agent_decision_node(
             state,
@@ -691,7 +691,7 @@ class TestRoleSelectionIntegration:
             role_selector=multi_role_selector,
             auto_select_role=True,
         )
-        
+
         # Verify role is stored in context
         updated_state = merge_state_update(state, result)
         assert updated_state.context.agent_role == "qa"
@@ -713,29 +713,29 @@ class TestRoleSelectionIntegration:
             status=WorkflowStatus(state="PENDING"),
             context=dev_context,
         )
-        
+
         # Setup mock factory for developer
         dev_factory = MagicMock(spec=AgentFactory)
         dev_agent = MagicMock()
         dev_factory.get_or_create_agent = AsyncMock(return_value=dev_agent)
         dev_factory.adapter = MagicMock()
-        
+
         dev_proposal = ActionProposal(
             action="code_implementation",
             reason="Feature requested",
         )
         dev_factory.adapter.run = AsyncMock(return_value=dev_proposal)
-        
+
         # Execute for developer
         dev_result = await agent_decision_node(
             dev_state,
             dev_factory,
             role_selector=multi_role_selector,
         )
-        
+
         dev_updated = merge_state_update(dev_state, dev_result)
         assert dev_updated.current_proposal.action == "code_implementation"
-        
+
         # Test with QA role
         qa_context = ExecutionContext(
             task_description="Test feature",
@@ -747,25 +747,25 @@ class TestRoleSelectionIntegration:
             status=WorkflowStatus(state="PENDING"),
             context=qa_context,
         )
-        
+
         # Setup mock factory for QA
         qa_factory = MagicMock(spec=AgentFactory)
         qa_agent = MagicMock()
         qa_factory.get_or_create_agent = AsyncMock(return_value=qa_agent)
         qa_factory.adapter = MagicMock()
-        
+
         qa_proposal = ActionProposal(
             action="test_execution",
             reason="Testing needed",
         )
         qa_factory.adapter.run = AsyncMock(return_value=qa_proposal)
-        
+
         # Execute for QA
         qa_result = await agent_decision_node(
             qa_state,
             qa_factory,
             role_selector=multi_role_selector,
         )
-        
+
         qa_updated = merge_state_update(qa_state, qa_result)
         assert qa_updated.current_proposal.action == "test_execution"

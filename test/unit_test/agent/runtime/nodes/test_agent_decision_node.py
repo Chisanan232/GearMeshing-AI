@@ -129,10 +129,10 @@ class TestAgentDecisionNode:
 
         # Execute node - should return failed status
         result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
-        
+
         # Merge state update
         updated_state = merge_state_update(workflow_state, result)
-        
+
         # Verify error state
         assert updated_state.status.state == "FAILED"
         assert "Invalid proposal type" in updated_state.status.message

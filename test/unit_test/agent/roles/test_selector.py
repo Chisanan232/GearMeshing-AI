@@ -8,9 +8,10 @@ Tests for RoleSelector including:
 """
 
 import pytest
-from gearmeshing_ai.agent.roles.selector import RoleSelector
-from gearmeshing_ai.agent.roles.registry import RoleRegistry
+
 from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
+from gearmeshing_ai.agent.roles.registry import RoleRegistry
+from gearmeshing_ai.agent.roles.selector import RoleSelector
 
 
 @pytest.fixture

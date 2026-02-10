@@ -7,14 +7,14 @@ Tests for RoleLoader including:
 - Role registration with registry
 """
 
-import pytest
 import tempfile
 from pathlib import Path
+
+import pytest
 import yaml
 
 from gearmeshing_ai.agent.roles.loader import RoleLoader, load_default_roles
 from gearmeshing_ai.agent.roles.registry import RoleRegistry
-from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition
 
 
 @pytest.fixture

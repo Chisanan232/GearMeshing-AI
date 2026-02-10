@@ -7,19 +7,20 @@ Tests for complete roles package functionality including:
 - Multi-role workflows
 """
 
-import pytest
 import tempfile
 from pathlib import Path
+from unittest.mock import AsyncMock, Mock
+
+import pytest
 import yaml
 
-from gearmeshing_ai.agent.roles.service import RoleService
-from gearmeshing_ai.agent.roles.loader import load_default_roles
-from gearmeshing_ai.agent.roles.selector import RoleSelector
-from gearmeshing_ai.agent.roles.registry import RoleRegistry
-from gearmeshing_ai.agent.abstraction.factory import AgentFactory
 from gearmeshing_ai.agent.abstraction.adapter import AgentAdapter
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
 from gearmeshing_ai.agent.models.actions import ActionProposal
-from unittest.mock import Mock, AsyncMock, MagicMock
+from gearmeshing_ai.agent.roles.loader import load_default_roles
+from gearmeshing_ai.agent.roles.registry import RoleRegistry
+from gearmeshing_ai.agent.roles.selector import RoleSelector
+from gearmeshing_ai.agent.roles.service import RoleService
 
 
 @pytest.fixture
@@ -219,7 +220,7 @@ class TestRolesIntegration:
     def test_role_registry_persistence_across_operations(self, temp_config_file):
         """Test that role registry persists across multiple operations."""
         from gearmeshing_ai.agent.roles.loader import RoleLoader
-        
+
         registry = RoleRegistry()
         loader = RoleLoader(registry)
         service = RoleService(registry=registry, loader=loader)
@@ -358,7 +359,7 @@ class TestRolesIntegration:
         assert original_role.description == "Senior Software Developer"
 
         # Create updated role with same name
-        from gearmeshing_ai.agent.roles.models.role_definition import RoleMetadata, RoleDefinition
+        from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
 
         metadata = RoleMetadata(
             domain="software_development",

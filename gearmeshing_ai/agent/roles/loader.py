@@ -36,12 +36,12 @@ roles:
       model: "gpt-4"
     system_prompt: |
       You are a senior software developer...
-      
+
       Your expertise includes:
       - Full-stack development
       - Software design patterns
       - Testing and debugging
-      
+
       Your responsibilities:
       1. Implement features
       2. Write clean code
@@ -159,7 +159,6 @@ except ValueError as e:
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
@@ -176,11 +175,12 @@ class RoleLoader:
     Automatically registers loaded roles with a registry.
     """
 
-    def __init__(self, registry: Optional[RoleRegistry] = None) -> None:
+    def __init__(self, registry: RoleRegistry | None = None) -> None:
         """Initialize role loader.
 
         Args:
             registry: RoleRegistry instance (uses global if not provided)
+
         """
         self.registry = registry or get_global_registry()
 
@@ -196,6 +196,7 @@ class RoleLoader:
         Raises:
             FileNotFoundError: If config file not found
             ValueError: If YAML parsing fails or roles invalid
+
         """
         config_path = Path(config_path)
 
@@ -206,7 +207,7 @@ class RoleLoader:
         logger.info(f"Loading roles from: {config_path}")
 
         try:
-            with open(config_path, "r") as f:
+            with open(config_path) as f:
                 config = yaml.safe_load(f)
         except yaml.YAMLError as e:
             msg = f"Failed to parse YAML configuration: {e}"
@@ -245,6 +246,7 @@ class RoleLoader:
 
         Raises:
             ValueError: If configuration invalid
+
         """
         if not config or "roles" not in config:
             msg = "Configuration must contain 'roles' key"
@@ -281,6 +283,7 @@ class RoleLoader:
         Raises:
             FileNotFoundError: If config file not found
             ValueError: If role not found or invalid
+
         """
         config_path = Path(config_path)
 
@@ -288,7 +291,7 @@ class RoleLoader:
             msg = f"Configuration file not found: {config_path}"
             raise FileNotFoundError(msg)
 
-        with open(config_path, "r") as f:
+        with open(config_path) as f:
             config = yaml.safe_load(f)
 
         if not config or "roles" not in config:
@@ -311,7 +314,7 @@ class RoleLoader:
 
 
 # Global singleton instance
-_global_loader: Optional[RoleLoader] = None
+_global_loader: RoleLoader | None = None
 
 
 def get_global_loader() -> RoleLoader:
@@ -319,6 +322,7 @@ def get_global_loader() -> RoleLoader:
 
     Returns:
         Global RoleLoader instance
+
     """
     global _global_loader
     if _global_loader is None:
@@ -326,7 +330,7 @@ def get_global_loader() -> RoleLoader:
     return _global_loader
 
 
-def load_default_roles(config_path: Optional[str | Path] = None) -> list[RoleDefinition]:
+def load_default_roles(config_path: str | Path | None = None) -> list[RoleDefinition]:
     """Load default roles from configuration file.
 
     If config_path not provided, looks for default_roles_config.yaml
@@ -337,6 +341,7 @@ def load_default_roles(config_path: Optional[str | Path] = None) -> list[RoleDef
 
     Returns:
         List of loaded RoleDefinition instances
+
     """
     if config_path is None:
         # Use default location in roles package

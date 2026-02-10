@@ -8,8 +8,9 @@ Tests for RoleRegistry including:
 """
 
 import pytest
-from gearmeshing_ai.agent.roles.registry import RoleRegistry, get_global_registry
+
 from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
+from gearmeshing_ai.agent.roles.registry import RoleRegistry, get_global_registry
 
 
 @pytest.fixture

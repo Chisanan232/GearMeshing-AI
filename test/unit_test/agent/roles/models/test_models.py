@@ -8,6 +8,7 @@ Tests for RoleDefinition and RoleMetadata models including:
 """
 
 import pytest
+
 from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
 
 
@@ -128,7 +129,7 @@ class TestRoleDefinition:
 
     def test_to_agent_settings(self, sample_role):
         """Test converting RoleDefinition to AgentSettings."""
-        from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
+        from gearmeshing_ai.agent.abstraction.settings import AgentSettings
 
         agent_settings = sample_role.to_agent_settings()
 

@@ -65,12 +65,12 @@ role = RoleDefinition(
     model_name="gpt-4",
     customized_model_name="dev-gpt4",
     system_prompt=\"\"\"You are a Senior Software Developer...
-    
+
     Your expertise includes:
     - Full-stack web development
     - Software design patterns
     - Testing and debugging
-    
+
     Your responsibilities:
     1. Implement features according to specifications
     2. Write clean, maintainable code
@@ -142,6 +142,7 @@ class RoleMetadata(BaseModel):
         timeout_seconds: Timeout for agent execution
         cost_priority: Cost priority level (low, medium, high)
         additional_metadata: Any additional metadata
+
     """
 
     domain: str = Field(..., description="Domain/area of responsibility")
@@ -167,6 +168,7 @@ class RoleDefinition(BaseModel):
         system_prompt: System prompt for the agent
         tools: List of tool names available to this role
         metadata: Role metadata and configuration
+
     """
 
     role: str = Field(..., description="Unique role identifier")
@@ -183,6 +185,7 @@ class RoleDefinition(BaseModel):
 
         Returns:
             AgentSettings instance compatible with AgentFactory
+
         """
         from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
 
@@ -212,16 +215,17 @@ class RoleDefinition(BaseModel):
 
         Returns:
             RoleDefinition instance
+
         """
         # Extract metadata with required fields
         metadata_dict = data.get("metadata", {})
-        
+
         # Ensure required metadata fields are present
         if "domain" not in metadata_dict:
             raise ValueError("Metadata must contain 'domain' field")
         if "decision_authority" not in metadata_dict:
             raise ValueError("Metadata must contain 'decision_authority' field")
-        
+
         metadata = RoleMetadata(**metadata_dict)
 
         # Extract model settings

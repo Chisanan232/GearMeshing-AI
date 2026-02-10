@@ -7,14 +7,14 @@ Tests for RoleService including:
 - Role management operations
 """
 
-import pytest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock
 
-from gearmeshing_ai.agent.roles.service import RoleService, get_global_role_service
-from gearmeshing_ai.agent.roles.registry import RoleRegistry
+import pytest
+
 from gearmeshing_ai.agent.roles.loader import RoleLoader
-from gearmeshing_ai.agent.roles.selector import RoleSelector
 from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
+from gearmeshing_ai.agent.roles.registry import RoleRegistry
+from gearmeshing_ai.agent.roles.service import RoleService, get_global_role_service
 
 
 @pytest.fixture
@@ -334,6 +334,7 @@ class TestGlobalRoleService:
         """Test creating global service with factory."""
         # Clear any existing global instance first
         import gearmeshing_ai.agent.roles.service as service_module
+
         service_module._global_service = None
 
         service = get_global_role_service(mock_factory)

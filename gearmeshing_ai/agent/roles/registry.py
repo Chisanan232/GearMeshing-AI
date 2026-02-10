@@ -96,7 +96,6 @@ role = global_registry.get("dev")
 """
 
 import logging
-from typing import Optional
 
 from .models.role_definition import RoleDefinition
 
@@ -122,6 +121,7 @@ class RoleRegistry:
 
         Raises:
             ValueError: If role with same name already registered
+
         """
         if role.role in self._roles:
             logger.warning(f"Role '{role.role}' already registered, overwriting")
@@ -134,11 +134,12 @@ class RoleRegistry:
 
         Args:
             role_dict: Dictionary with role configuration
+
         """
         role = RoleDefinition.from_dict(role_dict)
         self.register(role)
 
-    def get(self, role_name: str) -> Optional[RoleDefinition]:
+    def get(self, role_name: str) -> RoleDefinition | None:
         """Get a role definition by name.
 
         Args:
@@ -146,6 +147,7 @@ class RoleRegistry:
 
         Returns:
             RoleDefinition if found, None otherwise
+
         """
         return self._roles.get(role_name)
 
@@ -160,6 +162,7 @@ class RoleRegistry:
 
         Raises:
             ValueError: If role not found
+
         """
         role = self.get(role_name)
         if not role:
@@ -175,6 +178,7 @@ class RoleRegistry:
 
         Returns:
             True if role exists, False otherwise
+
         """
         return role_name in self._roles
 
@@ -183,6 +187,7 @@ class RoleRegistry:
 
         Returns:
             List of role names
+
         """
         return list(self._roles.keys())
 
@@ -191,6 +196,7 @@ class RoleRegistry:
 
         Returns:
             List of RoleDefinition instances
+
         """
         return list(self._roles.values())
 
@@ -202,6 +208,7 @@ class RoleRegistry:
 
         Returns:
             List of RoleDefinition instances in the domain
+
         """
         return [role for role in self._roles.values() if role.metadata.domain == domain]
 
@@ -213,6 +220,7 @@ class RoleRegistry:
 
         Returns:
             List of RoleDefinition instances with that authority
+
         """
         return [role for role in self._roles.values() if authority in role.metadata.decision_authority]
 
@@ -235,7 +243,7 @@ class RoleRegistry:
 
 
 # Global singleton instance
-_global_registry: Optional[RoleRegistry] = None
+_global_registry: RoleRegistry | None = None
 
 
 def get_global_registry() -> RoleRegistry:
@@ -243,6 +251,7 @@ def get_global_registry() -> RoleRegistry:
 
     Returns:
         Global RoleRegistry instance
+
     """
     global _global_registry
     if _global_registry is None:

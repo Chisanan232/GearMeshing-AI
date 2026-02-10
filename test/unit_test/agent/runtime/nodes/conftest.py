@@ -1,12 +1,11 @@
 """Pytest configuration for agent runtime nodes tests."""
 
 import pytest
-from unittest.mock import MagicMock, AsyncMock
 
+import gearmeshing_ai.agent.roles.registry as registry_module
+from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
 from gearmeshing_ai.agent.roles.registry import RoleRegistry
 from gearmeshing_ai.agent.roles.selector import RoleSelector
-from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
-import gearmeshing_ai.agent.roles.registry as registry_module
 
 
 @pytest.fixture(autouse=True)
@@ -23,7 +22,7 @@ def reset_global_registry():
 def mock_role_registry():
     """Create a mock role registry with developer role registered."""
     registry = RoleRegistry()
-    
+
     # Register developer role
     metadata = RoleMetadata(
         domain="software_development",
@@ -39,7 +38,7 @@ def mock_role_registry():
         metadata=metadata,
     )
     registry.register(developer_role)
-    
+
     return registry
 
 

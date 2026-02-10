@@ -1,8 +1,9 @@
 """Pytest configuration for roles unit tests."""
 
 import pytest
-import gearmeshing_ai.agent.roles.registry as registry_module
+
 import gearmeshing_ai.agent.roles.loader as loader_module
+import gearmeshing_ai.agent.roles.registry as registry_module
 
 
 @pytest.fixture(autouse=True)

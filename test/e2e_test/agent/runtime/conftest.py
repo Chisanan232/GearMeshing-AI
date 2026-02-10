@@ -4,6 +4,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
+import gearmeshing_ai.agent.roles.loader as loader_module
+import gearmeshing_ai.agent.roles.registry as registry_module
+from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
+from gearmeshing_ai.agent.roles.registry import get_global_registry
 from gearmeshing_ai.agent.runtime.approval_manager import ApprovalManager
 from gearmeshing_ai.agent.runtime.capability_registry import CapabilityRegistry
 from gearmeshing_ai.agent.runtime.langgraph_workflow import create_agent_workflow
@@ -12,10 +16,6 @@ from test.e2e_test.agent.runtime.fixtures.mock_mcp_client import MockMCPClient
 from test.e2e_test.agent.runtime.fixtures.policy_configurator import PolicyConfigurator
 from test.e2e_test.agent.runtime.fixtures.test_model import HybridTestModel
 from test.e2e_test.agent.runtime.fixtures.workflow_executor import WorkflowExecutor
-from gearmeshing_ai.agent.roles.registry import get_global_registry
-from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
-import gearmeshing_ai.agent.roles.registry as registry_module
-import gearmeshing_ai.agent.roles.loader as loader_module
 
 
 @pytest.fixture(autouse=True)
@@ -24,10 +24,10 @@ def reset_and_register_roles():
     # Clear the global registry before each test
     registry_module._global_registry = None
     loader_module._global_loader = None
-    
+
     # Get the global registry and register required roles
     registry = get_global_registry()
-    
+
     # Define roles needed for E2E tests
     roles_data = {
         "developer": {
@@ -56,14 +56,14 @@ def reset_and_register_roles():
             "authority": "quality_assessment",
         },
     }
-    
+
     # Register roles
     for role_name, role_info in roles_data.items():
         metadata = RoleMetadata(
             domain=role_info["domain"],
             decision_authority=role_info["authority"],
         )
-        
+
         role = RoleDefinition(
             role=role_name,
             description=role_info["description"],
@@ -73,11 +73,11 @@ def reset_and_register_roles():
             system_prompt=f"You are a {role_name}...",
             metadata=metadata,
         )
-        
+
         registry.register(role)
-    
+
     yield
-    
+
     # Clean up after test
     registry_module._global_registry = None
     loader_module._global_loader = None

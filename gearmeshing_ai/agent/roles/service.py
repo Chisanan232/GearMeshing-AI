@@ -175,14 +175,14 @@ async def get_role(role_name: str):
 @app.post("/api/workflows")
 async def create_workflow(task: str, role: Optional[str] = None):
     service = get_global_role_service()
-    
+
     # Auto-select if not specified
     if not role:
         role = service.suggest_role(task)
-    
+
     if not role:
         return {"error": "Could not determine role"}
-    
+
     # Create workflow with role
     # ...
 ```
@@ -209,7 +209,6 @@ async def create_workflow(task: str, role: Optional[str] = None):
 """
 
 import logging
-from typing import Optional
 
 from gearmeshing_ai.agent.abstraction.factory import AgentFactory
 
@@ -233,9 +232,9 @@ class RoleService:
 
     def __init__(
         self,
-        agent_factory: Optional[AgentFactory] = None,
-        registry: Optional[RoleRegistry] = None,
-        loader: Optional[RoleLoader] = None,
+        agent_factory: AgentFactory | None = None,
+        registry: RoleRegistry | None = None,
+        loader: RoleLoader | None = None,
     ) -> None:
         """Initialize role service.
 
@@ -243,6 +242,7 @@ class RoleService:
             agent_factory: AgentFactory instance for registering roles
             registry: RoleRegistry instance (uses global if not provided)
             loader: RoleLoader instance (uses global if not provided)
+
         """
         self.agent_factory = agent_factory
         self.registry = registry or get_global_registry()
@@ -261,6 +261,7 @@ class RoleService:
         Raises:
             FileNotFoundError: If config file not found
             ValueError: If configuration invalid
+
         """
         logger.info(f"Loading and registering roles from: {config_path}")
 
@@ -282,6 +283,7 @@ class RoleService:
 
         Args:
             role: RoleDefinition instance to register
+
         """
         # Register with registry
         self.registry.register(role)
@@ -303,6 +305,7 @@ class RoleService:
 
         Raises:
             ValueError: If role not found
+
         """
         return self.registry.get_or_raise(role_name)
 
@@ -314,6 +317,7 @@ class RoleService:
 
         Returns:
             True if role exists, False otherwise
+
         """
         return self.selector.validate_role(role_name)
 
@@ -322,6 +326,7 @@ class RoleService:
 
         Returns:
             List of role names
+
         """
         return self.selector.list_available_roles()
 
@@ -336,10 +341,11 @@ class RoleService:
 
         Raises:
             ValueError: If role not found
+
         """
         return self.selector.get_role_info(role_name)
 
-    def suggest_role(self, task_description: str) -> Optional[str]:
+    def suggest_role(self, task_description: str) -> str | None:
         """Suggest a role based on task description.
 
         Args:
@@ -347,12 +353,11 @@ class RoleService:
 
         Returns:
             Suggested role name or None
+
         """
         return self.selector.suggest_role(task_description)
 
-    def get_role_for_task(
-        self, task_description: str, preferred_role: Optional[str] = None
-    ) -> str:
+    def get_role_for_task(self, task_description: str, preferred_role: str | None = None) -> str:
         """Get role for a task with optional preference.
 
         Args:
@@ -364,6 +369,7 @@ class RoleService:
 
         Raises:
             ValueError: If no valid role found
+
         """
         return self.selector.get_role_for_task(task_description, preferred_role)
 
@@ -375,6 +381,7 @@ class RoleService:
 
         Returns:
             List of role names in the domain
+
         """
         return self.selector.get_roles_by_domain(domain)
 
@@ -386,6 +393,7 @@ class RoleService:
 
         Returns:
             List of role names with that authority
+
         """
         return self.selector.get_roles_by_authority(authority)
 
@@ -395,10 +403,10 @@ class RoleService:
 
 
 # Global singleton instance
-_global_service: Optional[RoleService] = None
+_global_service: RoleService | None = None
 
 
-def get_global_role_service(agent_factory: Optional[AgentFactory] = None) -> RoleService:
+def get_global_role_service(agent_factory: AgentFactory | None = None) -> RoleService:
     """Get or create the global role service singleton.
 
     Args:
@@ -406,6 +414,7 @@ def get_global_role_service(agent_factory: Optional[AgentFactory] = None) -> Rol
 
     Returns:
         Global RoleService instance
+
     """
     global _global_service
     if _global_service is None:

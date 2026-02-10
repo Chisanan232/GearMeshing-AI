@@ -139,9 +139,7 @@ approval_roles = selector.get_roles_by_authority("code_approval")
 """
 
 import logging
-from typing import Optional
 
-from .models.role_definition import RoleDefinition
 from .registry import RoleRegistry, get_global_registry
 
 logger = logging.getLogger(__name__)
@@ -154,11 +152,12 @@ class RoleSelector:
     role validation, and role information retrieval.
     """
 
-    def __init__(self, registry: Optional[RoleRegistry] = None) -> None:
+    def __init__(self, registry: RoleRegistry | None = None) -> None:
         """Initialize role selector.
 
         Args:
             registry: RoleRegistry instance (uses global if not provided)
+
         """
         self.registry = registry or get_global_registry()
 
@@ -173,6 +172,7 @@ class RoleSelector:
 
         Raises:
             ValueError: If role not found
+
         """
         role = self.registry.get_or_raise(role_name)
 
@@ -197,6 +197,7 @@ class RoleSelector:
 
         Returns:
             True if role exists, False otherwise
+
         """
         return self.registry.exists(role_name)
 
@@ -205,10 +206,11 @@ class RoleSelector:
 
         Returns:
             List of role names
+
         """
         return self.registry.list_roles()
 
-    def suggest_role(self, task_description: str) -> Optional[str]:
+    def suggest_role(self, task_description: str) -> str | None:
         """Suggest a role based on task description keywords.
 
         Uses keyword matching to suggest appropriate role.
@@ -219,6 +221,7 @@ class RoleSelector:
 
         Returns:
             Suggested role name or None
+
         """
         task_lower = task_description.lower()
 
@@ -303,9 +306,7 @@ class RoleSelector:
         logger.debug(f"No role suggestion found for task: {task_description[:50]}...")
         return None
 
-    def get_role_for_task(
-        self, task_description: str, preferred_role: Optional[str] = None
-    ) -> str:
+    def get_role_for_task(self, task_description: str, preferred_role: str | None = None) -> str:
         """Get role for a task, with optional preference.
 
         If preferred_role is provided and valid, uses it.
@@ -320,6 +321,7 @@ class RoleSelector:
 
         Raises:
             ValueError: If no valid role found
+
         """
         # Use preferred role if provided and valid
         if preferred_role:
@@ -347,6 +349,7 @@ class RoleSelector:
 
         Returns:
             List of role names in the domain
+
         """
         roles = self.registry.get_roles_by_domain(domain)
         return [role.role for role in roles]
@@ -359,6 +362,7 @@ class RoleSelector:
 
         Returns:
             List of role names with that authority
+
         """
         roles = self.registry.get_roles_by_authority(authority)
         return [role.role for role in roles]
