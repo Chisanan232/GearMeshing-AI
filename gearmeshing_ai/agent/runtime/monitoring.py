@@ -6,8 +6,9 @@ workflow execution, including metrics collection and LangSmith integration.
 
 import logging
 import time
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable
+from typing import Any
 
 from gearmeshing_ai.agent.runtime.models import WorkflowState
 
@@ -66,12 +67,14 @@ class WorkflowMetrics:
             error: Exception that occurred
 
         """
-        self.errors.append({
-            "node": node_name,
-            "error_type": type(error).__name__,
-            "error_message": str(error),
-            "timestamp": datetime.utcnow().isoformat(),
-        })
+        self.errors.append(
+            {
+                "node": node_name,
+                "error_type": type(error).__name__,
+                "error_message": str(error),
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        )
         logger.warning(f"Error in {node_name}: {error}")
 
     def finalize(self) -> None:
@@ -134,14 +137,8 @@ class WorkflowMetrics:
             "end_time": self.end_time.isoformat() if self.end_time else None,
             "total_duration_seconds": self.get_total_duration(),
             "node_counts": self.node_counts,
-            "node_average_times": {
-                node: self.get_node_average_time(node)
-                for node in self.node_timings.keys()
-            },
-            "node_total_times": {
-                node: self.get_node_total_time(node)
-                for node in self.node_timings.keys()
-            },
+            "node_average_times": {node: self.get_node_average_time(node) for node in self.node_timings.keys()},
+            "node_total_times": {node: self.get_node_total_time(node) for node in self.node_timings.keys()},
             "error_count": len(self.errors),
             "errors": self.errors,
         }

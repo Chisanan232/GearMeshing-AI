@@ -292,7 +292,7 @@ class ResourcePool:
         if self.available_resources:
             resource = self.available_resources.pop()
             self.in_use_resources.append(resource)
-            logger.debug(f"Acquired resource from pool")
+            logger.debug("Acquired resource from pool")
             return resource
 
         if len(self.in_use_resources) < self.max_resources:
@@ -315,7 +315,7 @@ class ResourcePool:
         if resource in self.in_use_resources:
             self.in_use_resources.remove(resource)
             self.available_resources.append(resource)
-            logger.debug(f"Released resource to pool")
+            logger.debug("Released resource to pool")
 
     def get_stats(self) -> dict[str, Any]:
         """Get resource pool statistics.

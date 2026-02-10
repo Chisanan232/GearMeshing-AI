@@ -10,8 +10,8 @@ from typing import Any
 from gearmeshing_ai.agent.models.actions import MCPToolInfo
 
 from .approval_manager import ApprovalManager, ApprovalRequest, ApprovalStatus
+from .models import ExecutionContext
 from .policy_engine import PolicyEngine
-from .models import ExecutionContext, WorkflowState
 
 logger = logging.getLogger(__name__)
 
@@ -137,10 +137,12 @@ class HITLCoordinator:
         interventions = []
         for intervention_id, intervention in self.pending_interventions.items():
             if intervention.get("run_id") == run_id:
-                interventions.append({
-                    "intervention_id": intervention_id,
-                    **intervention,
-                })
+                interventions.append(
+                    {
+                        "intervention_id": intervention_id,
+                        **intervention,
+                    }
+                )
 
         logger.debug(f"Found {len(interventions)} pending interventions for run {run_id}")
         return interventions

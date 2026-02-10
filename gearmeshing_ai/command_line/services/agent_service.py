@@ -8,6 +8,7 @@ from gearmeshing_ai.core.utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
+
 class AgentCLIService:
     """Service to handle the core logic of running agents from the CLI."""
 
@@ -27,11 +28,7 @@ class AgentCLIService:
     async def initialize_agent(self, agent_id: str, provider: str, model: str) -> None:
         """Registers settings and initializes the agent configuration."""
         # 1. Register Model Settings
-        model_settings = ModelSettings(
-            customized_name=f"cli-{provider}-{model}",
-            provider=provider,
-            model=model
-        )
+        model_settings = ModelSettings(customized_name=f"cli-{provider}-{model}", provider=provider, model=model)
         self.factory.register_model_settings(model_settings)
 
         # 2. Register Agent Settings
@@ -41,10 +38,10 @@ class AgentCLIService:
             role=agent_id,
             description="CLI Agent",
             model_settings=model_settings,
-            system_prompt="You are a helpful AI assistant running in a CLI environment."
+            system_prompt="You are a helpful AI assistant running in a CLI environment.",
         )
         self.factory.register_agent_settings(agent_settings)
-        
+
         # Ensure agent can be created (warmup)
         await self.factory.get_or_create_agent(agent_id)
 
@@ -67,7 +64,7 @@ class AgentCLIService:
             "model": model,
             "description": description,
             "config_file": config_file,
-            "status": "created"
+            "status": "created",
         }
 
     def stop_agent(self, agent_id: str, force: bool) -> bool:
@@ -78,11 +75,7 @@ class AgentCLIService:
     def get_agent_status(self, agent_id: str, detailed: bool) -> dict:
         """Retrieve the status of an agent."""
         # TODO: Implement actual status retrieval
-        return {
-            "id": agent_id,
-            "status": "idle",
-            "detailed_info": {} if detailed else None
-        }
+        return {"id": agent_id, "status": "idle", "detailed_info": {} if detailed else None}
 
     def delete_agent(self, agent_id: str) -> bool:
         """Delete an agent configuration."""
