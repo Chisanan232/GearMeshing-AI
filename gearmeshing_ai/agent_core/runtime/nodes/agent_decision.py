@@ -58,39 +58,29 @@ async def agent_decision_node(
         logger.info(f"Agent proposal obtained: action={proposal.action}, reason={proposal.reason}")
 
         # Update state with new proposal
-        updated_state = state.model_copy(
-            update={
-                "current_proposal": proposal,
-                "status": WorkflowStatus(
-                    state="PROPOSAL_OBTAINED",
-                    message=f"Agent proposed action: {proposal.action}",
-                ),
-            }
-        )
-
-        return {"state": updated_state}
+        return {
+            "current_proposal": proposal,
+            "status": WorkflowStatus(
+                state="PROPOSAL_OBTAINED",
+                message=f"Agent proposed action: {proposal.action}",
+            ),
+        }
 
     except ValueError as e:
         logger.error(f"ValueError in agent decision: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Agent decision failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return {
+            "status": WorkflowStatus(
+                state="FAILED",
+                message="Agent decision failed",
+                error=str(e),
+            ),
+        }
     except RuntimeError as e:
         logger.error(f"RuntimeError in agent decision: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Agent execution failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return {
+            "status": WorkflowStatus(
+                state="FAILED",
+                message="Agent execution failed",
+                error=str(e),
+            ),
+        }

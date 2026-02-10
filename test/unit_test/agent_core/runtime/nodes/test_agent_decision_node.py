@@ -17,6 +17,8 @@ from gearmeshing_ai.agent_core.runtime.workflow_state import (
     WorkflowStatus,
 )
 
+from ..conftest import merge_state_update
+
 
 @pytest.fixture
 def workflow_state() -> WorkflowState:
@@ -67,9 +69,10 @@ class TestAgentDecisionNode:
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)
 
+        # Merge state update (simulating LangGraph behavior)
+        updated_state = merge_state_update(workflow_state, result)
+
         # Verify
-        assert "state" in result
-        updated_state = result["state"]
         assert updated_state.current_proposal is not None
         assert updated_state.current_proposal.action == "run_tests"
         assert updated_state.status.state == "PROPOSAL_OBTAINED"
@@ -95,6 +98,9 @@ class TestAgentDecisionNode:
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)
 
+        # Merge state update
+        updated_state = merge_state_update(workflow_state, result)
+
         # Verify agent was called with correct role
         mock_agent_factory.get_or_create_agent.assert_called_once_with("developer")
 
@@ -102,6 +108,9 @@ class TestAgentDecisionNode:
         mock_agent_factory.adapter.run.assert_called_once()
         call_args = mock_agent_factory.adapter.run.call_args
         assert call_args[0][1] == "Run unit tests"
+        
+        # Verify proposal was set
+        assert updated_state.current_proposal is not None
 
     @pytest.mark.asyncio
     async def test_agent_decision_node_invalid_proposal_type(
@@ -132,8 +141,10 @@ class TestAgentDecisionNode:
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)
 
+        # Merge state update
+        updated_state = merge_state_update(workflow_state, result)
+
         # Verify error state
-        updated_state = result["state"]
         assert updated_state.status.state == "FAILED"
         assert updated_state.status.error is not None
         assert "Agent role not found" in updated_state.status.error
@@ -153,8 +164,10 @@ class TestAgentDecisionNode:
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)
 
+        # Merge state update
+        updated_state = merge_state_update(workflow_state, result)
+
         # Verify error state
-        updated_state = result["state"]
         assert updated_state.status.state == "FAILED"
         assert updated_state.status.error is not None
         assert "Agent execution failed" in updated_state.status.error
@@ -179,8 +192,10 @@ class TestAgentDecisionNode:
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)
 
+        # Merge state update
+        updated_state = merge_state_update(workflow_state, result)
+
         # Verify run_id preserved
-        updated_state = result["state"]
         assert updated_state.run_id == "run_123"
 
     @pytest.mark.asyncio
@@ -203,8 +218,10 @@ class TestAgentDecisionNode:
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)
 
+        # Merge state update
+        updated_state = merge_state_update(workflow_state, result)
+
         # Verify context preserved
-        updated_state = result["state"]
         assert updated_state.context.task_description == "Run unit tests"
         assert updated_state.context.agent_role == "developer"
         assert updated_state.context.user_id == "user_123"
@@ -231,8 +248,10 @@ class TestAgentDecisionNode:
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)
 
+        # Merge state update
+        updated_state = merge_state_update(workflow_state, result)
+
         # Verify proposal details
-        updated_state = result["state"]
         assert updated_state.current_proposal.parameters == {
             "test_type": "unit",
             "coverage": True,
@@ -259,7 +278,9 @@ class TestAgentDecisionNode:
         # Execute node
         result = await agent_decision_node(workflow_state, mock_agent_factory)
 
+        # Merge state update
+        updated_state = merge_state_update(workflow_state, result)
+
         # Verify status message
-        updated_state = result["state"]
         assert "deploy_app" in updated_state.status.message
         assert "Agent proposed action" in updated_state.status.message
