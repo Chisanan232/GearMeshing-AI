@@ -10,7 +10,7 @@ from typing import Any
 from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
 from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog, MCPToolInfo
 
-from .workflow_state import ExecutionContext, WorkflowState
+from .models import ExecutionContext, WorkflowState
 
 logger = logging.getLogger(__name__)
 

@@ -11,9 +11,7 @@ from typing import Any
 
 from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalManager
 from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine
-from gearmeshing_ai.agent_core.runtime.workflow_state import WorkflowState, WorkflowStatus
-from ..node_returns import ApprovalWorkflowNodeReturn, ApprovalResolutionNodeReturn
-from ..workflow_states import WorkflowStateEnum
+from gearmeshing_ai.agent_core.runtime.models import WorkflowState, WorkflowStatus, WorkflowStateEnum, ApprovalWorkflowNodeReturn, ApprovalResolutionNodeReturn
 
 logger = logging.getLogger(__name__)
 

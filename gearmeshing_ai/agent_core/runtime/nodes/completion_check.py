@@ -10,9 +10,7 @@ and maintainability.
 import logging
 from typing import Any
 
-from ..node_returns import CompletionCheckNodeReturn
-from ..workflow_state import WorkflowState, WorkflowStatus
-from ..workflow_states import WorkflowStateEnum, COMPLETION_STATES
+from ..models import CompletionCheckNodeReturn, WorkflowState, WorkflowStatus, WorkflowStateEnum, COMPLETION_STATES
 
 logger = logging.getLogger(__name__)
 

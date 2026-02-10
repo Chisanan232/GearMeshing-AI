@@ -10,9 +10,7 @@ import logging
 from typing import Any
 
 from ..capability_registry import CapabilityRegistry
-from ..node_returns import CapabilityDiscoveryNodeReturn
-from ..workflow_state import WorkflowState, WorkflowStatus
-from ..workflow_states import WorkflowStateEnum
+from ..models import CapabilityDiscoveryNodeReturn, WorkflowState, WorkflowStatus, WorkflowStateEnum
 
 logger = logging.getLogger(__name__)
 

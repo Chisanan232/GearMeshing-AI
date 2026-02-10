@@ -12,9 +12,7 @@ from typing import Any
 from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
 from gearmeshing_ai.agent_core.models.actions import ActionProposal
 
-from ..node_returns import AgentDecisionNodeReturn
-from ..workflow_state import WorkflowState, WorkflowStatus
-from ..workflow_states import WorkflowStateEnum
+from ..models import AgentDecisionNodeReturn, WorkflowState, WorkflowStatus, WorkflowStateEnum
 
 logger = logging.getLogger(__name__)
 

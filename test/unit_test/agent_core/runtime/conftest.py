@@ -1,6 +1,6 @@
 """Shared fixtures and utilities for runtime unit tests."""
 
-from gearmeshing_ai.agent_core.runtime.workflow_state import WorkflowState
+from gearmeshing_ai.agent_core.runtime.models import WorkflowState
 
 
 def merge_state_update(state: WorkflowState, update: dict) -> WorkflowState:

@@ -304,7 +304,7 @@ from .nodes import (
     result_processing_node,
 )
 from .policy_engine import PolicyEngine
-from .workflow_state import WorkflowState
+from .models import WorkflowState
 
 logger = logging.getLogger(__name__)
 

@@ -14,7 +14,7 @@ from gearmeshing_ai.agent_core.runtime.approval_manager import (
     ApprovalRequest,
     ApprovalStatus,
 )
-from gearmeshing_ai.agent_core.runtime.workflow_state import ExecutionContext
+from gearmeshing_ai.agent_core.runtime.models import ExecutionContext
 
 
 @pytest.fixture
