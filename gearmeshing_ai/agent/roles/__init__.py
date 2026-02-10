@@ -179,3 +179,16 @@ service.register_role(role)
 - `service`: RoleService high-level API
 - `config/default_roles_config.yaml`: Default role definitions
 """
+
+from .models.role_definition import RoleDefinition, RoleMetadata
+from .registry import RoleRegistry
+from .selector import RoleSelector
+from .service import RoleService
+
+__all__ = [
+    "RoleDefinition",
+    "RoleMetadata",
+    "RoleRegistry",
+    "RoleSelector",
+    "RoleService",
+]
