@@ -1,5 +1,5 @@
 """
-Smoke tests for the agent_core.abstraction module that call real AI models.
+Smoke tests for the agent.abstraction module that call real AI models.
 
 These tests focus specifically on verifying the abstraction layer works with
 real AI model calls. Non-AI tests are moved to unit tests.

@@ -185,7 +185,7 @@ class TestApplicationHealthChecker:
         result = checker.check_health()
 
         assert result.details is not None
-        expected_components = ["restapi", "agent_core", "core"]
+        expected_components = ["restapi", "agent", "core"]
         for component in expected_components:
             assert component in result.details["components"]
 
