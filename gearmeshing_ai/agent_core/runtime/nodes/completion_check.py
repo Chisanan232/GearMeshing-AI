@@ -34,41 +34,32 @@ async def completion_check_node(
         current_status = state.status.state
 
         # Determine if workflow is complete
-        completion_states = {"RESULTS_PROCESSED", "POLICY_REJECTED", "ERROR_HANDLED"}
+        completion_states = {"RESULTS_PROCESSED", "POLICY_REJECTED", "ERROR_HANDLED", "APPROVAL_RESOLVED"}
         is_complete = current_status in completion_states
 
         if is_complete:
             logger.info(f"Workflow completed for run_id={state.run_id}, final_state={current_status}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="COMPLETED",
-                        message=f"Workflow completed with state: {current_status}",
-                    ),
-                }
-            )
+            return {
+                "status": WorkflowStatus(
+                    state="COMPLETED",
+                    message=f"Workflow completed with state: {current_status}",
+                ),
+            }
         else:
             logger.debug(f"Workflow continuing for run_id={state.run_id}, current_state={current_status}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="CONTINUING",
-                        message=f"Workflow continuing from state: {current_status}",
-                    ),
-                }
-            )
-
-        return {"state": updated_state}
+            return {
+                "status": WorkflowStatus(
+                    state="CONTINUING",
+                    message=f"Workflow continuing from state: {current_status}",
+                ),
+            }
 
     except Exception as e:
         logger.error(f"Exception in completion check: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Completion check failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return {
+            "status": WorkflowStatus(
+                state="FAILED",
+                message="Completion check failed",
+                error=str(e),
+            ),
+        }

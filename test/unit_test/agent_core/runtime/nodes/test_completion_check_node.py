@@ -5,6 +5,8 @@ Tests cover completion detection, state transitions, and workflow continuation l
 
 import pytest
 
+from ..conftest import merge_state_update
+
 from gearmeshing_ai.agent_core.runtime.nodes.completion_check import completion_check_node
 from gearmeshing_ai.agent_core.runtime.workflow_state import (
     ExecutionContext,
@@ -40,8 +42,7 @@ class TestCompletionCheckNode:
         state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="RESULTS_PROCESSED")})
 
         result = await completion_check_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "COMPLETED"
 
     @pytest.mark.asyncio
@@ -53,8 +54,7 @@ class TestCompletionCheckNode:
         state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="POLICY_REJECTED")})
 
         result = await completion_check_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "COMPLETED"
 
     @pytest.mark.asyncio
@@ -66,8 +66,7 @@ class TestCompletionCheckNode:
         state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="ERROR_HANDLED")})
 
         result = await completion_check_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "COMPLETED"
 
     @pytest.mark.asyncio
@@ -79,8 +78,7 @@ class TestCompletionCheckNode:
         state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="PROPOSAL_OBTAINED")})
 
         result = await completion_check_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "CONTINUING"
 
     @pytest.mark.asyncio
@@ -92,8 +90,7 @@ class TestCompletionCheckNode:
         state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="RESULTS_PROCESSED")})
 
         result = await completion_check_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.run_id == "run_123"
 
     @pytest.mark.asyncio
@@ -105,8 +102,7 @@ class TestCompletionCheckNode:
         state = workflow_state_base.model_copy(update={"status": WorkflowStatus(state="RESULTS_PROCESSED")})
 
         result = await completion_check_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.context.agent_role == "developer"
         assert updated_state.context.user_id == "user_123"
 
@@ -126,7 +122,6 @@ class TestCompletionCheckNode:
         )
 
         result = await completion_check_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         # Completion check should mark as COMPLETED even with error
         assert updated_state.status.state == "COMPLETED"
