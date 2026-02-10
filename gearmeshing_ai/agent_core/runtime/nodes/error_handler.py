@@ -9,7 +9,7 @@ Uses typed return models and centralized workflow state enums for type safety.
 import logging
 from typing import Any
 
-from ..models import ErrorHandlerNodeReturn, WorkflowState, WorkflowStatus, WorkflowStateEnum
+from ..models import ErrorHandlerNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 

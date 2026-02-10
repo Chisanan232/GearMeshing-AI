@@ -9,7 +9,7 @@ Uses typed return models and centralized workflow state enums for type safety.
 import logging
 from typing import Any
 
-from ..models import PolicyValidationNodeReturn, WorkflowState, WorkflowStatus, WorkflowStateEnum
+from ..models import PolicyValidationNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -58,14 +58,13 @@ async def policy_validation_node(
                     message=policy_message,
                 ),
             ).to_dict()
-        else:
-            logger.warning(f"Proposal rejected by policy: {proposal.action}")
-            return PolicyValidationNodeReturn(
-                status=WorkflowStatus(
-                    state=WorkflowStateEnum.POLICY_REJECTED.value,
-                    message=f"Proposal rejected: {proposal.action}",
-                ),
-            ).to_dict()
+        logger.warning(f"Proposal rejected by policy: {proposal.action}")
+        return PolicyValidationNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.POLICY_REJECTED.value,
+                message=f"Proposal rejected: {proposal.action}",
+            ),
+        ).to_dict()
 
     except ValueError as e:
         logger.error(f"ValueError in policy validation: {e}")

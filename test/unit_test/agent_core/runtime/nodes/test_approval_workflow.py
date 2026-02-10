@@ -3,22 +3,22 @@
 Tests cover approval workflow, approval resolution, and state management.
 """
 
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 
 from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
-from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalManager, ApprovalStatus
-from gearmeshing_ai.agent_core.runtime.nodes.approval_workflow import (
-    approval_resolution_node,
-    approval_workflow_node,
-)
-from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine
+from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalManager
 from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
+from gearmeshing_ai.agent_core.runtime.nodes.approval_workflow import (
+    approval_resolution_node,
+    approval_workflow_node,
+)
+from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine
 
 from ..conftest import merge_state_update
 

@@ -5,14 +5,14 @@ Tests cover error logging, state transitions, and error record management.
 
 import pytest
 
-from ..conftest import merge_state_update
-
-from gearmeshing_ai.agent_core.runtime.nodes.error_handler import error_handler_node
 from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
+from gearmeshing_ai.agent_core.runtime.nodes.error_handler import error_handler_node
+
+from ..conftest import merge_state_update
 
 
 @pytest.fixture

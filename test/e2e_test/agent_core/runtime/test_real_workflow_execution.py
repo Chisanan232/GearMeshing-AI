@@ -38,7 +38,7 @@ class TestSimpleTasks:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test simple read file task.
-        
+
         Scenario: User asks agent to read a file and explain its contents.
         Expected: Workflow completes successfully, proposal is generated.
         """
@@ -80,7 +80,7 @@ class TestSimpleTasks:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test code analysis task.
-        
+
         Scenario: User asks agent to analyze code and suggest improvements.
         Expected: Workflow completes successfully, proposal is generated.
         """
@@ -131,7 +131,7 @@ class TestApprovalWorkflows:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test deployment with approval requirement.
-        
+
         Scenario: User requests production deployment. Policy requires approval.
         Expected: Workflow completes successfully with deployment proposal.
         """
@@ -174,7 +174,7 @@ class TestApprovalWorkflows:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test database backup with approval.
-        
+
         Scenario: User requests database backup. Policy requires approval.
         Expected: Workflow completes successfully with backup proposal.
         """
@@ -217,14 +217,14 @@ class TestApprovalWorkflows:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test approval workflow with explicit AWAITING_APPROVAL terminal state.
-        
+
         Scenario: Workflow reaches AWAITING_APPROVAL state and waits for user decision.
         Expected: Workflow pauses at approval terminal point, proposal is generated,
                  and workflow completes after approval handling.
         """
         # Configure policy to require approval
         policy_configurator.configure_deployment_with_approval()
-        
+
         # Disable auto-approval to test explicit waiting
         approval_simulator.set_auto_approve(False)
 
@@ -249,16 +249,16 @@ class TestApprovalWorkflows:
         assert final_state.run_id == "test_approval_wait_001", "Run ID should match initial state"
         assert final_state.context.agent_role == "devops", "Agent role should be devops"
         assert final_state.context.user_id == "devops_user_approval", "User ID should be preserved"
-        
+
         # Verify: Proposal should be generated for the deployment
         assert final_state.current_proposal is not None, "Proposal should be generated for deployment"
         assert final_state.current_proposal.action is not None, "Proposal action should be set"
         assert final_state.current_proposal.reason is not None, "Proposal should have a reason"
-        
+
         # Verify: Workflow status should indicate completion
         assert final_state.status.state == "COMPLETED", "Workflow should complete after approval handling"
         assert final_state.status.message is not None, "Status should have a completion message"
-        
+
         # Verify: Approval simulator should have tracked approval requests
         # (even if approvals list in state is empty, the simulator tracks them)
         approval_history = approval_simulator.get_approval_history()
@@ -274,13 +274,13 @@ class TestApprovalWorkflows:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test approval workflow when user rejects the proposal.
-        
+
         Scenario: Workflow reaches AWAITING_APPROVAL state, user rejects the proposal.
         Expected: Workflow handles rejection gracefully and completes.
         """
         # Configure policy to require approval
         policy_configurator.configure_deployment_with_approval()
-        
+
         # Disable auto-approval to test explicit rejection
         approval_simulator.set_auto_approve(False)
 
@@ -304,11 +304,11 @@ class TestApprovalWorkflows:
         workflow_executor.assert_workflow_completed()
         assert final_state.run_id == "test_approval_reject_001", "Run ID should match initial state"
         assert final_state.context.agent_role == "devops", "Agent role should be devops"
-        
+
         # Verify: Proposal should be generated
         assert final_state.current_proposal is not None, "Proposal should be generated"
         assert final_state.current_proposal.action is not None, "Proposal action should be set"
-        
+
         # Verify: Workflow should complete
         assert final_state.status.state == "COMPLETED", "Workflow should complete with rejection handling"
         assert final_state.status.message is not None, "Status should have a completion message"
@@ -331,7 +331,7 @@ class TestPolicyEnforcement:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test delete operation blocked by policy.
-        
+
         Scenario: User requests file deletion. Policy denies delete operations.
         Expected: Workflow completes, proposal is generated.
         """
@@ -371,7 +371,7 @@ class TestPolicyEnforcement:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test unauthorized role access.
-        
+
         Scenario: Developer tries to deploy to production. Policy only allows devops/admin.
         Expected: Workflow completes, proposal is generated.
         """
@@ -420,7 +420,7 @@ class TestComplexWorkflows:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test multi-step refactoring task.
-        
+
         Scenario: User requests code refactoring with multiple steps.
         Expected: Workflow completes successfully.
         """
@@ -461,7 +461,7 @@ class TestComplexWorkflows:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test feature development task.
-        
+
         Scenario: User requests new feature development.
         Expected: Workflow completes successfully.
         """
@@ -511,7 +511,7 @@ class TestErrorHandling:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test tool execution failure recovery.
-        
+
         Scenario: Tool execution fails but workflow handles it gracefully.
         Expected: Workflow completes with error handling.
         """
@@ -552,7 +552,7 @@ class TestErrorHandling:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test approval timeout handling.
-        
+
         Scenario: Approval request times out.
         Expected: Workflow handles timeout gracefully.
         """
@@ -601,7 +601,7 @@ class TestRoleBasedAccess:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test admin full access.
-        
+
         Scenario: Admin user has full access to all operations.
         Expected: Workflow completes successfully.
         """
@@ -643,7 +643,7 @@ class TestRoleBasedAccess:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test developer limited access.
-        
+
         Scenario: Developer user has limited access.
         Expected: Workflow completes successfully.
         """
@@ -694,7 +694,7 @@ class TestExecutionLimits:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test execution within limits.
-        
+
         Scenario: Workflow executes within configured limits.
         Expected: Workflow completes successfully.
         """
@@ -735,7 +735,7 @@ class TestExecutionLimits:
         workflow_executor: "WorkflowExecutor",
     ) -> None:
         """Test execution limit exceeded.
-        
+
         Scenario: Workflow attempts to exceed configured limits.
         Expected: Workflow completes with limit enforcement.
         """

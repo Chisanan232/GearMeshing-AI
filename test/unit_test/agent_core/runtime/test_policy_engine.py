@@ -6,16 +6,16 @@ Tests cover tool policies, approval policies, safety policies, and policy enforc
 import pytest
 
 from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
+from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
+    ExecutionContext,
+    WorkflowState,
+    WorkflowStatus,
+)
 from gearmeshing_ai.agent_core.runtime.policy_engine import (
     ApprovalPolicy,
     PolicyEngine,
     SafetyPolicy,
     ToolPolicy,
-)
-from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
-    ExecutionContext,
-    WorkflowState,
-    WorkflowStatus,
 )
 
 
@@ -272,9 +272,7 @@ class TestPolicyEngine:
         execution_context: ExecutionContext,
     ) -> None:
         """Test tool access validation when denied."""
-        engine = PolicyEngine(
-            tool_policy=ToolPolicy(denied_tools=["run_tests"])
-        )
+        engine = PolicyEngine(tool_policy=ToolPolicy(denied_tools=["run_tests"]))
 
         allowed, reason = engine.validate_tool_access(sample_tool, execution_context)
 
@@ -283,9 +281,7 @@ class TestPolicyEngine:
 
     def test_policy_engine_requires_approval(self, sample_tool: MCPToolInfo) -> None:
         """Test approval requirement check."""
-        engine = PolicyEngine(
-            approval_policy=ApprovalPolicy(require_approval_for_all=True)
-        )
+        engine = PolicyEngine(approval_policy=ApprovalPolicy(require_approval_for_all=True))
 
         assert engine.requires_approval(sample_tool) is True
 
@@ -316,9 +312,7 @@ class TestPolicyEngine:
         workflow_state: WorkflowState,
     ) -> None:
         """Test workflow state validation with denied role."""
-        engine = PolicyEngine(
-            safety_policy=SafetyPolicy(allowed_roles=["admin"])
-        )
+        engine = PolicyEngine(safety_policy=SafetyPolicy(allowed_roles=["admin"]))
 
         valid, reason = engine.validate_workflow_state(workflow_state)
 

@@ -12,7 +12,7 @@ of string literals when setting workflow status.
 
 Example:
     from gearmeshing_ai.agent_core.runtime.models.workflow_state import WorkflowStateEnum
-    
+
     status = WorkflowStatus(
         state=WorkflowStateEnum.COMPLETED.value,
         message="Workflow completed"
@@ -305,6 +305,7 @@ E2E Tests:
     - Test complete state lifecycle
     - Test with real data
     - Test large state handling
+
 """
 
 from datetime import datetime

@@ -386,7 +386,7 @@ from uuid import uuid4
 
 from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
 
-from .models import ExecutionContext, WorkflowState
+from .models import ExecutionContext
 
 logger = logging.getLogger(__name__)
 

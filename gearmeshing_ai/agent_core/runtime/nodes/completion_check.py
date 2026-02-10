@@ -10,7 +10,7 @@ and maintainability.
 import logging
 from typing import Any
 
-from ..models import CompletionCheckNodeReturn, WorkflowState, WorkflowStatus, WorkflowStateEnum, COMPLETION_STATES
+from ..models import COMPLETION_STATES, CompletionCheckNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -54,14 +54,13 @@ async def completion_check_node(
                     message=f"Workflow completed with state: {current_status}",
                 ),
             ).to_dict()
-        else:
-            logger.debug(f"Workflow continuing for run_id={state.run_id}, current_state={current_status}")
-            return CompletionCheckNodeReturn(
-                status=WorkflowStatus(
-                    state=WorkflowStateEnum.CONTINUING.value,
-                    message=f"Workflow continuing from state: {current_status}",
-                ),
-            ).to_dict()
+        logger.debug(f"Workflow continuing for run_id={state.run_id}, current_state={current_status}")
+        return CompletionCheckNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.CONTINUING.value,
+                message=f"Workflow continuing from state: {current_status}",
+            ),
+        ).to_dict()
 
     except Exception as e:
         logger.error(f"Exception in completion check: {e}")

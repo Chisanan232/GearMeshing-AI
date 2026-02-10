@@ -176,9 +176,7 @@ class CapabilityRegistry:
             filtered_catalog = MCPToolCatalog(tools=filtered_tools)
 
             # Update state with available capabilities
-            updated_state = state.model_copy(
-                update={"available_capabilities": filtered_catalog}
-            )
+            updated_state = state.model_copy(update={"available_capabilities": filtered_catalog})
 
             logger.info(f"Updated workflow state with {len(filtered_tools)} capabilities")
 

@@ -54,16 +54,17 @@ Each return type is a Pydantic model that:
 - Serializes to dict for LangGraph compatibility
 """
 
-from typing import Any, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
-from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog, ActionProposal
+from gearmeshing_ai.agent_core.models.actions import ActionProposal, MCPToolCatalog
 from gearmeshing_ai.agent_core.runtime.models.workflow_state import WorkflowStatus
 
 
 class NodeReturnBase(BaseModel):
     """Base class for all node return types.
-    
+
     Provides common functionality for node returns:
     - Validation of field types
     - Conversion to dict for LangGraph
@@ -72,235 +73,202 @@ class NodeReturnBase(BaseModel):
 
     class Config:
         """Pydantic config for node returns."""
+
         arbitrary_types_allowed = True
         extra = "forbid"  # Prevent accidental extra fields
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for LangGraph state update.
-        
+
         Returns:
             Dictionary with only non-None fields (for partial updates).
             Pydantic models are kept as objects, not converted to dicts.
+
         """
-        return {
-            field_name: field_value
-            for field_name, field_value in self
-            if field_value is not None
-        }
+        return {field_name: field_value for field_name, field_value in self if field_value is not None}
 
 
 class CapabilityDiscoveryNodeReturn(NodeReturnBase):
     """Return type for capability_discovery_node.
-    
+
     This node discovers available capabilities from MCP servers.
-    
+
     Fields:
         available_capabilities: Discovered tool catalog
         status: Updated workflow status
-    
+
     Example:
         return CapabilityDiscoveryNodeReturn(
             available_capabilities=catalog,
             status=WorkflowStatus(state="CAPABILITY_DISCOVERY_COMPLETE", ...),
         )
+
     """
 
-    available_capabilities: Optional[MCPToolCatalog] = Field(
-        default=None,
-        description="Discovered tool catalog from MCP servers"
+    available_capabilities: MCPToolCatalog | None = Field(
+        default=None, description="Discovered tool catalog from MCP servers"
     )
-    status: WorkflowStatus = Field(
-        description="Updated workflow status after capability discovery"
-    )
+    status: WorkflowStatus = Field(description="Updated workflow status after capability discovery")
 
 
 class AgentDecisionNodeReturn(NodeReturnBase):
     """Return type for agent_decision_node.
-    
+
     This node generates an agent proposal for the next action.
-    
+
     Fields:
         current_proposal: Agent's proposed action
         status: Updated workflow status
         decisions: List of decision records (appended to state)
-    
+
     Example:
         return AgentDecisionNodeReturn(
             current_proposal=proposal,
             status=WorkflowStatus(state="PROPOSAL_OBTAINED", ...),
         )
+
     """
 
-    current_proposal: Optional[ActionProposal] = Field(
-        default=None,
-        description="Agent's proposed action"
-    )
-    status: WorkflowStatus = Field(
-        description="Updated workflow status after agent decision"
-    )
-    decisions: Optional[list[dict[str, Any]]] = Field(
-        default=None,
-        description="Decision records to append to history"
-    )
+    current_proposal: ActionProposal | None = Field(default=None, description="Agent's proposed action")
+    status: WorkflowStatus = Field(description="Updated workflow status after agent decision")
+    decisions: list[dict[str, Any]] | None = Field(default=None, description="Decision records to append to history")
 
 
 class PolicyValidationNodeReturn(NodeReturnBase):
     """Return type for policy_validation_node.
-    
+
     This node validates the agent proposal against policies.
-    
+
     Fields:
         status: Updated workflow status (POLICY_APPROVED or POLICY_REJECTED)
-    
+
     Example:
         return PolicyValidationNodeReturn(
             status=WorkflowStatus(state="POLICY_APPROVED", ...),
         )
+
     """
 
-    status: WorkflowStatus = Field(
-        description="Updated workflow status after policy validation"
-    )
+    status: WorkflowStatus = Field(description="Updated workflow status after policy validation")
 
 
 class ApprovalCheckNodeReturn(NodeReturnBase):
     """Return type for approval_check_node.
-    
+
     This node determines if approval is required for the proposal.
-    
+
     Fields:
         status: Updated workflow status
         approvals: Approval records if approval is required
-    
+
     Example:
         return ApprovalCheckNodeReturn(
             status=WorkflowStatus(state="APPROVAL_REQUIRED", ...),
             approvals=[approval_record],
         )
+
     """
 
-    status: WorkflowStatus = Field(
-        description="Updated workflow status after approval check"
-    )
-    approvals: Optional[list[dict[str, Any]]] = Field(
-        default=None,
-        description="Approval records if approval is required"
-    )
+    status: WorkflowStatus = Field(description="Updated workflow status after approval check")
+    approvals: list[dict[str, Any]] | None = Field(default=None, description="Approval records if approval is required")
 
 
 class ApprovalWorkflowNodeReturn(NodeReturnBase):
     """Return type for approval_workflow_node.
-    
+
     This node manages the approval workflow.
-    
+
     Fields:
         status: Updated workflow status
         approvals: Updated approval records
-    
+
     Example:
         return ApprovalWorkflowNodeReturn(
             status=WorkflowStatus(state="APPROVAL_COMPLETE", ...),
         )
+
     """
 
-    status: WorkflowStatus = Field(
-        description="Updated workflow status after approval workflow"
-    )
-    approvals: Optional[list[dict[str, Any]]] = Field(
-        default=None,
-        description="Updated approval records"
-    )
+    status: WorkflowStatus = Field(description="Updated workflow status after approval workflow")
+    approvals: list[dict[str, Any]] | None = Field(default=None, description="Updated approval records")
 
 
 class ResultProcessingNodeReturn(NodeReturnBase):
     """Return type for result_processing_node.
-    
+
     This node processes execution results.
-    
+
     Fields:
         status: Updated workflow status
         executions: Execution records
-    
+
     Example:
         return ResultProcessingNodeReturn(
             status=WorkflowStatus(state="RESULTS_PROCESSED", ...),
         )
+
     """
 
-    status: WorkflowStatus = Field(
-        description="Updated workflow status after result processing"
-    )
-    executions: Optional[list[dict[str, Any]]] = Field(
-        default=None,
-        description="Execution records"
-    )
+    status: WorkflowStatus = Field(description="Updated workflow status after result processing")
+    executions: list[dict[str, Any]] | None = Field(default=None, description="Execution records")
 
 
 class CompletionCheckNodeReturn(NodeReturnBase):
     """Return type for completion_check_node.
-    
+
     This node determines if the workflow is complete.
-    
+
     Fields:
         status: Updated workflow status (COMPLETED or CONTINUING)
-    
+
     Example:
         return CompletionCheckNodeReturn(
             status=WorkflowStatus(state="COMPLETED", ...),
         )
+
     """
 
-    status: WorkflowStatus = Field(
-        description="Updated workflow status after completion check"
-    )
+    status: WorkflowStatus = Field(description="Updated workflow status after completion check")
 
 
 class ErrorHandlerNodeReturn(NodeReturnBase):
     """Return type for error_handler_node.
-    
+
     This node handles workflow errors.
-    
+
     Fields:
         status: Updated workflow status (ERROR_HANDLED or FAILED)
         executions: Updated execution records
-    
+
     Example:
         return ErrorHandlerNodeReturn(
             status=WorkflowStatus(state="ERROR_HANDLED", ...),
         )
+
     """
 
-    status: WorkflowStatus = Field(
-        description="Updated workflow status after error handling"
-    )
-    executions: Optional[list[dict[str, Any]]] = Field(
-        default=None,
-        description="Updated execution records"
-    )
+    status: WorkflowStatus = Field(description="Updated workflow status after error handling")
+    executions: list[dict[str, Any]] | None = Field(default=None, description="Updated execution records")
 
 
 class ApprovalResolutionNodeReturn(NodeReturnBase):
     """Return type for approval_resolution_node.
-    
+
     This node resolves pending approvals.
-    
+
     Fields:
         status: Updated workflow status
         approvals: Resolved approval records
-    
+
     Example:
         return ApprovalResolutionNodeReturn(
             status=WorkflowStatus(state="APPROVAL_RESOLVED", ...),
         )
+
     """
 
-    status: WorkflowStatus = Field(
-        description="Updated workflow status after approval resolution"
-    )
-    approvals: Optional[list[dict[str, Any]]] = Field(
-        default=None,
-        description="Resolved approval records"
-    )
+    status: WorkflowStatus = Field(description="Updated workflow status after approval resolution")
+    approvals: list[dict[str, Any]] | None = Field(default=None, description="Resolved approval records")
 
 
 # Type alias for any node return

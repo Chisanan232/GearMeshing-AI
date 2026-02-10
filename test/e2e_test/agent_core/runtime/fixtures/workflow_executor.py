@@ -1,7 +1,7 @@
 """WorkflowExecutor fixture for E2E tests - executes and tracks workflow."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from gearmeshing_ai.agent_core.runtime.models import WorkflowState
 
@@ -13,7 +13,7 @@ class WorkflowExecutor:
         """Initialize workflow executor."""
         self.workflow = workflow
         self.approval_manager = approval_manager
-        self.execution_history: List[Dict[str, Any]] = []
+        self.execution_history: list[dict[str, Any]] = []
 
     async def execute(self, initial_state: WorkflowState) -> WorkflowState:
         """Execute workflow and return final state."""
@@ -51,7 +51,7 @@ class WorkflowExecutor:
             )
             raise
 
-    def get_execution_history(self) -> List[Dict[str, Any]]:
+    def get_execution_history(self) -> list[dict[str, Any]]:
         """Get execution history."""
         return self.execution_history
 
@@ -63,10 +63,9 @@ class WorkflowExecutor:
         last = self.execution_history[-1]
         if "final_state" in last:
             return last["final_state"]
-        else:
-            raise RuntimeError(f"Last execution failed: {last['error']}")
+        raise RuntimeError(f"Last execution failed: {last['error']}")
 
-    def get_last_error(self) -> Optional[str]:
+    def get_last_error(self) -> str | None:
         """Get error from last execution."""
         if not self.execution_history:
             return None
@@ -87,7 +86,7 @@ class WorkflowExecutor:
         if not last["success"]:
             raise AssertionError(f"Workflow failed: {last['error']}")
 
-    def assert_workflow_failed(self, error_type: Optional[type] = None) -> None:
+    def assert_workflow_failed(self, error_type: type | None = None) -> None:
         """Assert workflow failed."""
         if not self.execution_history:
             raise AssertionError("Workflow not executed")
@@ -99,19 +98,13 @@ class WorkflowExecutor:
         if error_type:
             error_str = last["error"]
             if error_type.__name__ not in error_str:
-                raise AssertionError(
-                    f"Expected {error_type.__name__}, got {error_str}"
-                )
+                raise AssertionError(f"Expected {error_type.__name__}, got {error_str}")
 
     def assert_final_state(self, state: str) -> None:
         """Assert final workflow state."""
         final_state = self.get_final_state()
-        assert final_state.status.state == state, (
-            f"Expected state {state}, got {final_state.status.state}"
-        )
+        assert final_state.status.state == state, f"Expected state {state}, got {final_state.status.state}"
 
     def assert_execution_count(self, count: int) -> None:
         """Assert number of executions."""
-        assert len(self.execution_history) == count, (
-            f"Expected {count} executions, got {len(self.execution_history)}"
-        )
+        assert len(self.execution_history) == count, f"Expected {count} executions, got {len(self.execution_history)}"

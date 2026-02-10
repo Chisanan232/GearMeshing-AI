@@ -9,7 +9,7 @@ Uses typed return models and centralized workflow state enums for type safety.
 import logging
 from typing import Any
 
-from ..models import ApprovalCheckNodeReturn, WorkflowState, WorkflowStatus, WorkflowStateEnum
+from ..models import ApprovalCheckNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -55,14 +55,13 @@ async def approval_check_node(
                     message=f"Awaiting approval for: {proposal.action}",
                 ),
             ).to_dict()
-        else:
-            logger.info(f"No approval required for action: {proposal.action}")
-            return ApprovalCheckNodeReturn(
-                status=WorkflowStatus(
-                    state=WorkflowStateEnum.APPROVAL_SKIPPED.value,
-                    message=f"Proceeding without approval: {proposal.action}",
-                ),
-            ).to_dict()
+        logger.info(f"No approval required for action: {proposal.action}")
+        return ApprovalCheckNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.APPROVAL_SKIPPED.value,
+                message=f"Proceeding without approval: {proposal.action}",
+            ),
+        ).to_dict()
 
     except ValueError as e:
         logger.error(f"ValueError in approval check: {e}")

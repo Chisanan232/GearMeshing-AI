@@ -16,8 +16,8 @@ from .result_processing import result_processing_node
 __all__ = [
     "agent_decision_node",
     "approval_check_node",
-    "approval_workflow_node",
     "approval_resolution_node",
+    "approval_workflow_node",
     "capability_discovery_node",
     "completion_check_node",
     "error_handler_node",

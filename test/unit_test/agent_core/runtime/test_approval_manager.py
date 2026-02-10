@@ -4,7 +4,6 @@ Tests cover approval creation, tracking, resolution, and lifecycle management.
 """
 
 from datetime import datetime, timedelta
-from unittest.mock import patch
 
 import pytest
 

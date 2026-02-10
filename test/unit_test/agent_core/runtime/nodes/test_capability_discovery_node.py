@@ -7,16 +7,16 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from ..conftest import merge_state_update
-
 from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog, MCPToolInfo
 from gearmeshing_ai.agent_core.runtime.capability_registry import CapabilityRegistry
-from gearmeshing_ai.agent_core.runtime.nodes.capability_discovery import capability_discovery_node
 from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
+from gearmeshing_ai.agent_core.runtime.nodes.capability_discovery import capability_discovery_node
+
+from ..conftest import merge_state_update
 
 
 @pytest.fixture
@@ -159,9 +159,7 @@ class TestCapabilityDiscoveryNode:
     ) -> None:
         """Test capability discovery node error handling."""
         # Setup mock to raise error
-        mock_capability_registry.update_workflow_state = AsyncMock(
-            side_effect=RuntimeError("Discovery failed")
-        )
+        mock_capability_registry.update_workflow_state = AsyncMock(side_effect=RuntimeError("Discovery failed"))
 
         result = await capability_discovery_node(workflow_state_base, mock_capability_registry)
 

@@ -9,7 +9,7 @@ Uses typed return models and centralized workflow state enums for type safety.
 import logging
 from typing import Any
 
-from ..models import ResultProcessingNodeReturn, WorkflowState, WorkflowStatus, WorkflowStateEnum
+from ..models import ResultProcessingNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -56,14 +56,13 @@ async def result_processing_node(
                     error=latest_execution.get("error"),
                 ),
             ).to_dict()
-        else:
-            logger.info(f"Execution succeeded: {latest_execution.get('action')}")
-            return ResultProcessingNodeReturn(
-                status=WorkflowStatus(
-                    state=WorkflowStateEnum.RESULTS_PROCESSED.value,
-                    message=f"Results processed for action: {latest_execution.get('action')}",
-                ),
-            ).to_dict()
+        logger.info(f"Execution succeeded: {latest_execution.get('action')}")
+        return ResultProcessingNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.RESULTS_PROCESSED.value,
+                message=f"Results processed for action: {latest_execution.get('action')}",
+            ),
+        ).to_dict()
 
     except Exception as e:
         logger.error(f"Exception in result processing: {e}")

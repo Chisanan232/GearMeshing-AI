@@ -3,7 +3,6 @@
 import asyncio
 import time
 from datetime import datetime
-from typing import Dict, List, Optional
 
 from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalRequest
 
@@ -13,11 +12,11 @@ class ApprovalSimulator:
 
     def __init__(self):
         """Initialize approval simulator."""
-        self.pending_approvals: Dict[str, ApprovalRequest] = {}
+        self.pending_approvals: dict[str, ApprovalRequest] = {}
         self.auto_approve = False
         self.approval_delay = 0.0
-        self.rejection_on_approval: Dict[str, Exception] = {}
-        self.approval_history: List[Dict] = []
+        self.rejection_on_approval: dict[str, Exception] = {}
+        self.approval_history: list[dict] = []
 
     async def create_approval_request(self, approval_request: ApprovalRequest) -> str:
         """Create approval request."""
@@ -58,9 +57,7 @@ class ApprovalSimulator:
             "timestamp": datetime.now().isoformat(),
         }
 
-    async def wait_for_approval(
-        self, approval_id: str, timeout: int = 3600
-    ) -> dict:
+    async def wait_for_approval(self, approval_id: str, timeout: int = 3600) -> dict:
         """Wait for approval (with timeout)."""
         start_time = time.time()
 
@@ -77,9 +74,7 @@ class ApprovalSimulator:
             await asyncio.sleep(0.1)
 
         # Timeout
-        raise TimeoutError(
-            f"Approval {approval_id} timed out after {timeout}s"
-        )
+        raise TimeoutError(f"Approval {approval_id} timed out after {timeout}s")
 
     def set_auto_approve(self, auto_approve: bool = True) -> None:
         """Enable/disable auto-approval."""
@@ -93,11 +88,11 @@ class ApprovalSimulator:
         """Configure approval to be rejected."""
         self.rejection_on_approval[approval_id] = error
 
-    def get_pending_approvals(self) -> List[ApprovalRequest]:
+    def get_pending_approvals(self) -> list[ApprovalRequest]:
         """Get list of pending approvals."""
         return list(self.pending_approvals.values())
 
-    def get_approval_history(self) -> List[Dict]:
+    def get_approval_history(self) -> list[dict]:
         """Get approval history."""
         return self.approval_history
 
@@ -105,15 +100,13 @@ class ApprovalSimulator:
         """Clear approval history."""
         self.approval_history = []
 
-    def assert_approval_requested(self, tool_name: Optional[str] = None) -> None:
+    def assert_approval_requested(self, tool_name: str | None = None) -> None:
         """Assert approval was requested."""
         if not self.pending_approvals and not self.approval_history:
             raise AssertionError("No approvals requested")
 
         if tool_name:
-            all_approvals = list(self.pending_approvals.values()) + [
-                a for a in self.approval_history
-            ]
+            all_approvals = list(self.pending_approvals.values()) + [a for a in self.approval_history]
             for approval in all_approvals:
                 if tool_name in str(approval):
                     return
@@ -122,6 +115,4 @@ class ApprovalSimulator:
     def assert_approval_count(self, count: int) -> None:
         """Assert specific number of approvals requested."""
         total = len(self.pending_approvals) + len(self.approval_history)
-        assert total == count, (
-            f"Expected {count} approvals, got {total}"
-        )
+        assert total == count, f"Expected {count} approvals, got {total}"

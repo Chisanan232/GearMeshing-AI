@@ -16,11 +16,11 @@ Complete 9-Node Workflow:
     policy_validation
         ├─ REJECTED → error_handler → END
         └─ APPROVED ↓
-    
+
     approval_check
         ├─ REQUIRED → approval_workflow ↓
         └─ NOT_REQUIRED ↓
-    
+
     result_processing
             ↓
     completion_check
@@ -158,13 +158,13 @@ AGENT_DECISION_COMPLETE
 POLICY_VALIDATED / POLICY_REJECTED
     ├─ POLICY_REJECTED → ERROR
     └─ POLICY_VALIDATED ↓
-    
+
 APPROVAL_REQUIRED / NO_APPROVAL_NEEDED
     ├─ APPROVAL_REQUIRED → AWAITING_APPROVAL
     │   ├─ APPROVAL_COMPLETE
     │   └─ APPROVAL_REJECTED → ERROR
     └─ NO_APPROVAL_NEEDED ↓
-    
+
 RESULT_PROCESSING_COMPLETE
     ↓
 TASK_COMPLETE / TASK_INCOMPLETE
@@ -292,6 +292,7 @@ from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
 
 from .approval_manager import ApprovalManager
 from .capability_registry import CapabilityRegistry
+from .models import WorkflowState
 from .nodes import (
     agent_decision_node,
     approval_check_node,
@@ -304,7 +305,6 @@ from .nodes import (
     result_processing_node,
 )
 from .policy_engine import PolicyEngine
-from .models import WorkflowState
 
 logger = logging.getLogger(__name__)
 

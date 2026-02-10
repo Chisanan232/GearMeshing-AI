@@ -298,9 +298,7 @@ class TestCapabilityRegistry:
         mock_mcp_client: MagicMock,
     ) -> None:
         """Test error handling in capability discovery."""
-        mock_mcp_client.discover_tools_for_agent = AsyncMock(
-            side_effect=RuntimeError("Discovery failed")
-        )
+        mock_mcp_client.discover_tools_for_agent = AsyncMock(side_effect=RuntimeError("Discovery failed"))
         registry = CapabilityRegistry(mock_mcp_client)
 
         with pytest.raises(RuntimeError):
@@ -313,9 +311,7 @@ class TestCapabilityRegistry:
         execution_context: ExecutionContext,
     ) -> None:
         """Test error handling in capability filtering."""
-        mock_mcp_client.discover_tools_for_agent = AsyncMock(
-            side_effect=RuntimeError("Discovery failed")
-        )
+        mock_mcp_client.discover_tools_for_agent = AsyncMock(side_effect=RuntimeError("Discovery failed"))
         registry = CapabilityRegistry(mock_mcp_client)
 
         filtered = await registry.filter_capabilities(execution_context)
@@ -329,9 +325,7 @@ class TestCapabilityRegistry:
         workflow_state: WorkflowState,
     ) -> None:
         """Test error handling in workflow state update."""
-        mock_mcp_client.discover_tools_for_agent = AsyncMock(
-            side_effect=RuntimeError("Discovery failed")
-        )
+        mock_mcp_client.discover_tools_for_agent = AsyncMock(side_effect=RuntimeError("Discovery failed"))
         registry = CapabilityRegistry(mock_mcp_client)
 
         updated_state = await registry.update_workflow_state(workflow_state)

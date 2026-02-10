@@ -10,12 +10,12 @@ import pytest
 
 from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
 from gearmeshing_ai.agent_core.models.actions import ActionProposal
-from gearmeshing_ai.agent_core.runtime.nodes.agent_decision import agent_decision_node
 from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
+from gearmeshing_ai.agent_core.runtime.nodes.agent_decision import agent_decision_node
 
 from ..conftest import merge_state_update
 
@@ -108,7 +108,7 @@ class TestAgentDecisionNode:
         mock_agent_factory.adapter.run.assert_called_once()
         call_args = mock_agent_factory.adapter.run.call_args
         assert call_args[0][1] == "Run unit tests"
-        
+
         # Verify proposal was set
         assert updated_state.current_proposal is not None
 

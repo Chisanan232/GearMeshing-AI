@@ -5,14 +5,14 @@ Tests cover completion detection, state transitions, and workflow continuation l
 
 import pytest
 
-from ..conftest import merge_state_update
-
-from gearmeshing_ai.agent_core.runtime.nodes.completion_check import completion_check_node
 from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
+from gearmeshing_ai.agent_core.runtime.nodes.completion_check import completion_check_node
+
+from ..conftest import merge_state_update
 
 
 @pytest.fixture

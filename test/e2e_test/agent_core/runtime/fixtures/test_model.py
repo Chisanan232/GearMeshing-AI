@@ -1,7 +1,7 @@
 """TestModel fixture for E2E tests - simulates AI agent decision making."""
 
 import os
-from typing import Optional
+
 from gearmeshing_ai.agent_core.models.actions import ActionProposal
 
 

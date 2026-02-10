@@ -215,7 +215,7 @@ Example 3: Role-Based Policy
             read_only=False,
             max_executions=100,
         )
-    
+
     For role="admin":
         ToolPolicy(
             allowed_tools=None,
@@ -315,7 +315,6 @@ E2E Tests:
 """
 
 import logging
-from typing import Any
 
 from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
 

@@ -5,7 +5,7 @@ testing real-world usage patterns and feature combinations.
 """
 
 from typing import TYPE_CHECKING
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
@@ -14,12 +14,12 @@ from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
 from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalManager
 from gearmeshing_ai.agent_core.runtime.capability_registry import CapabilityRegistry
 from gearmeshing_ai.agent_core.runtime.langgraph_workflow import create_agent_workflow
-from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine, ToolPolicy
 from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
+from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine, ToolPolicy
 
 if TYPE_CHECKING:
     pass
@@ -63,7 +63,7 @@ class TestE2EWorkflowCreation:
     ) -> None:
         """Test workflow creation with all components."""
         registry = CapabilityRegistry(mock_mcp_client)
-        
+
         workflow = create_agent_workflow(
             mock_agent_factory,
             mock_mcp_client,
@@ -121,7 +121,7 @@ class TestE2EWorkflowStateManagement:
             user_id="user_123",
         )
         status = WorkflowStatus(state="PENDING")
-        
+
         state = WorkflowState(
             run_id="run_001",
             status=status,
@@ -143,7 +143,7 @@ class TestE2EWorkflowStateManagement:
                 "version": "1.0.0",
             },
         )
-        
+
         state = WorkflowState(
             run_id="run_002",
             status=WorkflowStatus(state="RUNNING"),
@@ -260,7 +260,7 @@ class TestE2EWorkflowIntegration:
             agent_role="developer",
             user_id="dev_user",
         )
-        
+
         state = WorkflowState(
             run_id="e2e_simple_001",
             status=WorkflowStatus(state="PENDING"),
@@ -268,7 +268,7 @@ class TestE2EWorkflowIntegration:
         )
 
         workflow = create_agent_workflow(mock_agent_factory, mock_mcp_client)
-        
+
         # Verify: Workflow should be created and context preserved
         assert workflow is not None, "Workflow should be created successfully"
         assert hasattr(workflow, "ainvoke"), "Workflow should have ainvoke method"
@@ -294,7 +294,7 @@ class TestE2EWorkflowIntegration:
                 "estimated_time": "30 minutes",
             },
         )
-        
+
         state = WorkflowState(
             run_id="e2e_complex_001",
             status=WorkflowStatus(state="PENDING"),
@@ -302,7 +302,7 @@ class TestE2EWorkflowIntegration:
         )
 
         workflow = create_agent_workflow(mock_agent_factory, mock_mcp_client)
-        
+
         # Verify: Complex context with metadata should be preserved
         assert workflow is not None, "Workflow should be created successfully"
         assert hasattr(workflow, "ainvoke"), "Workflow should have ainvoke method"
@@ -319,14 +319,14 @@ class TestE2EWorkflowIntegration:
     ) -> None:
         """Test workflow with different agent roles."""
         roles = ["developer", "devops", "admin", "security"]
-        
+
         for role in roles:
             context = ExecutionContext(
                 task_description=f"Task for {role}",
                 agent_role=role,
                 user_id=f"user_{role}",
             )
-            
+
             state = WorkflowState(
                 run_id=f"e2e_role_{role}",
                 status=WorkflowStatus(state="PENDING"),
@@ -334,7 +334,7 @@ class TestE2EWorkflowIntegration:
             )
 
             workflow = create_agent_workflow(mock_agent_factory, mock_mcp_client)
-            
+
             # Verify: Each role should be properly handled
             assert workflow is not None, f"Workflow should be created for {role} role"
             assert hasattr(workflow, "ainvoke"), "Workflow should have ainvoke method"
@@ -362,7 +362,7 @@ class TestE2EWorkflowIntegration:
             agent_role="devops",
             user_id="devops_user",
         )
-        
+
         state = WorkflowState(
             run_id="e2e_policy_approval_001",
             status=WorkflowStatus(state="PENDING"),
@@ -405,7 +405,7 @@ class TestE2EErrorHandling:
             agent_role="",
             user_id="",
         )
-        
+
         state = WorkflowState(
             run_id="e2e_error_001",
             status=WorkflowStatus(state="PENDING"),
@@ -413,7 +413,7 @@ class TestE2EErrorHandling:
         )
 
         workflow = create_agent_workflow(mock_agent_factory, mock_mcp_client)
-        
+
         # Verify: Workflow should handle invalid context gracefully
         assert workflow is not None, "Workflow should be created even with invalid context"
         assert hasattr(workflow, "ainvoke"), "Workflow should have ainvoke method"
@@ -434,7 +434,7 @@ class TestE2EErrorHandling:
             agent_role="developer",
             user_id="user_error",
         )
-        
+
         state = WorkflowState(
             run_id="e2e_error_002",
             status=WorkflowStatus(
@@ -445,7 +445,7 @@ class TestE2EErrorHandling:
         )
 
         workflow = create_agent_workflow(mock_agent_factory, mock_mcp_client)
-        
+
         # Verify: Workflow should handle error status properly
         assert workflow is not None, "Workflow should be created with error state"
         assert hasattr(workflow, "ainvoke"), "Workflow should have ainvoke method"
@@ -465,7 +465,7 @@ class TestE2EWorkflowFeatures:
     ) -> None:
         """Test workflow supports capability discovery."""
         registry = CapabilityRegistry(mock_mcp_client)
-        
+
         workflow = create_agent_workflow(
             mock_agent_factory,
             mock_mcp_client,
@@ -485,7 +485,7 @@ class TestE2EWorkflowFeatures:
     ) -> None:
         """Test workflow supports policy validation."""
         policy_engine = PolicyEngine()
-        
+
         workflow = create_agent_workflow(
             mock_agent_factory,
             mock_mcp_client,
@@ -506,7 +506,7 @@ class TestE2EWorkflowFeatures:
     ) -> None:
         """Test workflow supports approval workflow."""
         approval_manager = ApprovalManager()
-        
+
         workflow = create_agent_workflow(
             mock_agent_factory,
             mock_mcp_client,
@@ -528,7 +528,7 @@ class TestE2EWorkflowFeatures:
         registry = CapabilityRegistry(mock_mcp_client)
         policy_engine = PolicyEngine()
         approval_manager = ApprovalManager()
-        
+
         workflow = create_agent_workflow(
             mock_agent_factory,
             mock_mcp_client,

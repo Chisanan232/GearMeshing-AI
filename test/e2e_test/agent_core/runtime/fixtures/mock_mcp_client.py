@@ -2,7 +2,8 @@
 
 import asyncio
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
+
 from pydantic import BaseModel
 
 from gearmeshing_ai.agent_core.models.actions import ActionProposal
@@ -10,9 +11,10 @@ from gearmeshing_ai.agent_core.models.actions import ActionProposal
 
 class ToolMetadata(BaseModel):
     """Simple tool metadata model."""
+
     name: str
     description: str
-    input_schema: Dict[str, Any]
+    input_schema: dict[str, Any]
 
 
 class MockMCPClient:
@@ -31,8 +33,8 @@ class MockMCPClient:
             "delete_file": self._delete_file,
             "backup_database": self._backup_database,
         }
-        self.call_history: List[Dict[str, Any]] = []
-        self.error_on_tool: Dict[str, Exception] = {}
+        self.call_history: list[dict[str, Any]] = []
+        self.error_on_tool: dict[str, Exception] = {}
         self.response_delay = 0.0
 
     async def execute_proposed_tool(self, proposal: ActionProposal) -> dict:
@@ -146,7 +148,7 @@ class MockMCPClient:
             "timestamp": datetime.now().isoformat(),
         }
 
-    async def discover_tools_for_agent(self, agent_role: str) -> List[ToolMetadata]:
+    async def discover_tools_for_agent(self, agent_role: str) -> list[ToolMetadata]:
         """Discover available tools for agent role."""
         # Return all available tools as ToolMetadata
         tools = [
@@ -158,7 +160,10 @@ class MockMCPClient:
             ToolMetadata(
                 name="file_write",
                 description="Write to file",
-                input_schema={"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}},
+                input_schema={
+                    "type": "object",
+                    "properties": {"path": {"type": "string"}, "content": {"type": "string"}},
+                },
             ),
             ToolMetadata(
                 name="run_command",
@@ -206,7 +211,7 @@ class MockMCPClient:
         """Set delay before tool response."""
         self.response_delay = delay
 
-    def get_call_history(self, tool_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_call_history(self, tool_name: str | None = None) -> list[dict[str, Any]]:
         """Get call history for tool."""
         if tool_name:
             return [c for c in self.call_history if c["tool"] == tool_name]
@@ -219,9 +224,7 @@ class MockMCPClient:
     def assert_tool_called(self, tool_name: str, times: int = 1) -> None:
         """Assert tool was called specific number of times."""
         calls = self.get_call_history(tool_name)
-        assert len(calls) == times, (
-            f"Expected {tool_name} called {times} times, got {len(calls)}"
-        )
+        assert len(calls) == times, f"Expected {tool_name} called {times} times, got {len(calls)}"
 
     def assert_tool_called_with(self, tool_name: str, **parameters) -> None:
         """Assert tool was called with specific parameters."""

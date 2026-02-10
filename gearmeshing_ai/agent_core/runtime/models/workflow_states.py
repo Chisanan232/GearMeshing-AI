@@ -14,7 +14,7 @@ Use:
 
 Or with type checking:
     from gearmeshing_ai.agent_core.runtime.models.workflow_states import WorkflowStateEnum
-    
+
     state_value: str = WorkflowStateEnum.COMPLETED.value
 """
 
@@ -23,13 +23,13 @@ from enum import Enum
 
 class WorkflowStateEnum(str, Enum):
     """Enumeration of all valid workflow states.
-    
+
     This enum centralizes workflow state definitions to prevent string literal
     errors and provide IDE autocomplete support.
-    
+
     State Transitions:
         PENDING → RUNNING → [various processing states] → COMPLETED/FAILED
-    
+
     State Categories:
         - Initial: PENDING
         - Processing: RUNNING, PROPOSAL_OBTAINED, POLICY_APPROVED, AWAITING_APPROVAL, etc.
@@ -39,44 +39,44 @@ class WorkflowStateEnum(str, Enum):
 
     # Initial state
     PENDING = "PENDING"
-    
+
     # Processing states - Agent decision phase
     RUNNING = "RUNNING"
     PROPOSAL_OBTAINED = "PROPOSAL_OBTAINED"
-    
+
     # Processing states - Policy validation phase
     POLICY_APPROVED = "POLICY_APPROVED"
     POLICY_REJECTED = "POLICY_REJECTED"
-    
+
     # Processing states - Approval phase
     AWAITING_APPROVAL = "AWAITING_APPROVAL"
     APPROVAL_REQUIRED = "APPROVAL_REQUIRED"
     APPROVAL_SKIPPED = "APPROVAL_SKIPPED"
     APPROVAL_COMPLETE = "APPROVAL_COMPLETE"
     APPROVAL_REJECTED = "APPROVAL_REJECTED"
-    
+
     # Processing states - Capability discovery
     CAPABILITY_DISCOVERY_COMPLETE = "CAPABILITY_DISCOVERY_COMPLETE"
-    
+
     # Processing states - Execution and results
     EXECUTION_FAILED = "EXECUTION_FAILED"
     RESULTS_PROCESSED = "RESULTS_PROCESSED"
-    
+
     # Processing states - Error handling
     ERROR_HANDLED = "ERROR_HANDLED"
-    
+
     # Terminal states
     COMPLETED = "COMPLETED"
     CONTINUING = "CONTINUING"
     FAILED = "FAILED"
-    
+
     # Approval resolution states
     APPROVAL_RESOLVED = "APPROVAL_RESOLVED"
 
 
 class WorkflowStateCategory(str, Enum):
     """Categories of workflow states for routing and logic decisions.
-    
+
     This helps organize states into logical groups for conditional logic.
     """
 

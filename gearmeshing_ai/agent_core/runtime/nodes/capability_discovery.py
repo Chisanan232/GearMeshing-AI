@@ -10,7 +10,7 @@ import logging
 from typing import Any
 
 from ..capability_registry import CapabilityRegistry
-from ..models import CapabilityDiscoveryNodeReturn, WorkflowState, WorkflowStatus, WorkflowStateEnum
+from ..models import CapabilityDiscoveryNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -51,19 +51,18 @@ async def capability_discovery_node(
                     message="No capabilities available",
                 ),
             ).to_dict()
-        else:
-            capability_count = len(updated_state.available_capabilities.tools)
-            logger.info(
-                f"Discovered {capability_count} capabilities for run_id={state.run_id}, "
-                f"agent_role={state.context.agent_role}"
-            )
-            return CapabilityDiscoveryNodeReturn(
-                available_capabilities=updated_state.available_capabilities,
-                status=WorkflowStatus(
-                    state=WorkflowStateEnum.CAPABILITY_DISCOVERY_COMPLETE.value,
-                    message=f"Discovered {capability_count} capabilities",
-                ),
-            ).to_dict()
+        capability_count = len(updated_state.available_capabilities.tools)
+        logger.info(
+            f"Discovered {capability_count} capabilities for run_id={state.run_id}, "
+            f"agent_role={state.context.agent_role}"
+        )
+        return CapabilityDiscoveryNodeReturn(
+            available_capabilities=updated_state.available_capabilities,
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.CAPABILITY_DISCOVERY_COMPLETE.value,
+                message=f"Discovered {capability_count} capabilities",
+            ),
+        ).to_dict()
 
     except RuntimeError as e:
         logger.error(f"RuntimeError in capability discovery: {e}")

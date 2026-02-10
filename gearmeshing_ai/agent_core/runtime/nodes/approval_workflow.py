@@ -10,8 +10,14 @@ import logging
 from typing import Any
 
 from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalManager
+from gearmeshing_ai.agent_core.runtime.models import (
+    ApprovalResolutionNodeReturn,
+    ApprovalWorkflowNodeReturn,
+    WorkflowState,
+    WorkflowStateEnum,
+    WorkflowStatus,
+)
 from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine
-from gearmeshing_ai.agent_core.runtime.models import WorkflowState, WorkflowStatus, WorkflowStateEnum, ApprovalWorkflowNodeReturn, ApprovalResolutionNodeReturn
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +52,7 @@ async def approval_workflow_node(
         pending_approvals = approval_manager.get_pending_approvals(state.run_id)
 
         if pending_approvals:
-            logger.info(
-                f"Found {len(pending_approvals)} pending approvals for run_id={state.run_id}"
-            )
+            logger.info(f"Found {len(pending_approvals)} pending approvals for run_id={state.run_id}")
             return ApprovalWorkflowNodeReturn(
                 status=WorkflowStatus(
                     state=WorkflowStateEnum.AWAITING_APPROVAL.value,

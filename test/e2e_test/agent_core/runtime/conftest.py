@@ -1,18 +1,17 @@
 """Pytest configuration and fixtures for E2E workflow tests."""
 
-import pytest
 from unittest.mock import MagicMock
 
-from gearmeshing_ai.agent_core.runtime.langgraph_workflow import create_agent_workflow
+import pytest
+
 from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalManager
 from gearmeshing_ai.agent_core.runtime.capability_registry import CapabilityRegistry
-from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine
-
-from test.e2e_test.agent_core.runtime.fixtures.test_model import HybridTestModel
-from test.e2e_test.agent_core.runtime.fixtures.mock_mcp_client import MockMCPClient
+from gearmeshing_ai.agent_core.runtime.langgraph_workflow import create_agent_workflow
 from test.e2e_test.agent_core.runtime.fixtures.approval_simulator import ApprovalSimulator
-from test.e2e_test.agent_core.runtime.fixtures.workflow_executor import WorkflowExecutor
+from test.e2e_test.agent_core.runtime.fixtures.mock_mcp_client import MockMCPClient
 from test.e2e_test.agent_core.runtime.fixtures.policy_configurator import PolicyConfigurator
+from test.e2e_test.agent_core.runtime.fixtures.test_model import HybridTestModel
+from test.e2e_test.agent_core.runtime.fixtures.workflow_executor import WorkflowExecutor
 
 
 @pytest.fixture
@@ -69,14 +68,14 @@ def mock_agent_factory(test_model):
         return await test_model.process_prompt(prompt)
 
     factory = MagicMock()
-    
+
     # Mock the async methods
     factory.get_or_create_agent = AsyncMock(return_value=test_model)
-    
+
     # Mock the adapter with async run method
     factory.adapter = MagicMock()
     factory.adapter.run = AsyncMock(side_effect=mock_run)
-    
+
     return factory
 
 

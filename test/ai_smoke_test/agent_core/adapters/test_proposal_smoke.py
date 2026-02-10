@@ -1,5 +1,6 @@
-import pytest
 from difflib import SequenceMatcher
+
+import pytest
 
 from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
 from gearmeshing_ai.agent_core.adapters.pydantic_ai import PydanticAIAdapter
@@ -10,16 +11,16 @@ from test.settings import export_api_keys_to_env, test_settings
 def fuzzy_match(text: str, keywords: list[str], threshold: float = 0.5) -> bool:
     """
     Check if text fuzzy matches any of the keywords.
-    
+
     Uses SequenceMatcher to find similarity ratio between text and keywords.
     Returns True if any keyword has similarity >= threshold.
     Also checks for substring containment as a fallback.
-    
+
     Args:
         text: The text to match against
         keywords: List of keywords to match
         threshold: Minimum similarity ratio (0.0-1.0), default 0.5
-        
+
     Returns:
         True if any keyword matches with sufficient similarity or is contained in text
     """
@@ -39,11 +40,11 @@ def fuzzy_match(text: str, keywords: list[str], threshold: float = 0.5) -> bool:
 def contains_any_keyword(text: str, keywords: list[str]) -> bool:
     """
     Check if text contains any of the keywords (substring match).
-    
+
     Args:
         text: The text to search in
         keywords: List of keywords to search for
-        
+
     Returns:
         True if any keyword is found in text
     """
@@ -142,12 +143,11 @@ class TestProposalSmoke:
         assert len(proposal.reason) > 0
         assert proposal.parameters is not None
         assert isinstance(proposal.parameters, dict)
-        
+
         # Verify proposal is related to testing using fuzzy matching
         # Accept proposals related to testing, running, or error handling
-        assert (
-            fuzzy_match(proposal.action, ["test", "run", "error", "execute"])
-            or contains_any_keyword(proposal.reason, ["test", "run", "unit", "code"])
+        assert fuzzy_match(proposal.action, ["test", "run", "error", "execute"]) or contains_any_keyword(
+            proposal.reason, ["test", "run", "unit", "code"]
         ), f"Proposal action '{proposal.action}' doesn't match testing context"
 
     @pytest.mark.smoke
@@ -163,12 +163,11 @@ class TestProposalSmoke:
         assert len(proposal.reason) > 0
         assert proposal.parameters is not None
         assert isinstance(proposal.parameters, dict)
-        
+
         # Verify proposal is related to PR/pull request using fuzzy matching
         # Accept proposals related to PR creation, writing files, or error handling
-        assert (
-            fuzzy_match(proposal.action, ["pull", "pr", "create", "write", "error"])
-            or contains_any_keyword(proposal.reason, ["pull request", "pr", "github", "bug fix"])
+        assert fuzzy_match(proposal.action, ["pull", "pr", "create", "write", "error"]) or contains_any_keyword(
+            proposal.reason, ["pull request", "pr", "github", "bug fix"]
         ), f"Proposal action '{proposal.action}' doesn't match PR context"
 
     @pytest.mark.smoke
@@ -192,13 +191,14 @@ class TestProposalSmoke:
             assert len(proposal.action) > 0
             assert len(proposal.reason) > 0
             assert isinstance(proposal.parameters, dict)
-            
+
             # Verify proposal is contextually relevant using fuzzy matching
             # Accept proposals related to testing, PR, or error handling
-            assert (
-                fuzzy_match(proposal.action, ["test", "run", "pull", "pr", "create", "write", "error"])
-                or contains_any_keyword(proposal.reason, ["test", "run", "verify", "pull request", "pr"])
-            ), f"Proposal action '{proposal.action}' doesn't match task context: {task}"
+            assert fuzzy_match(
+                proposal.action, ["test", "run", "pull", "pr", "create", "write", "error"]
+            ) or contains_any_keyword(proposal.reason, ["test", "run", "verify", "pull request", "pr"]), (
+                f"Proposal action '{proposal.action}' doesn't match task context: {task}"
+            )
 
     @pytest.mark.smoke
     @pytest.mark.asyncio
@@ -213,7 +213,7 @@ class TestProposalSmoke:
         assert isinstance(proposal, ActionProposal)
         assert len(proposal.action) > 0
         assert len(proposal.reason) > 0
-        
+
         # Verify proposal is valid - accept any meaningful proposal
         # (AI may propose different actions or indicate unavailable tools)
         assert isinstance(proposal.parameters, dict)
@@ -255,11 +255,10 @@ class TestProposalSmoke:
             assert len(proposal.reason) > 0
             # Parameters should exist but can be any format
             assert isinstance(proposal.parameters, dict)
-            
+
             # Verify proposal is related to testing using fuzzy matching
-            assert (
-                fuzzy_match(proposal.action, ["test", "run", "error"])
-                or contains_any_keyword(proposal.reason, ["test", "run", "unit"])
+            assert fuzzy_match(proposal.action, ["test", "run", "error"]) or contains_any_keyword(
+                proposal.reason, ["test", "run", "unit"]
             ), f"Proposal action '{proposal.action}' doesn't match testing context"
 
     @pytest.mark.smoke
@@ -274,9 +273,8 @@ class TestProposalSmoke:
         assert isinstance(proposal, ActionProposal)
         assert isinstance(proposal.parameters, dict)
         # Verify proposal is related to testing using fuzzy matching
-        assert (
-            fuzzy_match(proposal.action, ["test", "run", "error"])
-            or contains_any_keyword(proposal.reason, ["test", "run", "integration"])
+        assert fuzzy_match(proposal.action, ["test", "run", "error"]) or contains_any_keyword(
+            proposal.reason, ["test", "run", "integration"]
         ), f"Proposal action '{proposal.action}' doesn't match testing context"
 
         # Test create_pr proposal
@@ -285,7 +283,6 @@ class TestProposalSmoke:
         assert isinstance(proposal, ActionProposal)
         assert isinstance(proposal.parameters, dict)
         # Verify proposal is related to PR using fuzzy matching
-        assert (
-            fuzzy_match(proposal.action, ["pull", "pr", "create", "write", "error"])
-            or contains_any_keyword(proposal.reason, ["pull request", "pr", "feature"])
+        assert fuzzy_match(proposal.action, ["pull", "pr", "create", "write", "error"]) or contains_any_keyword(
+            proposal.reason, ["pull request", "pr", "feature"]
         ), f"Proposal action '{proposal.action}' doesn't match PR context"
