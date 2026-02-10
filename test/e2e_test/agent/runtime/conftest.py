@@ -7,11 +7,11 @@ import pytest
 from gearmeshing_ai.agent.runtime.approval_manager import ApprovalManager
 from gearmeshing_ai.agent.runtime.capability_registry import CapabilityRegistry
 from gearmeshing_ai.agent.runtime.langgraph_workflow import create_agent_workflow
-from test.e2e_test.agent_core.runtime.fixtures.approval_simulator import ApprovalSimulator
-from test.e2e_test.agent_core.runtime.fixtures.mock_mcp_client import MockMCPClient
-from test.e2e_test.agent_core.runtime.fixtures.policy_configurator import PolicyConfigurator
-from test.e2e_test.agent_core.runtime.fixtures.test_model import HybridTestModel
-from test.e2e_test.agent_core.runtime.fixtures.workflow_executor import WorkflowExecutor
+from test.e2e_test.agent.runtime.fixtures.approval_simulator import ApprovalSimulator
+from test.e2e_test.agent.runtime.fixtures.mock_mcp_client import MockMCPClient
+from test.e2e_test.agent.runtime.fixtures.policy_configurator import PolicyConfigurator
+from test.e2e_test.agent.runtime.fixtures.test_model import HybridTestModel
+from test.e2e_test.agent.runtime.fixtures.workflow_executor import WorkflowExecutor
 
 
 @pytest.fixture

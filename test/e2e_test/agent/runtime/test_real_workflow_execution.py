@@ -15,10 +15,10 @@ from gearmeshing_ai.agent.runtime.models.workflow_state import (
 )
 
 if TYPE_CHECKING:
-    from test.e2e_test.agent_core.runtime.fixtures.approval_simulator import ApprovalSimulator
-    from test.e2e_test.agent_core.runtime.fixtures.policy_configurator import PolicyConfigurator
-    from test.e2e_test.agent_core.runtime.fixtures.test_model import HybridTestModel
-    from test.e2e_test.agent_core.runtime.fixtures.workflow_executor import WorkflowExecutor
+    from test.e2e_test.agent.runtime.fixtures.approval_simulator import ApprovalSimulator
+    from test.e2e_test.agent.runtime.fixtures.policy_configurator import PolicyConfigurator
+    from test.e2e_test.agent.runtime.fixtures.test_model import HybridTestModel
+    from test.e2e_test.agent.runtime.fixtures.workflow_executor import WorkflowExecutor
 
 
 # ============================================================================
