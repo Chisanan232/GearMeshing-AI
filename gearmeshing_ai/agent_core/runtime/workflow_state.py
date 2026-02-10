@@ -3,6 +3,21 @@
 This module defines the core state data structure for the LangGraph workflow,
 integrating with existing ActionProposal and MCPToolCatalog models.
 
+WORKFLOW STATE ENUM
+===================
+
+All valid workflow states are defined in WorkflowStateEnum to ensure type safety
+and prevent string literal errors throughout the codebase. Use this enum instead
+of string literals when setting workflow status.
+
+Example:
+    from gearmeshing_ai.agent_core.runtime.workflow_state import WorkflowStateEnum
+    
+    status = WorkflowStatus(
+        state=WorkflowStateEnum.COMPLETED.value,
+        message="Workflow completed"
+    )
+
 STATE DESIGN OVERVIEW
 =====================
 
