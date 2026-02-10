@@ -82,11 +82,11 @@ class NodeReturnBase(BaseModel):
             Dictionary with only non-None fields (for partial updates).
             Pydantic models are kept as objects, not converted to dicts.
         """
-        result = {}
-        for field_name, field_value in self:
-            if field_value is not None:
-                result[field_name] = field_value
-        return result
+        return {
+            field_name: field_value
+            for field_name, field_value in self
+            if field_value is not None
+        }
 
 
 class CapabilityDiscoveryNodeReturn(NodeReturnBase):
