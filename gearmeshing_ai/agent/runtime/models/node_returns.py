@@ -31,7 +31,7 @@ After (clear and maintainable):
 USAGE IN NODES
 ==============
 
-from gearmeshing_ai.agent_core.runtime.models.node_returns import (
+from gearmeshing_ai.agent.runtime.models.node_returns import (
     CapabilityDiscoveryNodeReturn,
     AgentDecisionNodeReturn,
 )
@@ -58,8 +58,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from gearmeshing_ai.agent_core.models.actions import ActionProposal, MCPToolCatalog
-from gearmeshing_ai.agent_core.runtime.models.workflow_state import WorkflowStatus
+from gearmeshing_ai.agent.models.actions import ActionProposal, MCPToolCatalog
+from gearmeshing_ai.agent.runtime.models.workflow_state import WorkflowStatus
 
 
 class NodeReturnBase(BaseModel):

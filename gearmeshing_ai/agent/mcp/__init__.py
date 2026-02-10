@@ -31,7 +31,7 @@ Usage Examples:
         tools = await session.list_tools()
         result = await session.call_tool("tool_name", {"arg": "value"})
 
-Note: This package now re-exports from the new gearmeshing_ai.agent_core.mcp.client subpackage
+Note: This package now re-exports from the new gearmeshing_ai.agent.mcp.client subpackage
 which provides enhanced functionality with better architecture, monitoring, and error handling.
 """
 

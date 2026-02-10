@@ -11,7 +11,7 @@ and prevent string literal errors throughout the codebase. Use this enum instead
 of string literals when setting workflow status.
 
 Example:
-    from gearmeshing_ai.agent_core.runtime.models.workflow_state import WorkflowStateEnum
+    from gearmeshing_ai.agent.runtime.models.workflow_state import WorkflowStateEnum
 
     status = WorkflowStatus(
         state=WorkflowStateEnum.COMPLETED.value,
@@ -313,7 +313,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from gearmeshing_ai.agent_core.models.actions import ActionProposal, MCPToolCatalog
+from gearmeshing_ai.agent.models.actions import ActionProposal, MCPToolCatalog
 
 
 class ExecutionContext(BaseModel):

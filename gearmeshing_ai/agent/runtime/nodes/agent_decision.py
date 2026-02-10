@@ -9,8 +9,8 @@ Uses typed return models and centralized workflow state enums for type safety.
 import logging
 from typing import Any
 
-from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
-from gearmeshing_ai.agent_core.models.actions import ActionProposal
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent.models.actions import ActionProposal
 
 from ..models import AgentDecisionNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 

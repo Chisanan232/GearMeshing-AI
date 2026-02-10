@@ -287,8 +287,8 @@ from typing import Any
 
 from langgraph.graph import StateGraph
 
-from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
-from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent.abstraction.mcp import MCPClientAbstraction
 
 from .approval_manager import ApprovalManager
 from .capability_registry import CapabilityRegistry

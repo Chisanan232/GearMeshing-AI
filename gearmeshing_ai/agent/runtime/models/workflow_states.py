@@ -13,7 +13,7 @@ Use:
     WorkflowStatus(state=WorkflowStateEnum.COMPLETED.value, message="...")
 
 Or with type checking:
-    from gearmeshing_ai.agent_core.runtime.models.workflow_states import WorkflowStateEnum
+    from gearmeshing_ai.agent.runtime.models.workflow_states import WorkflowStateEnum
 
     state_value: str = WorkflowStateEnum.COMPLETED.value
 """

@@ -9,15 +9,15 @@ Uses typed return models and centralized workflow state enums for type safety.
 import logging
 from typing import Any
 
-from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalManager
-from gearmeshing_ai.agent_core.runtime.models import (
+from gearmeshing_ai.agent.runtime.approval_manager import ApprovalManager
+from gearmeshing_ai.agent.runtime.models import (
     ApprovalResolutionNodeReturn,
     ApprovalWorkflowNodeReturn,
     WorkflowState,
     WorkflowStateEnum,
     WorkflowStatus,
 )
-from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine
+from gearmeshing_ai.agent.runtime.policy_engine import PolicyEngine
 
 logger = logging.getLogger(__name__)
 

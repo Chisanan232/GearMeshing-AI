@@ -7,8 +7,8 @@ filtering, and context-aware capability selection for agent workflows.
 import logging
 from typing import Any
 
-from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
-from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog, MCPToolInfo
+from gearmeshing_ai.agent.abstraction.mcp import MCPClientAbstraction
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog, MCPToolInfo
 
 from .models import ExecutionContext, WorkflowState
 

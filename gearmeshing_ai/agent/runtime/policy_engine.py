@@ -316,7 +316,7 @@ E2E Tests:
 
 import logging
 
-from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
+from gearmeshing_ai.agent.models.actions import MCPToolInfo
 
 from .models import ExecutionContext, WorkflowState
 

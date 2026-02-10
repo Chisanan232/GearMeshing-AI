@@ -6,7 +6,7 @@ This package contains all data models and enums for the LangGraph workflow syste
 - Typed node return models (node_returns.py)
 """
 
-from gearmeshing_ai.agent_core.runtime.models.node_returns import (
+from gearmeshing_ai.agent.runtime.models.node_returns import (
     AgentDecisionNodeReturn,
     ApprovalCheckNodeReturn,
     ApprovalResolutionNodeReturn,
@@ -19,12 +19,12 @@ from gearmeshing_ai.agent_core.runtime.models.node_returns import (
     PolicyValidationNodeReturn,
     ResultProcessingNodeReturn,
 )
-from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
+from gearmeshing_ai.agent.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
-from gearmeshing_ai.agent_core.runtime.models.workflow_states import (
+from gearmeshing_ai.agent.runtime.models.workflow_states import (
     COMPLETION_STATES,
     CONTINUING_STATES,
     ERROR_STATES,
