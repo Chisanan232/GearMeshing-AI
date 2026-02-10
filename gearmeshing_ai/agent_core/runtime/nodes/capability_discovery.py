@@ -2,13 +2,17 @@
 
 This module implements the capability discovery node that discovers and filters
 available tools based on the execution context.
+
+Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
 from typing import Any
 
 from ..capability_registry import CapabilityRegistry
+from ..node_returns import CapabilityDiscoveryNodeReturn
 from ..workflow_state import WorkflowState, WorkflowStatus
+from ..workflow_states import WorkflowStateEnum
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +31,7 @@ async def capability_discovery_node(
         capability_registry: Registry for capability management
 
     Returns:
-        Dictionary containing updated workflow state with available capabilities
+        CapabilityDiscoveryNodeReturn with discovered capabilities and status
 
     Raises:
         RuntimeError: If capability discovery fails
@@ -42,43 +46,43 @@ async def capability_discovery_node(
         # Verify capabilities were discovered
         if updated_state.available_capabilities is None:
             logger.warning(f"No capabilities discovered for run_id={state.run_id}")
-            return {
-                "available_capabilities": None,
-                "status": WorkflowStatus(
-                    state="CAPABILITY_DISCOVERY_COMPLETE",
+            return CapabilityDiscoveryNodeReturn(
+                available_capabilities=None,
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.CAPABILITY_DISCOVERY_COMPLETE.value,
                     message="No capabilities available",
                 ),
-            }
+            ).to_dict()
         else:
             capability_count = len(updated_state.available_capabilities.tools)
             logger.info(
                 f"Discovered {capability_count} capabilities for run_id={state.run_id}, "
                 f"agent_role={state.context.agent_role}"
             )
-            return {
-                "available_capabilities": updated_state.available_capabilities,
-                "status": WorkflowStatus(
-                    state="CAPABILITY_DISCOVERY_COMPLETE",
+            return CapabilityDiscoveryNodeReturn(
+                available_capabilities=updated_state.available_capabilities,
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.CAPABILITY_DISCOVERY_COMPLETE.value,
                     message=f"Discovered {capability_count} capabilities",
                 ),
-            }
+            ).to_dict()
 
     except RuntimeError as e:
         logger.error(f"RuntimeError in capability discovery: {e}")
-        return {
-            "status": WorkflowStatus(
-                state="FAILED",
+        return CapabilityDiscoveryNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
                 message="Capability discovery failed",
                 error=str(e),
             ),
-        }
+        ).to_dict()
 
     except Exception as e:
         logger.error(f"Exception in capability discovery: {e}")
-        return {
-            "status": WorkflowStatus(
-                state="FAILED",
+        return CapabilityDiscoveryNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
                 message="Capability discovery failed",
                 error=str(e),
             ),
-        }
+        ).to_dict()
