@@ -130,7 +130,7 @@ class ApplicationHealthChecker(BaseHealthChecker):
         # Check basic application functionality
         return HealthStatusContent(
             status="healthy",
-            details={"checker": self.name, "version": "0.0.0", "components": ["restapi", "agent_core", "core"]},
+            details={"checker": self.name, "version": "0.0.0", "components": ["restapi", "agent", "core"]},
         )
 
 
