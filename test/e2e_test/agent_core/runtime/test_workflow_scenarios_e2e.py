@@ -15,7 +15,7 @@ from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalManager
 from gearmeshing_ai.agent_core.runtime.capability_registry import CapabilityRegistry
 from gearmeshing_ai.agent_core.runtime.langgraph_workflow import create_agent_workflow
 from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine, ToolPolicy
-from gearmeshing_ai.agent_core.runtime.workflow_state import (
+from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,

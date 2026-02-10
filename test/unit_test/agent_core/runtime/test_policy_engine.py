@@ -12,7 +12,7 @@ from gearmeshing_ai.agent_core.runtime.policy_engine import (
     SafetyPolicy,
     ToolPolicy,
 )
-from gearmeshing_ai.agent_core.runtime.workflow_state import (
+from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,

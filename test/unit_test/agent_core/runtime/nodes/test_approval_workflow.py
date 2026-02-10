@@ -14,7 +14,7 @@ from gearmeshing_ai.agent_core.runtime.nodes.approval_workflow import (
     approval_workflow_node,
 )
 from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine
-from gearmeshing_ai.agent_core.runtime.workflow_state import (
+from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
