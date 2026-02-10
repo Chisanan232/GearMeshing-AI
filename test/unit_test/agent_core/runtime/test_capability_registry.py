@@ -7,10 +7,10 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
-from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog, MCPToolInfo
-from gearmeshing_ai.agent_core.runtime.capability_registry import CapabilityRegistry
-from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
+from gearmeshing_ai.agent.abstraction.mcp import MCPClientAbstraction
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog, MCPToolInfo
+from gearmeshing_ai.agent.runtime.capability_registry import CapabilityRegistry
+from gearmeshing_ai.agent.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,

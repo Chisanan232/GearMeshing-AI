@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.client.core import EasyMCPClient, MCPClient
-from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog, MCPToolInfo
+from gearmeshing_ai.agent.mcp.client.core import EasyMCPClient, MCPClient
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog, MCPToolInfo
 
 
 class MockMCPClient(MCPClient):
@@ -83,7 +83,7 @@ class TestEasyMCPClientProposal:
             # Mock SSETransport
             mock_sse = MagicMock()
             mock_sse.return_value = mock_transport
-            m.setattr("gearmeshing_ai.agent_core.mcp.client.core.SSETransport", mock_sse)
+            m.setattr("gearmeshing_ai.agent.mcp.client.core.SSETransport", mock_sse)
 
             catalog = await EasyMCPClient.discover_tools_for_agent_sse("http://localhost:8082/sse")
 

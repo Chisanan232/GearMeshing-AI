@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.client.exceptions import ConnectionError
-from gearmeshing_ai.agent_core.mcp.client.transports import HTTPTransport, SSETransport, StdioTransport
+from gearmeshing_ai.agent.mcp.client.exceptions import ConnectionError
+from gearmeshing_ai.agent.mcp.client.transports import HTTPTransport, SSETransport, StdioTransport
 
 
 class TestSSETransport:

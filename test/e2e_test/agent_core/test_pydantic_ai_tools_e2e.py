@@ -10,8 +10,8 @@ from typing import Any
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
-from gearmeshing_ai.agent_core.adapters.pydantic_ai import PydanticAIAdapter
+from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
 
 try:
     from pydantic_ai import Agent as PydanticAgent

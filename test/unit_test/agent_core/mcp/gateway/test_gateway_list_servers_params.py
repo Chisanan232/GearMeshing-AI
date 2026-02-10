@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import httpx
 
-from gearmeshing_ai.agent_core.mcp.gateway.client import GatewayApiClient
-from gearmeshing_ai.agent_core.mcp.gateway.models.dto import (
+from gearmeshing_ai.agent.mcp.gateway.client import GatewayApiClient
+from gearmeshing_ai.agent.mcp.gateway.models.dto import (
     CatalogListResponseDTO,
 )
 

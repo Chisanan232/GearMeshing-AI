@@ -11,7 +11,7 @@ from unittest.mock import Mock
 import pytest
 
 # Import abstraction components
-from gearmeshing_ai.agent_core.abstraction import (
+from gearmeshing_ai.agent.abstraction import (
     AgentAdapter,
     AgentCache,
     AgentFactory,
@@ -21,7 +21,7 @@ from gearmeshing_ai.agent_core.abstraction import (
 )
 
 # Import concrete adapter implementation
-from gearmeshing_ai.agent_core.adapters.pydantic_ai import PydanticAIAdapter
+from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
 
 # Import test settings
 from test.settings import test_settings
@@ -48,7 +48,7 @@ class MockMCPClient(MCPClientAbstraction):
     async def discover_tools_for_agent(self) -> Any:
         """Mock tool discovery for agent."""
         # Return a simple mock catalog
-        from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog, MCPToolInfo
+        from gearmeshing_ai.agent.models.actions import MCPToolCatalog, MCPToolInfo
 
         tools_info = []
         for tool_data in self.tools_data:

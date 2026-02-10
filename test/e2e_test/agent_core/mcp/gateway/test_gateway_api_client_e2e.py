@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.gateway.client import GatewayApiClient
+from gearmeshing_ai.agent.mcp.gateway.client import GatewayApiClient
 
 
 @pytest.mark.e2e

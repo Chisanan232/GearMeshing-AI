@@ -7,11 +7,11 @@ from unittest.mock import Mock
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.adapter import AgentAdapter
-from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
-from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
-from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog
+from gearmeshing_ai.agent.abstraction.adapter import AgentAdapter
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent.abstraction.mcp import MCPClientAbstraction
+from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog
 
 
 class MockAgentAdapter(AgentAdapter):

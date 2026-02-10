@@ -7,12 +7,12 @@ from typing import Any
 
 import pytest
 
-from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
+from gearmeshing_ai.agent.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
-from gearmeshing_ai.agent_core.runtime.nodes.result_processing import result_processing_node
+from gearmeshing_ai.agent.runtime.nodes.result_processing import result_processing_node
 
 from ..conftest import merge_state_update
 

@@ -10,8 +10,8 @@ import httpx
 import pytest
 from testcontainers.compose import DockerCompose
 
-from gearmeshing_ai.agent_core.mcp.client import EasyMCPClient
-from gearmeshing_ai.agent_core.mcp.gateway import GatewayApiClient
+from gearmeshing_ai.agent.mcp.client import EasyMCPClient
+from gearmeshing_ai.agent.mcp.gateway import GatewayApiClient
 from test.settings import test_settings
 
 

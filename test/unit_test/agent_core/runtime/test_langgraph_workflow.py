@@ -8,9 +8,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
-from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
-from gearmeshing_ai.agent_core.runtime.langgraph_workflow import create_agent_workflow
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent.abstraction.mcp import MCPClientAbstraction
+from gearmeshing_ai.agent.runtime.langgraph_workflow import create_agent_workflow
 
 
 @pytest.fixture

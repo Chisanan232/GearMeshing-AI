@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 
 from pydantic import SecretStr
 
-from gearmeshing_ai.agent_core.abstraction.env_manager import EnvManager
+from gearmeshing_ai.agent.abstraction.env_manager import EnvManager
 from gearmeshing_ai.core.models.setting import AIProviderSettings
 
 
@@ -28,7 +28,7 @@ class TestEnvManager:
         assert hasattr(env_manager, "export_variables")
         assert hasattr(env_manager, "get_settings")
 
-    @patch("gearmeshing_ai.agent_core.abstraction.env_manager.AIProviderSettings")
+    @patch("gearmeshing_ai.agent.abstraction.env_manager.AIProviderSettings")
     def test_env_manager_initialization_with_mock_settings(self, mock_settings_class: Any) -> None:
         """Test EnvManager initialization with mocked settings."""
         mock_settings = Mock(spec=AIProviderSettings)

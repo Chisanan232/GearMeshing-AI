@@ -9,7 +9,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from gearmeshing_ai.agent_core.mcp.client.config import MCPClientConfig, MonitoringConfig, RetryConfig, TransportConfig
+from gearmeshing_ai.agent.mcp.client.config import MCPClientConfig, MonitoringConfig, RetryConfig, TransportConfig
 
 
 class TestRetryConfig:

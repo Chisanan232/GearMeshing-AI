@@ -5,13 +5,13 @@ Tests cover tool policies, approval policies, safety policies, and policy enforc
 
 import pytest
 
-from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
-from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
+from gearmeshing_ai.agent.models.actions import MCPToolInfo
+from gearmeshing_ai.agent.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
-from gearmeshing_ai.agent_core.runtime.policy_engine import (
+from gearmeshing_ai.agent.runtime.policy_engine import (
     ApprovalPolicy,
     PolicyEngine,
     SafetyPolicy,

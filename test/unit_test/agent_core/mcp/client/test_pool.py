@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.client.pool import ConnectionPool, PooledConnection, ServerPool
+from gearmeshing_ai.agent.mcp.client.pool import ConnectionPool, PooledConnection, ServerPool
 
 
 class TestPooledConnection:

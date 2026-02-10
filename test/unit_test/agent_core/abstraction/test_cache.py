@@ -7,7 +7,7 @@ import time
 from typing import Any
 from unittest.mock import Mock
 
-from gearmeshing_ai.agent_core.abstraction.cache import AgentCache
+from gearmeshing_ai.agent.abstraction.cache import AgentCache
 
 
 class TestAgentCache:

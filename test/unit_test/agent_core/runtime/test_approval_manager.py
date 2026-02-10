@@ -7,13 +7,13 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
-from gearmeshing_ai.agent_core.runtime.approval_manager import (
+from gearmeshing_ai.agent.models.actions import MCPToolInfo
+from gearmeshing_ai.agent.runtime.approval_manager import (
     ApprovalManager,
     ApprovalRequest,
     ApprovalStatus,
 )
-from gearmeshing_ai.agent_core.runtime.models import ExecutionContext
+from gearmeshing_ai.agent.runtime.models import ExecutionContext
 
 
 @pytest.fixture

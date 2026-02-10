@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.client.monitoring import ClientMetrics, HealthChecker
+from gearmeshing_ai.agent.mcp.client.monitoring import ClientMetrics, HealthChecker
 
 
 class TestClientMetrics:

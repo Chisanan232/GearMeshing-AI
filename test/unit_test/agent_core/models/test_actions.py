@@ -1,6 +1,6 @@
 import pytest
 
-from gearmeshing_ai.agent_core.models.actions import ActionProposal, MCPToolCatalog, MCPToolInfo
+from gearmeshing_ai.agent.models.actions import ActionProposal, MCPToolCatalog, MCPToolInfo
 
 
 class TestActionProposal:

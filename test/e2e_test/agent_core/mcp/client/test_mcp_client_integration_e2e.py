@@ -16,7 +16,7 @@ import logging
 import pytest
 from mcp import ListToolsResult
 
-from gearmeshing_ai.agent_core.mcp.client import (
+from gearmeshing_ai.agent.mcp.client import (
     EasyMCPClient,
     MCPClient,
     MCPClientConfig,

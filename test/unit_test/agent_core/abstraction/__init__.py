@@ -2,7 +2,7 @@
 Unit tests for the AI agent abstraction package.
 
 This package contains comprehensive unit tests for all modules in the
-gearmeshing_ai.agent_core.abstraction package:
+gearmeshing_ai.agent.abstraction package:
 
 - test_settings.py: Tests for ModelSettings and AgentSettings
 - test_adapter.py: Tests for AgentAdapter abstract base class

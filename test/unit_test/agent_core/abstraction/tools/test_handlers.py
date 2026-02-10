@@ -4,13 +4,13 @@ import asyncio
 import pathlib
 import tempfile
 
-from gearmeshing_ai.agent_core.abstraction.tools.definitions import (
+from gearmeshing_ai.agent.abstraction.tools.definitions import (
     CommandRunInput,
     FileListInput,
     FileReadInput,
     FileWriteInput,
 )
-from gearmeshing_ai.agent_core.abstraction.tools.handlers import (
+from gearmeshing_ai.agent.abstraction.tools.handlers import (
     list_files_handler,
     read_file_handler,
     run_command_handler,

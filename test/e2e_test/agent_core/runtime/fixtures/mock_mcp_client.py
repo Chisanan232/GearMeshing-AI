@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from gearmeshing_ai.agent_core.models.actions import ActionProposal
+from gearmeshing_ai.agent.models.actions import ActionProposal
 
 
 class ToolMetadata(BaseModel):

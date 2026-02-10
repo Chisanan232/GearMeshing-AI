@@ -5,7 +5,7 @@ Unit tests for agent abstraction settings models.
 import pytest
 from pydantic import ValidationError
 
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
 
 
 class TestModelSettings:

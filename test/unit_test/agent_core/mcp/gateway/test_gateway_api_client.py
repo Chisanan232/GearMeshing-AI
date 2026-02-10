@@ -5,8 +5,8 @@ from datetime import UTC, datetime
 import httpx
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.gateway.client import GatewayApiClient
-from gearmeshing_ai.agent_core.mcp.gateway.models.dto import (
+from gearmeshing_ai.agent.mcp.gateway.client import GatewayApiClient
+from gearmeshing_ai.agent.mcp.gateway.models.dto import (
     AdminToolsListResponseDTO,
     CatalogListResponseDTO,
     CatalogServerRegisterResponseDTO,
@@ -201,7 +201,7 @@ def test_health_error_raises_gateway_api_error() -> None:
     gw = GatewayApiClient("http://mock", client=client)
     import pytest as _pytest
 
-    from gearmeshing_ai.agent_core.mcp.gateway.errors import GatewayApiError
+    from gearmeshing_ai.agent.mcp.gateway.errors import GatewayApiError
 
     with _pytest.raises(GatewayApiError) as ei:
         gw.health()

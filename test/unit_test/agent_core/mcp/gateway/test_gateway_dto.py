@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from gearmeshing_ai.agent_core.mcp.gateway.models.dto import (
+from gearmeshing_ai.agent.mcp.gateway.models.dto import (
     AdminToolsListResponseDTO,
     CatalogBulkRegisterResponseDTO,
     CatalogListResponseDTO,

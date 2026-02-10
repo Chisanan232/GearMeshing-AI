@@ -23,10 +23,10 @@ import time
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.client import EasyMCPClient
-from gearmeshing_ai.agent_core.mcp.gateway import GatewayApiClient
-from gearmeshing_ai.agent_core.mcp.gateway.errors import GatewayApiError
-from gearmeshing_ai.agent_core.mcp.gateway.models.dto import (
+from gearmeshing_ai.agent.mcp.client import EasyMCPClient
+from gearmeshing_ai.agent.mcp.gateway import GatewayApiClient
+from gearmeshing_ai.agent.mcp.gateway.errors import GatewayApiError
+from gearmeshing_ai.agent.mcp.gateway.models.dto import (
     CatalogListResponseDTO,
     ToolReadDTO,
 )

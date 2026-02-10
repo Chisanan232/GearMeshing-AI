@@ -4,7 +4,7 @@ import asyncio
 import time
 from datetime import datetime
 
-from gearmeshing_ai.agent_core.runtime.approval_manager import ApprovalRequest
+from gearmeshing_ai.agent.runtime.approval_manager import ApprovalRequest
 
 
 class ApprovalSimulator:

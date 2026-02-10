@@ -5,13 +5,13 @@ Tests cover approval decision logic, state transitions, and error handling.
 
 import pytest
 
-from gearmeshing_ai.agent_core.models.actions import ActionProposal
-from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
+from gearmeshing_ai.agent.models.actions import ActionProposal
+from gearmeshing_ai.agent.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
-from gearmeshing_ai.agent_core.runtime.nodes.approval_check import approval_check_node
+from gearmeshing_ai.agent.runtime.nodes.approval_check import approval_check_node
 
 from ..conftest import merge_state_update
 

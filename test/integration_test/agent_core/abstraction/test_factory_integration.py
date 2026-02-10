@@ -8,12 +8,12 @@ from unittest.mock import Mock
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.adapter import AgentAdapter
-from gearmeshing_ai.agent_core.abstraction.cache import AgentCache
-from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
-from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
-from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog
+from gearmeshing_ai.agent.abstraction.adapter import AgentAdapter
+from gearmeshing_ai.agent.abstraction.cache import AgentCache
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent.abstraction.mcp import MCPClientAbstraction
+from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog
 
 
 class ConcreteAgentAdapter(AgentAdapter):
@@ -78,7 +78,7 @@ class ConcreteMCPClient(MCPClientAbstraction):
 
     async def discover_tools_for_agent(self) -> MCPToolCatalog:
         """Discover all available tools and return tool info for LLM understanding."""
-        from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
+        from gearmeshing_ai.agent.models.actions import MCPToolInfo
 
         tools_info = []
         for name, tool in self.tools_registry.items():

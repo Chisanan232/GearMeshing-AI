@@ -1,6 +1,6 @@
 """PolicyConfigurator fixture for E2E tests - configures policies for different scenarios."""
 
-from gearmeshing_ai.agent_core.runtime.policy_engine import PolicyEngine, ToolPolicy
+from gearmeshing_ai.agent.runtime.policy_engine import PolicyEngine, ToolPolicy
 
 
 class PolicyConfigurator:

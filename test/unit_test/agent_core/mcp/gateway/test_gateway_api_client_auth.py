@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.gateway.client import GatewayApiClient
-from gearmeshing_ai.agent_core.mcp.gateway.errors import GatewayApiError
+from gearmeshing_ai.agent.mcp.gateway.client import GatewayApiClient
+from gearmeshing_ai.agent.mcp.gateway.errors import GatewayApiError
 
 
 def test_generate_bearer_token_passes_cli_username_and_secret(monkeypatch: pytest.MonkeyPatch) -> None:

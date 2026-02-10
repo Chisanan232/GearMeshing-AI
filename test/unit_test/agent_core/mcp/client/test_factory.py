@@ -12,11 +12,11 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.client.config import MCPClientConfig
-from gearmeshing_ai.agent_core.mcp.client.core import AsyncMCPClient, EasyMCPClient, MCPClient
-from gearmeshing_ai.agent_core.mcp.client.exceptions import ConfigurationError
-from gearmeshing_ai.agent_core.mcp.client.factory import EasyMCPClientFactory, MCPClientFactory, TransportFactory
-from gearmeshing_ai.agent_core.mcp.client.transports import HTTPTransport, SSETransport, StdioTransport
+from gearmeshing_ai.agent.mcp.client.config import MCPClientConfig
+from gearmeshing_ai.agent.mcp.client.core import AsyncMCPClient, EasyMCPClient, MCPClient
+from gearmeshing_ai.agent.mcp.client.exceptions import ConfigurationError
+from gearmeshing_ai.agent.mcp.client.factory import EasyMCPClientFactory, MCPClientFactory, TransportFactory
+from gearmeshing_ai.agent.mcp.client.transports import HTTPTransport, SSETransport, StdioTransport
 
 
 class TestMCPClientFactoryBasic:
@@ -164,7 +164,7 @@ class TestMCPClientFactoryAutoConnect:
         """Test SSE client with auto-connect."""
         factory = MCPClientFactory()
 
-        with patch("gearmeshing_ai.agent_core.mcp.client.core.SSETransport") as mock_transport_class:
+        with patch("gearmeshing_ai.agent.mcp.client.core.SSETransport") as mock_transport_class:
             mock_transport = AsyncMock()
             mock_transport.session = AsyncMock()
             mock_transport_class.return_value = mock_transport

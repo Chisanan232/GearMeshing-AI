@@ -1,6 +1,6 @@
 """Unit tests for tool security validation."""
 
-from gearmeshing_ai.agent_core.abstraction.tools.security import validate_command, validate_file_path
+from gearmeshing_ai.agent.abstraction.tools.security import validate_command, validate_file_path
 
 
 class TestSecurityValidation:

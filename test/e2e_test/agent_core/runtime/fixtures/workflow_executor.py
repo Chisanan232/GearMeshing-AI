@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any
 
-from gearmeshing_ai.agent_core.runtime.models import WorkflowState
+from gearmeshing_ai.agent.runtime.models import WorkflowState
 
 
 class WorkflowExecutor:

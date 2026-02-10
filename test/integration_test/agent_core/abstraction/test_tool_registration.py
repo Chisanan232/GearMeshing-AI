@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
-from gearmeshing_ai.agent_core.adapters.pydantic_ai import PydanticAIAdapter
+from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
 
 
 class TestToolRegistration:
@@ -21,8 +21,8 @@ class TestToolRegistration:
 
         # Mock both the model classes and PydanticAgent to avoid API key requirement
         with (
-            patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_openai_model,
-            patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
+            patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_openai_model,
+            patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
         ):
             mock_model = MagicMock()
             mock_openai_model.return_value = mock_model
@@ -46,8 +46,8 @@ class TestToolRegistration:
 
         # Mock both the model classes and PydanticAgent to avoid API key requirement
         with (
-            patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_openai_model,
-            patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
+            patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_openai_model,
+            patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
         ):
             mock_model = MagicMock()
             mock_openai_model.return_value = mock_model
@@ -100,8 +100,8 @@ class TestToolRegistration:
 
         # Mock both the model classes and PydanticAgent to avoid API key requirement
         with (
-            patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_openai_model,
-            patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
+            patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_openai_model,
+            patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
         ):
             mock_model = MagicMock()
             mock_openai_model.return_value = mock_model
@@ -120,7 +120,7 @@ class TestToolRegistration:
 
     def test_adapter_inheritance(self):
         """Test that adapter properly inherits from AgentAdapter."""
-        from gearmeshing_ai.agent_core.abstraction.adapter import AgentAdapter
+        from gearmeshing_ai.agent.abstraction.adapter import AgentAdapter
 
         adapter = PydanticAIAdapter()
         assert isinstance(adapter, AgentAdapter)
@@ -138,7 +138,7 @@ class TestToolRegistration:
         assert adapter2.tool_catalog is None
 
         # With tool catalog
-        from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog
+        from gearmeshing_ai.agent.models.actions import MCPToolCatalog
 
         catalog = MCPToolCatalog(tools=[])
         adapter3 = PydanticAIAdapter(proposal_mode=True, tool_catalog=catalog)

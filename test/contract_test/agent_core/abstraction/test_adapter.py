@@ -9,8 +9,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.adapter import AgentAdapter
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent.abstraction.adapter import AgentAdapter
+from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
 
 
 class MockAgentAdapter(AgentAdapter):

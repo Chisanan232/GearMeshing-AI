@@ -11,19 +11,19 @@ from typing import Any
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.tools.definitions import (
+from gearmeshing_ai.agent.abstraction.tools.definitions import (
     CommandRunInput,
     FileListInput,
     FileReadInput,
     FileWriteInput,
 )
-from gearmeshing_ai.agent_core.abstraction.tools.handlers import (
+from gearmeshing_ai.agent.abstraction.tools.handlers import (
     list_files_handler,
     read_file_handler,
     run_command_handler,
     write_file_handler,
 )
-from gearmeshing_ai.agent_core.abstraction.tools.security import (
+from gearmeshing_ai.agent.abstraction.tools.security import (
     validate_command,
     validate_file_path,
 )

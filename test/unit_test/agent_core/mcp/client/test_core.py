@@ -10,10 +10,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.client.config import MCPClientConfig, RetryConfig
-from gearmeshing_ai.agent_core.mcp.client.core import AsyncMCPClient, ClientStats, EasyMCPClient, MCPClient
-from gearmeshing_ai.agent_core.mcp.client.exceptions import ConnectionError, ServerError, TimeoutError
-from gearmeshing_ai.agent_core.mcp.client.transports import SSETransport
+from gearmeshing_ai.agent.mcp.client.config import MCPClientConfig, RetryConfig
+from gearmeshing_ai.agent.mcp.client.core import AsyncMCPClient, ClientStats, EasyMCPClient, MCPClient
+from gearmeshing_ai.agent.mcp.client.exceptions import ConnectionError, ServerError, TimeoutError
+from gearmeshing_ai.agent.mcp.client.transports import SSETransport
 
 
 class TestMCPClientBasicUsage:
@@ -172,7 +172,7 @@ class TestEasyMCPClientStaticMethods:
     @pytest.mark.asyncio
     async def test_list_tools_sse(self):
         """Test listing tools via SSE."""
-        with patch("gearmeshing_ai.agent_core.mcp.client.core.SSETransport") as mock_transport_class:
+        with patch("gearmeshing_ai.agent.mcp.client.core.SSETransport") as mock_transport_class:
             mock_transport = AsyncMock()
             mock_transport.list_tools.return_value = ["tool1", "tool2"]
             mock_transport_class.return_value = mock_transport
@@ -184,7 +184,7 @@ class TestEasyMCPClientStaticMethods:
     @pytest.mark.asyncio
     async def test_call_tool_sse(self):
         """Test calling a tool via SSE."""
-        with patch("gearmeshing_ai.agent_core.mcp.client.core.SSETransport") as mock_transport_class:
+        with patch("gearmeshing_ai.agent.mcp.client.core.SSETransport") as mock_transport_class:
             mock_transport = AsyncMock()
             mock_transport.call_tool.return_value = {"result": "success"}
             mock_transport_class.return_value = mock_transport

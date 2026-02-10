@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
-from gearmeshing_ai.agent_core.adapters.pydantic_ai import PydanticAIAdapter
+from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
 
 
 # Mock the PydanticAgent class for isinstance checks
@@ -64,7 +64,7 @@ class TestPydanticAIAdapter:
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
         async def test_get_openai_model(self, adapter: Any) -> None:
             """Test getting OpenAI model."""
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_model:
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_model:
                 mock_model.return_value = "openai_model"
 
                 result = adapter._get_model("openai", "gpt-4")
@@ -75,7 +75,7 @@ class TestPydanticAIAdapter:
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
         async def test_get_anthropic_model(self, adapter: Any) -> None:
             """Test getting Anthropic model."""
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.AnthropicModel") as mock_model:
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.AnthropicModel") as mock_model:
                 mock_model.return_value = "anthropic_model"
 
                 result = adapter._get_model("anthropic", "claude-3")
@@ -86,7 +86,7 @@ class TestPydanticAIAdapter:
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
         async def test_get_gemini_model_google_provider(self, adapter: Any) -> None:
             """Test getting Gemini model with 'google' provider."""
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.GeminiModel") as mock_model:
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.GeminiModel") as mock_model:
                 mock_model.return_value = "gemini_model"
 
                 result = adapter._get_model("google", "gemini-pro")
@@ -97,7 +97,7 @@ class TestPydanticAIAdapter:
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
         async def test_get_gemini_model_gemini_provider(self, adapter: Any) -> None:
             """Test getting Gemini model with 'gemini' provider."""
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.GeminiModel") as mock_model:
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.GeminiModel") as mock_model:
                 mock_model.return_value = "gemini_model"
 
                 result = adapter._get_model("gemini", "gemini-pro")
@@ -115,7 +115,7 @@ class TestPydanticAIAdapter:
         @pytest.mark.asyncio  # type: ignore[untyped-decorator]
         async def test_provider_case_insensitive(self, adapter: Any) -> None:
             """Test that provider names are case insensitive."""
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_model:
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_model:
                 mock_model.return_value = "openai_model"
 
                 # Test various cases
@@ -133,8 +133,8 @@ class TestPydanticAIAdapter:
         async def test_create_agent_openai(self, adapter: Any, sample_agent_settings: Any, sample_tools: Any) -> None:
             """Test creating an agent with OpenAI provider."""
             with (
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_model,
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_model,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
             ):
                 mock_model_instance = Mock()
                 mock_model.return_value = mock_model_instance
@@ -163,8 +163,8 @@ class TestPydanticAIAdapter:
             sample_agent_settings.model_settings.model = "claude-3"
 
             with (
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.AnthropicModel") as mock_model,
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.AnthropicModel") as mock_model,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
             ):
                 mock_model_instance = Mock()
                 mock_model.return_value = mock_model_instance
@@ -188,8 +188,8 @@ class TestPydanticAIAdapter:
             sample_agent_settings.system_prompt = ""
 
             with (
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_model,
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_model,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
             ):
                 mock_model_instance = Mock()
                 mock_model.return_value = mock_model_instance
@@ -206,8 +206,8 @@ class TestPydanticAIAdapter:
         async def test_create_agent_with_no_tools(self, adapter: Any, sample_agent_settings: Any) -> None:
             """Test creating an agent with no tools."""
             with (
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_model,
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_model,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
             ):
                 mock_model_instance = Mock()
                 mock_model.return_value = mock_model_instance
@@ -235,7 +235,7 @@ class TestPydanticAIAdapter:
             mock_pydantic_agent.run = AsyncMock(return_value=mock_run_result)
 
             # Patch isinstance check
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
                 result = await adapter.run(mock_pydantic_agent, "Test prompt")
 
             mock_pydantic_agent.run.assert_called_once_with("Test prompt")
@@ -249,7 +249,7 @@ class TestPydanticAIAdapter:
             mock_pydantic_agent.run = AsyncMock(return_value=mock_run_result)
 
             # Patch isinstance check
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
                 result = await adapter.run(mock_pydantic_agent, "Test prompt", temperature=0.5, max_tokens=100)
 
             mock_pydantic_agent.run.assert_called_once_with("Test prompt")
@@ -270,7 +270,7 @@ class TestPydanticAIAdapter:
 
             # Patch isinstance check
             with (
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent),
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent),
                 pytest.raises(Exception, match="Agent error"),
             ):
                 await adapter.run(mock_pydantic_agent, "Test prompt")
@@ -297,7 +297,7 @@ class TestPydanticAIAdapter:
             mock_pydantic_agent.run_stream = Mock(return_value=mock_stream_result)
 
             # Patch isinstance check
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
                 # Collect streamed chunks
                 chunks = []
                 async for chunk in adapter.run_stream(mock_pydantic_agent, "Test prompt"):
@@ -320,7 +320,7 @@ class TestPydanticAIAdapter:
             mock_pydantic_agent.run_stream = Mock(return_value=mock_stream_result)
 
             # Patch isinstance check
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
                 chunks = []
                 async for chunk in adapter.run_stream(mock_pydantic_agent, "Test prompt", temperature=0.8):
                     chunks.append(chunk)
@@ -352,7 +352,7 @@ class TestPydanticAIAdapter:
             mock_pydantic_agent.run_stream = Mock(return_value=mock_stream_result)
 
             # Patch isinstance check
-            with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
+            with patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
                 chunks = []
                 async for chunk in adapter.run_stream(mock_pydantic_agent, "Test prompt"):
                     chunks.append(chunk)
@@ -366,7 +366,7 @@ class TestPydanticAIAdapter:
 
             # Patch isinstance check
             with (
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent),
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent),
                 pytest.raises(Exception, match="Streaming error"),
             ):
                 async for _chunk in adapter.run_stream(mock_pydantic_agent, "Test prompt"):
@@ -380,8 +380,8 @@ class TestPydanticAIAdapter:
             """Test complete workflow from agent creation to execution."""
             # Mock all external dependencies
             with (
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_model,
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_model,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
             ):
                 # Setup mocks
                 mock_model_instance = Mock()
@@ -406,7 +406,7 @@ class TestPydanticAIAdapter:
                 )
 
                 # Patch isinstance check and run agent
-                with patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
+                with patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent):
                     response = await adapter.run(agent, "Integration test prompt")
 
                 assert response == "Integration test response"
@@ -418,8 +418,8 @@ class TestPydanticAIAdapter:
         ) -> None:
             """Test error handling throughout the workflow."""
             with (
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel") as mock_model,
-                patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel") as mock_model,
+                patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent") as mock_agent_class,
             ):
                 # Setup mocks with error
                 mock_model_instance = Mock()
@@ -437,7 +437,7 @@ class TestPydanticAIAdapter:
 
                 # Patch isinstance check and run agent
                 with (
-                    patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent),
+                    patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent", MockPydanticAgent),
                     pytest.raises(RuntimeError, match="Agent runtime error"),
                 ):
                     await adapter.run(agent, "Error test prompt")

@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from pydantic import SecretStr
 
-from gearmeshing_ai.agent_core.abstraction import (
+from gearmeshing_ai.agent.abstraction import (
     AgentAdapter,
     AgentFactory,
     AgentSettings,
@@ -18,7 +18,7 @@ from gearmeshing_ai.agent_core.abstraction import (
     MCPClientAbstraction,
     ModelSettings,
 )
-from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog
 
 
 class ProductionAgentAdapter(AgentAdapter):
@@ -180,7 +180,7 @@ class ProductionMCPClient(MCPClientAbstraction):
     async def discover_tools_for_agent(self) -> MCPToolCatalog:
         """Discover all available tools for agent consumption."""
         # Return a catalog with all registered tools
-        from gearmeshing_ai.agent_core.models.actions import MCPToolInfo
+        from gearmeshing_ai.agent.models.actions import MCPToolInfo
 
         tools = []
         for name in self.tools_registry.keys():
@@ -503,7 +503,7 @@ class TestCompleteWorkflowIntegration:
         # Mock environment variables and settings before creating EnvManager
         with (
             patch.dict("os.environ", {}, clear=True),
-            patch("gearmeshing_ai.agent_core.abstraction.env_manager.AIProviderSettings") as mock_settings,
+            patch("gearmeshing_ai.agent.abstraction.env_manager.AIProviderSettings") as mock_settings,
         ):
             # Configure mock settings
             mock_instance = Mock()

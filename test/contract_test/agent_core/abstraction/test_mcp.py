@@ -8,8 +8,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
-from gearmeshing_ai.agent_core.models.actions import MCPToolCatalog
+from gearmeshing_ai.agent.abstraction.mcp import MCPClientAbstraction
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog
 
 
 class MockMCPClient(MCPClientAbstraction):

@@ -23,20 +23,20 @@ import logging
 import pytest
 from mcp import ListToolsResult
 
-from gearmeshing_ai.agent_core.mcp.client import (
+from gearmeshing_ai.agent.mcp.client import (
     EasyMCPClient,
     MCPClient,
     MCPClientConfig,
     RetryConfig,
     SSETransport,
 )
-from gearmeshing_ai.agent_core.mcp.client.exceptions import (
+from gearmeshing_ai.agent.mcp.client.exceptions import (
     ConnectionError as MCPConnectionError,
 )
-from gearmeshing_ai.agent_core.mcp.client.exceptions import (
+from gearmeshing_ai.agent.mcp.client.exceptions import (
     MCPClientError,
 )
-from gearmeshing_ai.agent_core.mcp.client.exceptions import (
+from gearmeshing_ai.agent.mcp.client.exceptions import (
     TimeoutError as MCPTimeoutError,
 )
 

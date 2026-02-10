@@ -82,7 +82,7 @@ def test_error_retryable():
 
 import pytest
 
-from gearmeshing_ai.agent_core.mcp.client.exceptions import (
+from gearmeshing_ai.agent.mcp.client.exceptions import (
     ConfigurationError,
     ConnectionError,
     MCPClientError,

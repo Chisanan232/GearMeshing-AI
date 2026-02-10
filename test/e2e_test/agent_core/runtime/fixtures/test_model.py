@@ -2,7 +2,7 @@
 
 import os
 
-from gearmeshing_ai.agent_core.models.actions import ActionProposal
+from gearmeshing_ai.agent.models.actions import ActionProposal
 
 
 class MockTestModel:

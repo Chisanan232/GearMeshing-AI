@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from gearmeshing_ai.agent_core.abstraction.tools.definitions import (
+from gearmeshing_ai.agent.abstraction.tools.definitions import (
     CommandRunInput,
     CommandRunOutput,
     FileListInput,

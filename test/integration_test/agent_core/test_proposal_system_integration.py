@@ -2,11 +2,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
-from gearmeshing_ai.agent_core.abstraction.mcp import MCPClientAbstraction
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
-from gearmeshing_ai.agent_core.adapters.pydantic_ai import PydanticAIAdapter
-from gearmeshing_ai.agent_core.models.actions import ActionProposal, MCPToolCatalog, MCPToolInfo
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent.abstraction.mcp import MCPClientAbstraction
+from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
+from gearmeshing_ai.agent.models.actions import ActionProposal, MCPToolCatalog, MCPToolInfo
 
 
 class MockMCPClient(MCPClientAbstraction):
@@ -80,8 +80,8 @@ class TestProposalSystemIntegration:
         assert traditional_factory._tool_catalog is None
 
     @pytest.mark.asyncio
-    @patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent")
-    @patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel")
+    @patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent")
+    @patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel")
     async def test_proposal_agent_creation(self, mock_openai, mock_pydantic_agent, proposal_factory, agent_settings):
         """Test creating proposal-only agent"""
         # Configure mocks to avoid API key issues
@@ -99,8 +99,8 @@ class TestProposalSystemIntegration:
         assert agent is not None
 
     @pytest.mark.asyncio
-    @patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent")
-    @patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel")
+    @patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent")
+    @patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel")
     async def test_traditional_agent_creation(
         self, mock_openai, mock_pydantic_agent, traditional_factory, agent_settings
     ):
@@ -171,8 +171,8 @@ class TestProposalSystemIntegration:
             await traditional_factory.execute_proposal("run_tests", {})
 
     @pytest.mark.asyncio
-    @patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent")
-    @patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel")
+    @patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent")
+    @patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel")
     async def test_caching_behavior(self, mock_openai, mock_pydantic_agent, proposal_factory, agent_settings):
         """Test that agents are cached properly"""
         # Configure mocks to avoid API key issues
@@ -195,8 +195,8 @@ class TestProposalSystemIntegration:
         assert agent1 is agent2  # Should be the same cached instance
 
     @pytest.mark.asyncio
-    @patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.PydanticAgent")
-    @patch("gearmeshing_ai.agent_core.adapters.pydantic_ai.OpenAIModel")
+    @patch("gearmeshing_ai.agent.adapters.pydantic_ai.PydanticAgent")
+    @patch("gearmeshing_ai.agent.adapters.pydantic_ai.OpenAIModel")
     async def test_proposal_vs_traditional_caching(
         self, mock_openai, mock_pydantic_agent, proposal_factory, traditional_factory, agent_settings
     ):

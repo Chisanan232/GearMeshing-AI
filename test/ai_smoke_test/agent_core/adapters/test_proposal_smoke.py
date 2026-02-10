@@ -2,9 +2,9 @@ from difflib import SequenceMatcher
 
 import pytest
 
-from gearmeshing_ai.agent_core.abstraction.settings import AgentSettings, ModelSettings
-from gearmeshing_ai.agent_core.adapters.pydantic_ai import PydanticAIAdapter
-from gearmeshing_ai.agent_core.models.actions import ActionProposal, MCPToolCatalog, MCPToolInfo
+from gearmeshing_ai.agent.abstraction.settings import AgentSettings, ModelSettings
+from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
+from gearmeshing_ai.agent.models.actions import ActionProposal, MCPToolCatalog, MCPToolInfo
 from test.settings import export_api_keys_to_env, test_settings
 
 
