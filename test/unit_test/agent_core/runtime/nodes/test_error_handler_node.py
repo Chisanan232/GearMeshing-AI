@@ -5,6 +5,8 @@ Tests cover error logging, state transitions, and error record management.
 
 import pytest
 
+from ..conftest import merge_state_update
+
 from gearmeshing_ai.agent_core.runtime.nodes.error_handler import error_handler_node
 from gearmeshing_ai.agent_core.runtime.workflow_state import (
     ExecutionContext,
@@ -44,9 +46,7 @@ class TestErrorHandlerNode:
     ) -> None:
         """Test error handler node with error status."""
         result = await error_handler_node(workflow_state_with_error)
-
-        assert "state" in result
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_error, result)
         assert updated_state.status.state == "ERROR_HANDLED"
         assert len(updated_state.executions) == 1
 
@@ -57,8 +57,7 @@ class TestErrorHandlerNode:
     ) -> None:
         """Test error handler node creates error record."""
         result = await error_handler_node(workflow_state_with_error)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_error, result)
         error_record = updated_state.executions[0]
 
         assert "timestamp" in error_record
@@ -82,8 +81,7 @@ class TestErrorHandlerNode:
         )
 
         result = await error_handler_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "COMPLETED"
         assert len(updated_state.executions) == 0
 
@@ -94,8 +92,7 @@ class TestErrorHandlerNode:
     ) -> None:
         """Test error handler node preserves run_id."""
         result = await error_handler_node(workflow_state_with_error)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_error, result)
         assert updated_state.run_id == "run_123"
 
     @pytest.mark.asyncio
@@ -105,8 +102,7 @@ class TestErrorHandlerNode:
     ) -> None:
         """Test error handler node preserves context."""
         result = await error_handler_node(workflow_state_with_error)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_error, result)
         assert updated_state.context.agent_role == "developer"
         assert updated_state.context.user_id == "user_123"
 
@@ -134,7 +130,6 @@ class TestErrorHandlerNode:
         )
 
         result = await error_handler_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert len(updated_state.executions) == 2
         assert updated_state.executions[1]["error"] == "Another error occurred"
