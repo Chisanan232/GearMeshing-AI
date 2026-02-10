@@ -4,6 +4,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
+import gearmeshing_ai.agent.roles.loader as loader_module
+import gearmeshing_ai.agent.roles.registry as registry_module
+from gearmeshing_ai.agent.roles.models.role_definition import RoleDefinition, RoleMetadata
+from gearmeshing_ai.agent.roles.registry import get_global_registry
 from gearmeshing_ai.agent.runtime.approval_manager import ApprovalManager
 from gearmeshing_ai.agent.runtime.capability_registry import CapabilityRegistry
 from gearmeshing_ai.agent.runtime.langgraph_workflow import create_agent_workflow
@@ -12,6 +16,71 @@ from test.e2e_test.agent.runtime.fixtures.mock_mcp_client import MockMCPClient
 from test.e2e_test.agent.runtime.fixtures.policy_configurator import PolicyConfigurator
 from test.e2e_test.agent.runtime.fixtures.test_model import HybridTestModel
 from test.e2e_test.agent.runtime.fixtures.workflow_executor import WorkflowExecutor
+
+
+@pytest.fixture(autouse=True)
+def reset_and_register_roles():
+    """Reset global registry and register required roles for E2E tests."""
+    # Clear the global registry before each test
+    registry_module._global_registry = None
+    loader_module._global_loader = None
+
+    # Get the global registry and register required roles
+    registry = get_global_registry()
+
+    # Define roles needed for E2E tests
+    roles_data = {
+        "developer": {
+            "description": "Software Developer",
+            "domain": "software_development",
+            "authority": "implementation",
+        },
+        "devops": {
+            "description": "DevOps Engineer",
+            "domain": "infrastructure",
+            "authority": "deployment",
+        },
+        "dba": {
+            "description": "Database Administrator",
+            "domain": "database_management",
+            "authority": "data_management",
+        },
+        "admin": {
+            "description": "System Administrator",
+            "domain": "system_administration",
+            "authority": "full_access",
+        },
+        "qa": {
+            "description": "QA Engineer",
+            "domain": "quality_assurance",
+            "authority": "quality_assessment",
+        },
+    }
+
+    # Register roles
+    for role_name, role_info in roles_data.items():
+        metadata = RoleMetadata(
+            domain=role_info["domain"],
+            decision_authority=role_info["authority"],
+        )
+
+        role = RoleDefinition(
+            role=role_name,
+            description=role_info["description"],
+            model_provider="openai",
+            model_name="gpt-4",
+            customized_model_name=f"{role_name}-gpt4",
+            system_prompt=f"You are a {role_name}...",
+            metadata=metadata,
+        )
+
+        registry.register(role)
+
+    yield
+
+    # Clean up after test
+    registry_module._global_registry = None
+    loader_module._global_loader = None
 
 
 @pytest.fixture

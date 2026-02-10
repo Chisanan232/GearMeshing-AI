@@ -53,6 +53,7 @@ class TestAgentDecisionNode:
         self,
         workflow_state: WorkflowState,
         mock_agent_factory: MagicMock,
+        mock_role_selector,
     ) -> None:
         """Test basic agent decision node execution."""
         # Setup mock
@@ -66,8 +67,8 @@ class TestAgentDecisionNode:
         )
         mock_agent_factory.adapter.run = AsyncMock(return_value=proposal)
 
-        # Execute node
-        result = await agent_decision_node(workflow_state, mock_agent_factory)
+        # Execute node with role selector
+        result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
 
         # Merge state update (simulating LangGraph behavior)
         updated_state = merge_state_update(workflow_state, result)
@@ -82,6 +83,7 @@ class TestAgentDecisionNode:
         self,
         workflow_state: WorkflowState,
         mock_agent_factory: MagicMock,
+        mock_role_selector,
     ) -> None:
         """Test agent decision node with execution context."""
         # Setup mock
@@ -96,7 +98,7 @@ class TestAgentDecisionNode:
         mock_agent_factory.adapter.run = AsyncMock(return_value=proposal)
 
         # Execute node
-        result = await agent_decision_node(workflow_state, mock_agent_factory)
+        result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
 
         # Merge state update
         updated_state = merge_state_update(workflow_state, result)
@@ -117,6 +119,7 @@ class TestAgentDecisionNode:
         self,
         workflow_state: WorkflowState,
         mock_agent_factory: MagicMock,
+        mock_role_selector,
     ) -> None:
         """Test agent decision node with invalid proposal type."""
         # Setup mock to return wrong type
@@ -124,22 +127,29 @@ class TestAgentDecisionNode:
         mock_agent_factory.get_or_create_agent = AsyncMock(return_value=mock_agent)
         mock_agent_factory.adapter.run = AsyncMock(return_value={"invalid": "proposal"})
 
-        # Execute node - should raise TypeError
-        with pytest.raises(TypeError):
-            await agent_decision_node(workflow_state, mock_agent_factory)
+        # Execute node - should return failed status
+        result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
+
+        # Merge state update
+        updated_state = merge_state_update(workflow_state, result)
+
+        # Verify error state
+        assert updated_state.status.state == "FAILED"
+        assert "Invalid proposal type" in updated_state.status.message
 
     @pytest.mark.asyncio
     async def test_agent_decision_node_agent_not_found(
         self,
         workflow_state: WorkflowState,
         mock_agent_factory: MagicMock,
+        mock_role_selector,
     ) -> None:
         """Test agent decision node when agent role not found."""
         # Setup mock to raise ValueError
         mock_agent_factory.get_or_create_agent = AsyncMock(side_effect=ValueError("Agent role not found"))
 
         # Execute node
-        result = await agent_decision_node(workflow_state, mock_agent_factory)
+        result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
 
         # Merge state update
         updated_state = merge_state_update(workflow_state, result)
@@ -154,6 +164,7 @@ class TestAgentDecisionNode:
         self,
         workflow_state: WorkflowState,
         mock_agent_factory: MagicMock,
+        mock_role_selector,
     ) -> None:
         """Test agent decision node when agent execution fails."""
         # Setup mock to raise RuntimeError
@@ -162,7 +173,7 @@ class TestAgentDecisionNode:
         mock_agent_factory.adapter.run = AsyncMock(side_effect=RuntimeError("Agent execution failed"))
 
         # Execute node
-        result = await agent_decision_node(workflow_state, mock_agent_factory)
+        result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
 
         # Merge state update
         updated_state = merge_state_update(workflow_state, result)
@@ -177,6 +188,7 @@ class TestAgentDecisionNode:
         self,
         workflow_state: WorkflowState,
         mock_agent_factory: MagicMock,
+        mock_role_selector,
     ) -> None:
         """Test agent decision node preserves run_id."""
         # Setup mock
@@ -190,7 +202,7 @@ class TestAgentDecisionNode:
         mock_agent_factory.adapter.run = AsyncMock(return_value=proposal)
 
         # Execute node
-        result = await agent_decision_node(workflow_state, mock_agent_factory)
+        result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
 
         # Merge state update
         updated_state = merge_state_update(workflow_state, result)
@@ -203,6 +215,7 @@ class TestAgentDecisionNode:
         self,
         workflow_state: WorkflowState,
         mock_agent_factory: MagicMock,
+        mock_role_selector,
     ) -> None:
         """Test agent decision node preserves execution context."""
         # Setup mock
@@ -216,7 +229,7 @@ class TestAgentDecisionNode:
         mock_agent_factory.adapter.run = AsyncMock(return_value=proposal)
 
         # Execute node
-        result = await agent_decision_node(workflow_state, mock_agent_factory)
+        result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
 
         # Merge state update
         updated_state = merge_state_update(workflow_state, result)
@@ -231,6 +244,7 @@ class TestAgentDecisionNode:
         self,
         workflow_state: WorkflowState,
         mock_agent_factory: MagicMock,
+        mock_role_selector,
     ) -> None:
         """Test agent decision node with proposal parameters."""
         # Setup mock
@@ -246,7 +260,7 @@ class TestAgentDecisionNode:
         mock_agent_factory.adapter.run = AsyncMock(return_value=proposal)
 
         # Execute node
-        result = await agent_decision_node(workflow_state, mock_agent_factory)
+        result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
 
         # Merge state update
         updated_state = merge_state_update(workflow_state, result)
@@ -263,6 +277,7 @@ class TestAgentDecisionNode:
         self,
         workflow_state: WorkflowState,
         mock_agent_factory: MagicMock,
+        mock_role_selector,
     ) -> None:
         """Test agent decision node status message."""
         # Setup mock
@@ -276,7 +291,7 @@ class TestAgentDecisionNode:
         mock_agent_factory.adapter.run = AsyncMock(return_value=proposal)
 
         # Execute node
-        result = await agent_decision_node(workflow_state, mock_agent_factory)
+        result = await agent_decision_node(workflow_state, mock_agent_factory, role_selector=mock_role_selector)
 
         # Merge state update
         updated_state = merge_state_update(workflow_state, result)
