@@ -79,9 +79,14 @@ class NodeReturnBase(BaseModel):
         """Convert to dictionary for LangGraph state update.
         
         Returns:
-            Dictionary with only non-None fields (for partial updates)
+            Dictionary with only non-None fields (for partial updates).
+            Pydantic models are kept as objects, not converted to dicts.
         """
-        return self.model_dump(exclude_none=True)
+        result = {}
+        for field_name, field_value in self:
+            if field_value is not None:
+                result[field_name] = field_value
+        return result
 
 
 class CapabilityDiscoveryNodeReturn(NodeReturnBase):
