@@ -5,6 +5,8 @@ Tests cover policy validation logic, approval routing, and error handling.
 
 import pytest
 
+from ..conftest import merge_state_update
+
 from gearmeshing_ai.agent_core.models.actions import ActionProposal
 from gearmeshing_ai.agent_core.runtime.nodes.policy_validation import policy_validation_node
 from gearmeshing_ai.agent_core.runtime.workflow_state import (
@@ -47,9 +49,7 @@ class TestPolicyValidationNode:
     ) -> None:
         """Test policy validation node with approved proposal."""
         result = await policy_validation_node(workflow_state_with_proposal)
-
-        assert "state" in result
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_proposal, result)
         assert updated_state.status.state == "POLICY_APPROVED"
         assert "approved" in updated_state.status.message.lower()
 
@@ -60,8 +60,7 @@ class TestPolicyValidationNode:
     ) -> None:
         """Test policy validation node preserves current proposal."""
         result = await policy_validation_node(workflow_state_with_proposal)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_proposal, result)
         assert updated_state.current_proposal is not None
         assert updated_state.current_proposal.action == "run_tests"
 
@@ -82,8 +81,7 @@ class TestPolicyValidationNode:
         )
 
         result = await policy_validation_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "FAILED"
         assert updated_state.status.error is not None
 
@@ -94,8 +92,7 @@ class TestPolicyValidationNode:
     ) -> None:
         """Test policy validation node preserves run_id."""
         result = await policy_validation_node(workflow_state_with_proposal)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_proposal, result)
         assert updated_state.run_id == "run_123"
 
     @pytest.mark.asyncio
@@ -105,8 +102,7 @@ class TestPolicyValidationNode:
     ) -> None:
         """Test policy validation node preserves context."""
         result = await policy_validation_node(workflow_state_with_proposal)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_proposal, result)
         assert updated_state.context.agent_role == "developer"
         assert updated_state.context.user_id == "user_123"
 
@@ -117,8 +113,7 @@ class TestPolicyValidationNode:
     ) -> None:
         """Test policy validation node status message."""
         result = await policy_validation_node(workflow_state_with_proposal)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_proposal, result)
         assert "run_tests" in updated_state.status.message
         assert "approved" in updated_state.status.message.lower()
 
@@ -147,7 +142,7 @@ class TestPolicyValidationNode:
             )
 
             result = await policy_validation_node(state)
-            updated_state = result["state"]
+            updated_state = merge_state_update(state, result)
 
             assert updated_state.status.state == "POLICY_APPROVED"
             assert action in updated_state.status.message

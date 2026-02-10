@@ -50,36 +50,27 @@ async def policy_validation_node(
 
         if policy_approved:
             logger.info(policy_message)
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="POLICY_APPROVED",
-                        message=policy_message,
-                    ),
-                }
-            )
+            return {
+                "status": WorkflowStatus(
+                    state="POLICY_APPROVED",
+                    message=policy_message,
+                ),
+            }
         else:
             logger.warning(f"Proposal rejected by policy: {proposal.action}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="POLICY_REJECTED",
-                        message=f"Proposal rejected: {proposal.action}",
-                    ),
-                }
-            )
-
-        return {"state": updated_state}
+            return {
+                "status": WorkflowStatus(
+                    state="POLICY_REJECTED",
+                    message=f"Proposal rejected: {proposal.action}",
+                ),
+            }
 
     except ValueError as e:
         logger.error(f"ValueError in policy validation: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Policy validation failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return {
+            "status": WorkflowStatus(
+                state="FAILED",
+                message="Policy validation failed",
+                error=str(e),
+            ),
+        }
