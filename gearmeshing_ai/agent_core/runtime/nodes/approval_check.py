@@ -2,12 +2,14 @@
 
 This module implements the approval check node that determines if a proposal
 requires human approval before execution.
+
+Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
 from typing import Any
 
-from ..workflow_state import WorkflowState, WorkflowStatus
+from ..models import ApprovalCheckNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -47,36 +49,26 @@ async def approval_check_node(
 
         if requires_approval:
             logger.info(f"Approval required for action: {proposal.action}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="AWAITING_APPROVAL",
-                        message=f"Awaiting approval for: {proposal.action}",
-                    ),
-                }
-            )
-        else:
-            logger.info(f"No approval required for action: {proposal.action}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="APPROVAL_SKIPPED",
-                        message=f"Proceeding without approval: {proposal.action}",
-                    ),
-                }
-            )
-
-        return {"state": updated_state}
+            return ApprovalCheckNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.AWAITING_APPROVAL.value,
+                    message=f"Awaiting approval for: {proposal.action}",
+                ),
+            ).to_dict()
+        logger.info(f"No approval required for action: {proposal.action}")
+        return ApprovalCheckNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.APPROVAL_SKIPPED.value,
+                message=f"Proceeding without approval: {proposal.action}",
+            ),
+        ).to_dict()
 
     except ValueError as e:
         logger.error(f"ValueError in approval check: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Approval check failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return ApprovalCheckNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
+                message="Approval check failed",
+                error=str(e),
+            ),
+        ).to_dict()

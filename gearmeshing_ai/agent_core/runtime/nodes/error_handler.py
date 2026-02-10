@@ -2,12 +2,14 @@
 
 This module implements the error handler node that processes and logs
 errors that occur during workflow execution.
+
+Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
 from typing import Any
 
-from ..workflow_state import WorkflowState, WorkflowStatus
+from ..models import ErrorHandlerNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -44,20 +46,16 @@ async def error_handler_node(
         # Add error to executions history
         updated_executions = state.executions + [error_record]
 
-        updated_state = state.model_copy(
-            update={
-                "executions": updated_executions,
-                "status": WorkflowStatus(
-                    state="ERROR_HANDLED",
-                    message="Error has been logged and handled",
-                    error=state.status.error,
-                ),
-            }
-        )
-
         logger.info(f"Error handled and logged for run_id={state.run_id}")
-        return {"state": updated_state}
+        return ErrorHandlerNodeReturn(
+            executions=updated_executions,
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.ERROR_HANDLED.value,
+                message="Error has been logged and handled",
+                error=state.status.error,
+            ),
+        ).to_dict()
 
     # No error to handle
     logger.debug(f"No error to handle for run_id={state.run_id}")
-    return {"state": state}
+    return {}

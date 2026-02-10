@@ -6,12 +6,14 @@ Tests cover approval decision logic, state transitions, and error handling.
 import pytest
 
 from gearmeshing_ai.agent_core.models.actions import ActionProposal
-from gearmeshing_ai.agent_core.runtime.nodes.approval_check import approval_check_node
-from gearmeshing_ai.agent_core.runtime.workflow_state import (
+from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
+from gearmeshing_ai.agent_core.runtime.nodes.approval_check import approval_check_node
+
+from ..conftest import merge_state_update
 
 
 @pytest.fixture
@@ -46,9 +48,7 @@ class TestApprovalCheckNode:
     ) -> None:
         """Test approval check node when no approval required."""
         result = await approval_check_node(workflow_state_with_proposal)
-
-        assert "state" in result
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_proposal, result)
         assert updated_state.status.state == "APPROVAL_SKIPPED"
         assert "proceeding" in updated_state.status.message.lower()
 
@@ -59,8 +59,7 @@ class TestApprovalCheckNode:
     ) -> None:
         """Test approval check node preserves current proposal."""
         result = await approval_check_node(workflow_state_with_proposal)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_proposal, result)
         assert updated_state.current_proposal is not None
         assert updated_state.current_proposal.action == "deploy"
 
@@ -81,8 +80,7 @@ class TestApprovalCheckNode:
         )
 
         result = await approval_check_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "FAILED"
         assert updated_state.status.error is not None
 
@@ -93,8 +91,7 @@ class TestApprovalCheckNode:
     ) -> None:
         """Test approval check node preserves run_id."""
         result = await approval_check_node(workflow_state_with_proposal)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_proposal, result)
         assert updated_state.run_id == "run_123"
 
     @pytest.mark.asyncio
@@ -104,7 +101,6 @@ class TestApprovalCheckNode:
     ) -> None:
         """Test approval check node preserves context."""
         result = await approval_check_node(workflow_state_with_proposal)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_proposal, result)
         assert updated_state.context.agent_role == "devops"
         assert updated_state.context.user_id == "user_123"

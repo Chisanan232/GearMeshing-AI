@@ -2,12 +2,14 @@
 
 This module implements the policy validation node that validates
 agent proposals against configured policies.
+
+Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
 from typing import Any
 
-from ..workflow_state import WorkflowState, WorkflowStatus
+from ..models import PolicyValidationNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -50,36 +52,26 @@ async def policy_validation_node(
 
         if policy_approved:
             logger.info(policy_message)
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="POLICY_APPROVED",
-                        message=policy_message,
-                    ),
-                }
-            )
-        else:
-            logger.warning(f"Proposal rejected by policy: {proposal.action}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="POLICY_REJECTED",
-                        message=f"Proposal rejected: {proposal.action}",
-                    ),
-                }
-            )
-
-        return {"state": updated_state}
+            return PolicyValidationNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.POLICY_APPROVED.value,
+                    message=policy_message,
+                ),
+            ).to_dict()
+        logger.warning(f"Proposal rejected by policy: {proposal.action}")
+        return PolicyValidationNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.POLICY_REJECTED.value,
+                message=f"Proposal rejected: {proposal.action}",
+            ),
+        ).to_dict()
 
     except ValueError as e:
         logger.error(f"ValueError in policy validation: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Policy validation failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return PolicyValidationNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
+                message="Policy validation failed",
+                error=str(e),
+            ),
+        ).to_dict()

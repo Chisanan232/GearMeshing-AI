@@ -7,12 +7,14 @@ from typing import Any
 
 import pytest
 
-from gearmeshing_ai.agent_core.runtime.nodes.result_processing import result_processing_node
-from gearmeshing_ai.agent_core.runtime.workflow_state import (
+from gearmeshing_ai.agent_core.runtime.models.workflow_state import (
     ExecutionContext,
     WorkflowState,
     WorkflowStatus,
 )
+from gearmeshing_ai.agent_core.runtime.nodes.result_processing import result_processing_node
+
+from ..conftest import merge_state_update
 
 
 @pytest.fixture
@@ -50,9 +52,7 @@ class TestResultProcessingNode:
     ) -> None:
         """Test result processing node with successful execution."""
         result = await result_processing_node(workflow_state_with_execution)
-
-        assert "state" in result
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_execution, result)
         assert updated_state.status.state == "RESULTS_PROCESSED"
         assert "run_tests" in updated_state.status.message
 
@@ -73,8 +73,7 @@ class TestResultProcessingNode:
         )
 
         result = await result_processing_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "RESULTS_PROCESSED"
         assert "no execution results" in updated_state.status.message.lower()
 
@@ -102,8 +101,7 @@ class TestResultProcessingNode:
         )
 
         result = await result_processing_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "EXECUTION_FAILED"
         assert "Tests failed" in updated_state.status.error or "Tests failed" in updated_state.status.message
 
@@ -114,8 +112,7 @@ class TestResultProcessingNode:
     ) -> None:
         """Test result processing node preserves run_id."""
         result = await result_processing_node(workflow_state_with_execution)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_execution, result)
         assert updated_state.run_id == "run_123"
 
     @pytest.mark.asyncio
@@ -125,8 +122,7 @@ class TestResultProcessingNode:
     ) -> None:
         """Test result processing node preserves context."""
         result = await result_processing_node(workflow_state_with_execution)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(workflow_state_with_execution, result)
         assert updated_state.context.agent_role == "developer"
         assert updated_state.context.user_id == "user_123"
 
@@ -152,7 +148,6 @@ class TestResultProcessingNode:
         )
 
         result = await result_processing_node(state)
-
-        updated_state = result["state"]
+        updated_state = merge_state_update(state, result)
         assert updated_state.status.state == "RESULTS_PROCESSED"
         assert "run_e2e_tests" in updated_state.status.message

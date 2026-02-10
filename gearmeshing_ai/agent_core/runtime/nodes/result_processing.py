@@ -2,12 +2,14 @@
 
 This module implements the result processing node that processes and logs
 the results of action execution.
+
+Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
 from typing import Any
 
-from ..workflow_state import WorkflowState, WorkflowStatus
+from ..models import ResultProcessingNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -33,15 +35,12 @@ async def result_processing_node(
         # Check if there are execution results to process
         if not state.executions:
             logger.debug(f"No execution results to process for run_id={state.run_id}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="RESULTS_PROCESSED",
-                        message="No execution results to process",
-                    ),
-                }
-            )
-            return {"state": updated_state}
+            return ResultProcessingNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.RESULTS_PROCESSED.value,
+                    message="No execution results to process",
+                ),
+            ).to_dict()
 
         # Get the latest execution result
         latest_execution = state.executions[-1]
@@ -50,37 +49,27 @@ async def result_processing_node(
         # Validate execution result
         if "error" in latest_execution:
             logger.error(f"Execution failed: {latest_execution['error']}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="EXECUTION_FAILED",
-                        message=f"Execution failed: {latest_execution['error']}",
-                        error=latest_execution.get("error"),
-                    ),
-                }
-            )
-        else:
-            logger.info(f"Execution succeeded: {latest_execution.get('action')}")
-            updated_state = state.model_copy(
-                update={
-                    "status": WorkflowStatus(
-                        state="RESULTS_PROCESSED",
-                        message=f"Results processed for action: {latest_execution.get('action')}",
-                    ),
-                }
-            )
-
-        return {"state": updated_state}
+            return ResultProcessingNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.EXECUTION_FAILED.value,
+                    message=f"Execution failed: {latest_execution['error']}",
+                    error=latest_execution.get("error"),
+                ),
+            ).to_dict()
+        logger.info(f"Execution succeeded: {latest_execution.get('action')}")
+        return ResultProcessingNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.RESULTS_PROCESSED.value,
+                message=f"Results processed for action: {latest_execution.get('action')}",
+            ),
+        ).to_dict()
 
     except Exception as e:
         logger.error(f"Exception in result processing: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Result processing failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return ResultProcessingNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
+                message="Result processing failed",
+                error=str(e),
+            ),
+        ).to_dict()

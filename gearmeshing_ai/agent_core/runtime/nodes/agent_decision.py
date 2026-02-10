@@ -2,6 +2,8 @@
 
 This module implements the agent decision node that uses AgentFactory
 to create an agent and obtain its proposal for the next action.
+
+Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
@@ -10,7 +12,7 @@ from typing import Any
 from gearmeshing_ai.agent_core.abstraction.factory import AgentFactory
 from gearmeshing_ai.agent_core.models.actions import ActionProposal
 
-from ..workflow_state import WorkflowState, WorkflowStatus
+from ..models import AgentDecisionNodeReturn, WorkflowState, WorkflowStateEnum, WorkflowStatus
 
 logger = logging.getLogger(__name__)
 
@@ -57,40 +59,30 @@ async def agent_decision_node(
 
         logger.info(f"Agent proposal obtained: action={proposal.action}, reason={proposal.reason}")
 
-        # Update state with new proposal
-        updated_state = state.model_copy(
-            update={
-                "current_proposal": proposal,
-                "status": WorkflowStatus(
-                    state="PROPOSAL_OBTAINED",
-                    message=f"Agent proposed action: {proposal.action}",
-                ),
-            }
-        )
-
-        return {"state": updated_state}
+        # Update state with new proposal using typed return
+        return AgentDecisionNodeReturn(
+            current_proposal=proposal,
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.PROPOSAL_OBTAINED.value,
+                message=f"Agent proposed action: {proposal.action}",
+            ),
+        ).to_dict()
 
     except ValueError as e:
         logger.error(f"ValueError in agent decision: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Agent decision failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return AgentDecisionNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
+                message="Agent decision failed",
+                error=str(e),
+            ),
+        ).to_dict()
     except RuntimeError as e:
         logger.error(f"RuntimeError in agent decision: {e}")
-        updated_state = state.model_copy(
-            update={
-                "status": WorkflowStatus(
-                    state="FAILED",
-                    message="Agent execution failed",
-                    error=str(e),
-                ),
-            }
-        )
-        return {"state": updated_state}
+        return AgentDecisionNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
+                message="Agent execution failed",
+                error=str(e),
+            ),
+        ).to_dict()
