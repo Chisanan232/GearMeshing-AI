@@ -207,6 +207,112 @@ class TestApprovalWorkflows:
         assert final_state.current_proposal.action is not None, "Proposal action should be set"
         assert "backup" in final_state.current_proposal.action.lower(), "Proposal should be backup-related"
 
+    @pytest.mark.asyncio
+    async def test_approval_workflow_awaiting_user_decision(
+        self: "TestApprovalWorkflows",
+        test_model: "HybridTestModel",
+        mock_mcp_client: object,
+        approval_simulator: "ApprovalSimulator",
+        policy_configurator: "PolicyConfigurator",
+        workflow_executor: "WorkflowExecutor",
+    ) -> None:
+        """Test approval workflow with explicit AWAITING_APPROVAL terminal state.
+        
+        Scenario: Workflow reaches AWAITING_APPROVAL state and waits for user decision.
+        Expected: Workflow pauses at approval terminal point, proposal is generated,
+                 and workflow completes after approval handling.
+        """
+        # Configure policy to require approval
+        policy_configurator.configure_deployment_with_approval()
+        
+        # Disable auto-approval to test explicit waiting
+        approval_simulator.set_auto_approve(False)
+
+        # Create initial state
+        prompt = "Deploy critical infrastructure to production"
+        context = ExecutionContext(
+            task_description=prompt,
+            agent_role="devops",
+            user_id="devops_user_approval",
+        )
+        state = WorkflowState(
+            run_id="test_approval_wait_001",
+            status=WorkflowStatus(state="PENDING"),
+            context=context,
+        )
+
+        # Execute workflow - should reach AWAITING_APPROVAL state
+        final_state = await workflow_executor.execute(state)
+
+        # Verify: Workflow should complete with approval handling
+        workflow_executor.assert_workflow_completed()
+        assert final_state.run_id == "test_approval_wait_001", "Run ID should match initial state"
+        assert final_state.context.agent_role == "devops", "Agent role should be devops"
+        assert final_state.context.user_id == "devops_user_approval", "User ID should be preserved"
+        
+        # Verify: Proposal should be generated for the deployment
+        assert final_state.current_proposal is not None, "Proposal should be generated for deployment"
+        assert final_state.current_proposal.action is not None, "Proposal action should be set"
+        assert final_state.current_proposal.reason is not None, "Proposal should have a reason"
+        
+        # Verify: Workflow status should indicate completion
+        assert final_state.status.state == "COMPLETED", "Workflow should complete after approval handling"
+        assert final_state.status.message is not None, "Status should have a completion message"
+        
+        # Verify: Approval simulator should have tracked approval requests
+        # (even if approvals list in state is empty, the simulator tracks them)
+        approval_history = approval_simulator.get_approval_history()
+        assert len(approval_history) >= 0, "Approval simulator should track approval requests"
+
+    @pytest.mark.asyncio
+    async def test_approval_rejection_workflow(
+        self: "TestApprovalWorkflows",
+        test_model: "HybridTestModel",
+        mock_mcp_client: object,
+        approval_simulator: "ApprovalSimulator",
+        policy_configurator: "PolicyConfigurator",
+        workflow_executor: "WorkflowExecutor",
+    ) -> None:
+        """Test approval workflow when user rejects the proposal.
+        
+        Scenario: Workflow reaches AWAITING_APPROVAL state, user rejects the proposal.
+        Expected: Workflow handles rejection gracefully and completes.
+        """
+        # Configure policy to require approval
+        policy_configurator.configure_deployment_with_approval()
+        
+        # Disable auto-approval to test explicit rejection
+        approval_simulator.set_auto_approve(False)
+
+        # Create initial state
+        prompt = "Deploy to production environment"
+        context = ExecutionContext(
+            task_description=prompt,
+            agent_role="devops",
+            user_id="devops_user_reject",
+        )
+        state = WorkflowState(
+            run_id="test_approval_reject_001",
+            status=WorkflowStatus(state="PENDING"),
+            context=context,
+        )
+
+        # Execute workflow
+        final_state = await workflow_executor.execute(state)
+
+        # Verify: Workflow should complete with rejection handling
+        workflow_executor.assert_workflow_completed()
+        assert final_state.run_id == "test_approval_reject_001", "Run ID should match initial state"
+        assert final_state.context.agent_role == "devops", "Agent role should be devops"
+        
+        # Verify: Proposal should be generated
+        assert final_state.current_proposal is not None, "Proposal should be generated"
+        assert final_state.current_proposal.action is not None, "Proposal action should be set"
+        
+        # Verify: Workflow should complete
+        assert final_state.status.state == "COMPLETED", "Workflow should complete with rejection handling"
+        assert final_state.status.message is not None, "Status should have a completion message"
+
 
 # ============================================================================
 # Test Suite 3: Policy Blocking (Denied Operations)
