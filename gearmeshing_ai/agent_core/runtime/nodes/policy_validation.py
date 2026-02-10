@@ -2,12 +2,16 @@
 
 This module implements the policy validation node that validates
 agent proposals against configured policies.
+
+Uses typed return models and centralized workflow state enums for type safety.
 """
 
 import logging
 from typing import Any
 
+from ..node_returns import PolicyValidationNodeReturn
 from ..workflow_state import WorkflowState, WorkflowStatus
+from ..workflow_states import WorkflowStateEnum
 
 logger = logging.getLogger(__name__)
 
@@ -50,27 +54,27 @@ async def policy_validation_node(
 
         if policy_approved:
             logger.info(policy_message)
-            return {
-                "status": WorkflowStatus(
-                    state="POLICY_APPROVED",
+            return PolicyValidationNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.POLICY_APPROVED.value,
                     message=policy_message,
                 ),
-            }
+            ).to_dict()
         else:
             logger.warning(f"Proposal rejected by policy: {proposal.action}")
-            return {
-                "status": WorkflowStatus(
-                    state="POLICY_REJECTED",
+            return PolicyValidationNodeReturn(
+                status=WorkflowStatus(
+                    state=WorkflowStateEnum.POLICY_REJECTED.value,
                     message=f"Proposal rejected: {proposal.action}",
                 ),
-            }
+            ).to_dict()
 
     except ValueError as e:
         logger.error(f"ValueError in policy validation: {e}")
-        return {
-            "status": WorkflowStatus(
-                state="FAILED",
+        return PolicyValidationNodeReturn(
+            status=WorkflowStatus(
+                state=WorkflowStateEnum.FAILED.value,
                 message="Policy validation failed",
                 error=str(e),
             ),
-        }
+        ).to_dict()
