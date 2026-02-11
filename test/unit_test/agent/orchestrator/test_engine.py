@@ -1,9 +1,12 @@
 """Unit tests for the orchestrator engine."""
 
+from __future__ import annotations
+
 import asyncio
-import pytest
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from gearmeshing_ai.agent.orchestrator.engine import OrchestratorEngine
 from gearmeshing_ai.agent.orchestrator.models import (

@@ -1,6 +1,9 @@
 """End-to-end tests for the orchestrator module."""
 
+from __future__ import annotations
+
 import asyncio
+
 import pytest
 
 from gearmeshing_ai.agent.orchestrator.engine import OrchestratorEngine

@@ -1,7 +1,10 @@
 """Unit tests for orchestrator data models."""
 
+from __future__ import annotations
+
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime
 
 from gearmeshing_ai.agent.orchestrator.models import (
     ApprovalDecision,

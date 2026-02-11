@@ -1,14 +1,19 @@
 """Pytest fixtures for orchestrator integration tests."""
 
+from __future__ import annotations
+
+from collections.abc import AsyncGenerator
+
 import pytest
+
+from gearmeshing_ai.agent.orchestrator.approval import ApprovalHandler
 from gearmeshing_ai.agent.orchestrator.engine import OrchestratorEngine
 from gearmeshing_ai.agent.orchestrator.models import OrchestratorConfig
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
-from gearmeshing_ai.agent.orchestrator.approval import ApprovalHandler
 
 
 @pytest.fixture
-async def persistence_manager():
+async def persistence_manager() -> AsyncGenerator[PersistenceManager]:
     """Create a persistence manager for integration testing."""
     manager = PersistenceManager(backend="database")
     yield manager
@@ -16,13 +21,18 @@ async def persistence_manager():
 
 
 @pytest.fixture
-async def approval_handler(persistence_manager):
+async def approval_handler(
+    persistence_manager: PersistenceManager,
+) -> ApprovalHandler:
     """Create an approval handler for integration testing."""
     return ApprovalHandler(persistence_manager=persistence_manager)
 
 
 @pytest.fixture
-async def orchestrator_engine(persistence_manager, approval_handler):
+async def orchestrator_engine(
+    persistence_manager: PersistenceManager,
+    approval_handler: ApprovalHandler,
+) -> OrchestratorEngine:
     """Create an orchestrator engine for integration testing."""
     config = OrchestratorConfig(
         default_timeout_seconds=30,

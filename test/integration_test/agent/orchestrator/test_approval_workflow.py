@@ -1,6 +1,9 @@
 """Integration tests for approval workflows."""
 
+from __future__ import annotations
+
 import asyncio
+
 import pytest
 
 from gearmeshing_ai.agent.orchestrator.engine import OrchestratorEngine

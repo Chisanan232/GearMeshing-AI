@@ -1,8 +1,11 @@
 """Unit tests for the approval handler."""
 
+from __future__ import annotations
+
 import asyncio
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime
 
 from gearmeshing_ai.agent.orchestrator.approval import ApprovalHandler
 from gearmeshing_ai.agent.orchestrator.models import (

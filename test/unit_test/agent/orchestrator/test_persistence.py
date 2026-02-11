@@ -1,7 +1,10 @@
 """Unit tests for the persistence manager."""
 
+from __future__ import annotations
+
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime
 
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 from gearmeshing_ai.agent.orchestrator.models import (
