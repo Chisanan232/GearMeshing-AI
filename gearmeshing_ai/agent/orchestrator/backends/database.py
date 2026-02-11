@@ -1,5 +1,4 @@
-"""
-Database persistence backend for SQL databases (PostgreSQL, SQLite, etc.).
+"""Database persistence backend for SQL databases (PostgreSQL, SQLite, etc.).
 
 TODO: Implement database persistence backend.
 This is a placeholder for future implementation.
@@ -7,24 +6,23 @@ This is a placeholder for future implementation.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from .base import PersistenceBackend
 
 
 class DatabasePersistenceBackend(PersistenceBackend):
-    """
-    Database persistence backend for SQL databases.
-    
+    """Database persistence backend for SQL databases.
+
     TODO: Implement with SQLAlchemy ORM for PostgreSQL, SQLite, etc.
     """
 
     def __init__(self, connection_string: str = "sqlite:///orchestrator.db"):
-        """
-        Initialize database persistence backend.
-        
+        """Initialize database persistence backend.
+
         Args:
             connection_string: Database connection string
+
         """
         self.connection_string = connection_string
         # TODO: Initialize database connection and create tables
@@ -34,7 +32,7 @@ class DatabasePersistenceBackend(PersistenceBackend):
         # TODO: Implement database save
         raise NotImplementedError("Database backend not yet implemented")
 
-    async def load_workflow_state(self, run_id: str) -> Optional[Any]:
+    async def load_workflow_state(self, run_id: str) -> Any | None:
         """Load workflow state for resumption."""
         # TODO: Implement database load
         raise NotImplementedError("Database backend not yet implemented")
@@ -51,9 +49,9 @@ class DatabasePersistenceBackend(PersistenceBackend):
 
     async def get_approval_history(
         self,
-        run_id: Optional[str] = None,
-        approver_id: Optional[str] = None,
-        status: Optional[str] = None,
+        run_id: str | None = None,
+        approver_id: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:
@@ -68,9 +66,9 @@ class DatabasePersistenceBackend(PersistenceBackend):
 
     async def get_workflow_history(
         self,
-        user_id: Optional[str] = None,
-        agent_role: Optional[str] = None,
-        status: Optional[str] = None,
+        user_id: str | None = None,
+        agent_role: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:

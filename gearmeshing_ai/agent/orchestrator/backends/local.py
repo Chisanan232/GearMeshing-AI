@@ -1,20 +1,18 @@
-"""
-Local (in-memory) persistence backend.
+"""Local (in-memory) persistence backend.
 
 Used for testing and development. All data is stored in memory and lost on restart.
 """
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from .base import PersistenceBackend
 
 
 class LocalPersistenceBackend(PersistenceBackend):
-    """
-    In-memory persistence backend for testing and development.
-    
+    """In-memory persistence backend for testing and development.
+
     All data is stored in memory and lost on process restart.
     """
 
@@ -30,7 +28,7 @@ class LocalPersistenceBackend(PersistenceBackend):
         """Save workflow state for resumption."""
         self._workflow_states[run_id] = state
 
-    async def load_workflow_state(self, run_id: str) -> Optional[Any]:
+    async def load_workflow_state(self, run_id: str) -> Any | None:
         """Load workflow state for resumption."""
         return self._workflow_states.get(run_id)
 
@@ -45,9 +43,9 @@ class LocalPersistenceBackend(PersistenceBackend):
 
     async def get_approval_history(
         self,
-        run_id: Optional[str] = None,
-        approver_id: Optional[str] = None,
-        status: Optional[str] = None,
+        run_id: str | None = None,
+        approver_id: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:
@@ -78,7 +76,7 @@ class LocalPersistenceBackend(PersistenceBackend):
             history = [h for h in history if h.get("status") == status]
 
         # Apply pagination
-        return history[offset:offset + limit]
+        return history[offset : offset + limit]
 
     async def save_cancellation(self, cancellation: dict[str, Any]) -> None:
         """Save workflow cancellation record."""
@@ -86,9 +84,9 @@ class LocalPersistenceBackend(PersistenceBackend):
 
     async def get_workflow_history(
         self,
-        user_id: Optional[str] = None,
-        agent_role: Optional[str] = None,
-        status: Optional[str] = None,
+        user_id: str | None = None,
+        agent_role: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:
@@ -108,7 +106,7 @@ class LocalPersistenceBackend(PersistenceBackend):
             history = [h for h in history if h.get("status") == status]
 
         # Apply pagination
-        return history[offset:offset + limit]
+        return history[offset : offset + limit]
 
     async def save_approval_request(self, run_id: str, request: Any) -> None:
         """Save an approval request."""

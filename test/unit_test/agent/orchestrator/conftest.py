@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from gearmeshing_ai.agent.orchestrator.service import OrchestratorService
 from gearmeshing_ai.agent.orchestrator.approval_workflow import ApprovalWorkflow
 from gearmeshing_ai.agent.orchestrator.models import OrchestratorConfig
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
+from gearmeshing_ai.agent.orchestrator.service import OrchestratorService
 
 
 @pytest.fixture

@@ -4,15 +4,15 @@ Unit tests for ApprovalWorkflow.
 Tests approval pause/resume coordination and alternative action execution.
 """
 
-import pytest
 import asyncio
-from datetime import UTC, datetime
 from uuid import uuid4
+
+import pytest
 
 from gearmeshing_ai.agent.orchestrator.approval_workflow import ApprovalWorkflow
 from gearmeshing_ai.agent.orchestrator.models import (
-    ApprovalRequest,
     ApprovalDecision,
+    ApprovalRequest,
 )
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 

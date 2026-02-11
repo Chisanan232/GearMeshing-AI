@@ -4,18 +4,18 @@ Integration tests for approval workflow.
 Tests complete approval workflow scenarios end-to-end.
 """
 
-import pytest
 import asyncio
 from uuid import uuid4
 
-from gearmeshing_ai.agent.orchestrator.service import OrchestratorService
+import pytest
+
 from gearmeshing_ai.agent.orchestrator.approval_workflow import ApprovalWorkflow
 from gearmeshing_ai.agent.orchestrator.models import (
-    WorkflowStatus,
     ApprovalDecision,
     ApprovalRequest,
 )
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
+from gearmeshing_ai.agent.orchestrator.service import OrchestratorService
 
 
 @pytest.fixture
@@ -218,16 +218,12 @@ class TestApprovalWorkflowIntegration:
         assert decision.approver_id == "approver"
 
     @pytest.mark.asyncio
-    async def test_alternative_action_execution_in_rejection(
-        self, orchestrator_service: OrchestratorService
-    ) -> None:
+    async def test_alternative_action_execution_in_rejection(self, orchestrator_service: OrchestratorService) -> None:
         """Test alternative action execution in rejection workflow."""
         run_id = str(uuid4())
 
         # Execute alternative action
-        result = await orchestrator_service._execute_alternative_action(
-            "run_command: npm test"
-        )
+        result = await orchestrator_service._execute_alternative_action("run_command: npm test")
 
         assert result["status"] == "executed"
         assert result["command"] == "npm test"
@@ -237,9 +233,7 @@ class TestApprovalWorkflowIntegration:
         """Test skip_step alternative action."""
         run_id = str(uuid4())
 
-        result = await orchestrator_service._execute_alternative_action(
-            "skip_step"
-        )
+        result = await orchestrator_service._execute_alternative_action("skip_step")
 
         assert result["status"] == "skipped"
         assert result["action"] == "skip_step"
@@ -256,20 +250,14 @@ class TestApprovalWorkflowIntegration:
                 run_id=run_id,
                 approver_id="approver_1" if i < 2 else "approver_2",
             )
-            await persistence_manager.save_approval_decision(
-                approval_workflow._approval_decisions[run_id]
-            )
+            await persistence_manager.save_approval_decision(approval_workflow._approval_decisions[run_id])
 
         # Filter by approver
-        history = await persistence_manager.get_approval_history(
-            approver_id="approver_1"
-        )
+        history = await persistence_manager.get_approval_history(approver_id="approver_1")
         assert len(history) >= 2
 
         # Filter by status
-        history = await persistence_manager.get_approval_history(
-            status="approved"
-        )
+        history = await persistence_manager.get_approval_history(status="approved")
         assert len(history) >= 3
 
     @pytest.mark.asyncio

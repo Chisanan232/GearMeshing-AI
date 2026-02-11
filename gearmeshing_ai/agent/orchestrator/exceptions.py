@@ -1,5 +1,4 @@
-"""
-Custom exceptions for the orchestrator module.
+"""Custom exceptions for the orchestrator module.
 
 Provides centralized exception definitions for workflow execution, approval handling,
 and state management errors.

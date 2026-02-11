@@ -4,22 +4,18 @@ Unit tests for OrchestratorService.
 Tests the thin wrapper around runtime workflow with approval support.
 """
 
-import pytest
-from datetime import UTC, datetime
 from uuid import uuid4
 
+import pytest
+
+from gearmeshing_ai.agent.orchestrator.models import (
+    WorkflowStatus,
+)
+from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 from gearmeshing_ai.agent.orchestrator.service import (
     OrchestratorService,
     WorkflowNotFoundError,
-    WorkflowNotAwaitingApprovalError,
-    WorkflowAlreadyCompletedError,
-    InvalidAlternativeActionError,
 )
-from gearmeshing_ai.agent.orchestrator.models import (
-    WorkflowStatus,
-    ApprovalDecision,
-)
-from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 
 
 @pytest.fixture
@@ -103,7 +99,7 @@ class TestOrchestratorServiceApproveWorkflow:
         """Test error when workflow not awaiting approval."""
         # Create a completed workflow state
         run_id = str(uuid4())
-        
+
         # Mock a completed state (not awaiting approval)
         # This would need actual workflow state structure
         # For now, test the error handling
@@ -119,7 +115,7 @@ class TestOrchestratorServiceApproveWorkflow:
         # This test would require setting up a workflow in AWAITING_APPROVAL state
         # For now, test that the method accepts the parameters
         run_id = str(uuid4())
-        
+
         with pytest.raises(WorkflowNotFoundError):
             await orchestrator_service.approve_workflow(
                 run_id=run_id,
@@ -146,7 +142,7 @@ class TestOrchestratorServiceRejectWorkflow:
     async def test_reject_workflow_invalid_alternative_action(self, orchestrator_service):
         """Test error when alternative action is invalid."""
         run_id = str(uuid4())
-        
+
         with pytest.raises(WorkflowNotFoundError):
             await orchestrator_service.reject_workflow(
                 run_id=run_id,
@@ -159,7 +155,7 @@ class TestOrchestratorServiceRejectWorkflow:
     async def test_reject_workflow_with_command_action(self, orchestrator_service):
         """Test rejecting workflow with command alternative action."""
         run_id = str(uuid4())
-        
+
         with pytest.raises(WorkflowNotFoundError):
             await orchestrator_service.reject_workflow(
                 run_id=run_id,
@@ -172,7 +168,7 @@ class TestOrchestratorServiceRejectWorkflow:
     async def test_reject_workflow_with_skip_action(self, orchestrator_service):
         """Test rejecting workflow with skip_step alternative action."""
         run_id = str(uuid4())
-        
+
         with pytest.raises(WorkflowNotFoundError):
             await orchestrator_service.reject_workflow(
                 run_id=run_id,
@@ -199,7 +195,7 @@ class TestOrchestratorServiceCancelWorkflow:
     async def test_cancel_workflow_returns_cancelled_status(self, orchestrator_service):
         """Test that cancel_workflow returns CANCELLED status."""
         run_id = str(uuid4())
-        
+
         with pytest.raises(WorkflowNotFoundError):
             await orchestrator_service.cancel_workflow(
                 run_id=run_id,
@@ -221,7 +217,7 @@ class TestOrchestratorServiceGetStatus:
     async def test_get_status_returns_dict(self, orchestrator_service):
         """Test that get_status returns a dictionary."""
         run_id = str(uuid4())
-        
+
         with pytest.raises(WorkflowNotFoundError):
             await orchestrator_service.get_status(run_id)
 
@@ -298,9 +294,7 @@ class TestOrchestratorServiceExecuteAlternativeAction:
     @pytest.mark.asyncio
     async def test_execute_run_command_action(self, orchestrator_service):
         """Test executing run_command alternative action."""
-        result = await orchestrator_service._execute_alternative_action(
-            "run_command: npm test"
-        )
+        result = await orchestrator_service._execute_alternative_action("run_command: npm test")
 
         assert isinstance(result, dict)
         assert "status" in result
@@ -309,9 +303,7 @@ class TestOrchestratorServiceExecuteAlternativeAction:
     @pytest.mark.asyncio
     async def test_execute_skip_step_action(self, orchestrator_service):
         """Test executing skip_step alternative action."""
-        result = await orchestrator_service._execute_alternative_action(
-            "skip_step"
-        )
+        result = await orchestrator_service._execute_alternative_action("skip_step")
 
         assert isinstance(result, dict)
         assert result["status"] == "skipped"
@@ -320,9 +312,7 @@ class TestOrchestratorServiceExecuteAlternativeAction:
     @pytest.mark.asyncio
     async def test_execute_unknown_action(self, orchestrator_service):
         """Test executing unknown alternative action."""
-        result = await orchestrator_service._execute_alternative_action(
-            "unknown_action: something"
-        )
+        result = await orchestrator_service._execute_alternative_action("unknown_action: something")
 
         assert isinstance(result, dict)
         assert result["status"] == "unknown"

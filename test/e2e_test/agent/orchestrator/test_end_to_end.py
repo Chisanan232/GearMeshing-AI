@@ -6,11 +6,11 @@ import asyncio
 
 import pytest
 
-from gearmeshing_ai.agent.orchestrator.service import OrchestratorService
-from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 from gearmeshing_ai.agent.orchestrator.models import (
     WorkflowStatus,
 )
+from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
+from gearmeshing_ai.agent.orchestrator.service import OrchestratorService
 
 
 class TestOrchestratorEndToEnd:
@@ -96,13 +96,13 @@ class TestOrchestratorEndToEnd:
 
         run_id = result.run_id
         assert run_id is not None
-        
+
         # Verify result has required fields
         assert result.status is not None
         assert result.started_at is not None
         assert result.completed_at is not None
         assert result.duration_seconds is not None
-        
+
         # Verify status is one of the valid states
         assert result.status in [
             WorkflowStatus.SUCCESS,
@@ -120,7 +120,7 @@ class TestOrchestratorEndToEnd:
 
         run_id = result.run_id
         assert run_id is not None
-        
+
         # Verify workflow completed
         assert result.status is not None
         assert result.started_at is not None
@@ -129,7 +129,7 @@ class TestOrchestratorEndToEnd:
         # Get approval history
         history = await service.get_approval_history(run_id=run_id)
         assert isinstance(history, list)
-        
+
         # If workflow went to approval, history should have entries
         if result.status == WorkflowStatus.AWAITING_APPROVAL:
             # History may be empty if approval wasn't processed yet

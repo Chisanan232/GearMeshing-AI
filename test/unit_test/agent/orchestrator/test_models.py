@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-
-import pytest
+from datetime import datetime
 
 from gearmeshing_ai.agent.orchestrator.models import (
     ApprovalDecision,
@@ -118,6 +116,7 @@ class TestDataModels:
 
     def test_workflow_callbacks_creation(self):
         """Test WorkflowCallbacks creation."""
+
         def on_event(event):
             pass
 

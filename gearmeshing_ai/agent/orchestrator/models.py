@@ -1,5 +1,4 @@
-"""
-Data models for the orchestrator module.
+"""Data models for the orchestrator module.
 
 Defines all data structures used for workflow execution, approval management,
 state persistence, and event callbacks.
@@ -7,15 +6,17 @@ state persistence, and event callbacks.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 from uuid import uuid4
 
 
 class WorkflowStatus(str, Enum):
     """Status of a workflow execution."""
+
     PENDING = "pending"
     RUNNING = "running"
     AWAITING_APPROVAL = "awaiting_approval"
@@ -27,6 +28,7 @@ class WorkflowStatus(str, Enum):
 
 class ApprovalDecision(str, Enum):
     """User decision on an approval request."""
+
     APPROVED = "approved"
     REJECTED = "rejected"
     TIMEOUT = "timeout"
@@ -34,6 +36,7 @@ class ApprovalDecision(str, Enum):
 
 class WorkflowEventType(str, Enum):
     """Types of workflow events."""
+
     WORKFLOW_STARTED = "workflow_started"
     CAPABILITY_DISCOVERY_STARTED = "capability_discovery_started"
     CAPABILITY_DISCOVERY_COMPLETED = "capability_discovery_completed"

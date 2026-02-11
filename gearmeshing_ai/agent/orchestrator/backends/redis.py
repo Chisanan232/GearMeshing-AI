@@ -1,5 +1,4 @@
-"""
-Redis persistence backend for caching and temporary state storage.
+"""Redis persistence backend for caching and temporary state storage.
 
 TODO: Implement Redis persistence backend.
 This is a placeholder for future implementation.
@@ -7,26 +6,25 @@ This is a placeholder for future implementation.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from .base import PersistenceBackend
 
 
 class RedisPersistenceBackend(PersistenceBackend):
-    """
-    Redis persistence backend for caching and temporary state storage.
-    
+    """Redis persistence backend for caching and temporary state storage.
+
     TODO: Implement with redis-py or aioredis for async support.
     """
 
     def __init__(self, host: str = "localhost", port: int = 6379, db: int = 0):
-        """
-        Initialize Redis persistence backend.
-        
+        """Initialize Redis persistence backend.
+
         Args:
             host: Redis host
             port: Redis port
             db: Redis database number
+
         """
         self.host = host
         self.port = port
@@ -38,7 +36,7 @@ class RedisPersistenceBackend(PersistenceBackend):
         # TODO: Implement Redis save
         raise NotImplementedError("Redis backend not yet implemented")
 
-    async def load_workflow_state(self, run_id: str) -> Optional[Any]:
+    async def load_workflow_state(self, run_id: str) -> Any | None:
         """Load workflow state for resumption."""
         # TODO: Implement Redis load
         raise NotImplementedError("Redis backend not yet implemented")
@@ -55,9 +53,9 @@ class RedisPersistenceBackend(PersistenceBackend):
 
     async def get_approval_history(
         self,
-        run_id: Optional[str] = None,
-        approver_id: Optional[str] = None,
-        status: Optional[str] = None,
+        run_id: str | None = None,
+        approver_id: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:
@@ -72,9 +70,9 @@ class RedisPersistenceBackend(PersistenceBackend):
 
     async def get_workflow_history(
         self,
-        user_id: Optional[str] = None,
-        agent_role: Optional[str] = None,
-        status: Optional[str] = None,
+        user_id: str | None = None,
+        agent_role: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:

@@ -1,5 +1,4 @@
-"""
-Persistence manager for workflow state and event storage.
+"""Persistence manager for workflow state and event storage.
 
 Handles saving and retrieving workflow state, events, approvals, and checkpoints
 from various storage backends (database, redis, filesystem).
@@ -7,22 +6,21 @@ from various storage backends (database, redis, filesystem).
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
+from .backends.base import PersistenceBackend
+from .backends.local import LocalPersistenceBackend
 from .models import (
     ApprovalDecisionRecord,
     ApprovalRequest,
     WorkflowCheckpoint,
     WorkflowEvent,
 )
-from .backends.base import PersistenceBackend
-from .backends.local import LocalPersistenceBackend
 
 
 class PersistenceManager:
-    """
-    Manages persistence of workflow state, events, and approvals.
-    
+    """Manages persistence of workflow state, events, and approvals.
+
     Supports multiple backends:
     - local: In-memory storage (default, for testing/development)
     - database: SQL database (TODO: not implemented yet)
@@ -31,46 +29,47 @@ class PersistenceManager:
     """
 
     def __init__(self, backend: str = "local", **backend_kwargs) -> None:
-        """
-        Initialize the persistence manager.
-        
+        """Initialize the persistence manager.
+
         Args:
             backend: Storage backend type:
                      - "local": In-memory storage (default, for testing/development)
                      - "database": SQL database (TODO: not implemented yet)
                      - "redis": Redis cache (TODO: not implemented yet)
             **backend_kwargs: Additional arguments for specific backends
+
         """
         self.backend_type = backend
         self._backend = self._create_backend(backend, **backend_kwargs)
 
     def _create_backend(self, backend: str, **kwargs) -> PersistenceBackend:
-        """
-        Create a persistence backend instance.
-        
+        """Create a persistence backend instance.
+
         Args:
             backend: Backend type
             **kwargs: Backend-specific arguments
-        
+
         Returns:
             PersistenceBackend instance
+
         """
         if backend == "local":
             return LocalPersistenceBackend()
-        elif backend == "database":
+        if backend == "database":
             # TODO: Implement database backend
             from .backends.database import DatabasePersistenceBackend
+
             connection_string = kwargs.get("connection_string", "sqlite:///orchestrator.db")
             return DatabasePersistenceBackend(connection_string)
-        elif backend == "redis":
+        if backend == "redis":
             # TODO: Implement redis backend
             from .backends.redis import RedisPersistenceBackend
+
             host = kwargs.get("host", "localhost")
             port = kwargs.get("port", 6379)
             db = kwargs.get("db", 0)
             return RedisPersistenceBackend(host, port, db)
-        else:
-            raise ValueError(f"Unknown backend type: {backend}")
+        raise ValueError(f"Unknown backend type: {backend}")
 
     # Delegate to backend
     async def save_event(self, event: WorkflowEvent) -> None:
@@ -124,7 +123,7 @@ class PersistenceManager:
         """Save workflow state for resumption."""
         await self._backend.save_workflow_state(run_id, state)
 
-    async def load_workflow_state(self, run_id: str) -> Optional[Any]:
+    async def load_workflow_state(self, run_id: str) -> Any | None:
         """Load workflow state for resumption."""
         return await self._backend.load_workflow_state(run_id)
 
@@ -138,9 +137,9 @@ class PersistenceManager:
 
     async def get_workflow_history(
         self,
-        user_id: Optional[str] = None,
-        agent_role: Optional[str] = None,
-        status: Optional[str] = None,
+        user_id: str | None = None,
+        agent_role: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:
@@ -155,9 +154,9 @@ class PersistenceManager:
 
     async def get_approval_history(
         self,
-        run_id: Optional[str] = None,
-        approver_id: Optional[str] = None,
-        status: Optional[str] = None,
+        run_id: str | None = None,
+        approver_id: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:

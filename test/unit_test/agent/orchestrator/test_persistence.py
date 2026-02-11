@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-
 import pytest
 
-from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 from gearmeshing_ai.agent.orchestrator.models import (
     ApprovalDecision,
     ApprovalDecisionRecord,
@@ -15,6 +12,7 @@ from gearmeshing_ai.agent.orchestrator.models import (
     WorkflowEvent,
     WorkflowEventType,
 )
+from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 
 
 class TestPersistenceManager:
@@ -147,7 +145,7 @@ class TestPersistenceManager:
 
         await manager.save_checkpoint(checkpoint)
         await manager.delete_checkpoint("run_123")
-        
+
         # Verify deletion
         assert await manager.get_checkpoint("run_123") is None
 

@@ -1,5 +1,4 @@
-"""
-Base persistence backend interface.
+"""Base persistence backend interface.
 
 Defines the interface that all persistence backends must implement.
 """
@@ -7,13 +6,12 @@ Defines the interface that all persistence backends must implement.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 
 class PersistenceBackend(ABC):
-    """
-    Abstract base class for persistence backends.
-    
+    """Abstract base class for persistence backends.
+
     All persistence backends must implement this interface.
     """
 
@@ -23,7 +21,7 @@ class PersistenceBackend(ABC):
         pass
 
     @abstractmethod
-    async def load_workflow_state(self, run_id: str) -> Optional[Any]:
+    async def load_workflow_state(self, run_id: str) -> Any | None:
         """Load workflow state for resumption."""
         pass
 
@@ -40,9 +38,9 @@ class PersistenceBackend(ABC):
     @abstractmethod
     async def get_approval_history(
         self,
-        run_id: Optional[str] = None,
-        approver_id: Optional[str] = None,
-        status: Optional[str] = None,
+        run_id: str | None = None,
+        approver_id: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:
@@ -57,9 +55,9 @@ class PersistenceBackend(ABC):
     @abstractmethod
     async def get_workflow_history(
         self,
-        user_id: Optional[str] = None,
-        agent_role: Optional[str] = None,
-        status: Optional[str] = None,
+        user_id: str | None = None,
+        agent_role: str | None = None,
+        status: str | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[dict[str, Any]]:

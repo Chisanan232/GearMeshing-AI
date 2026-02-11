@@ -1,5 +1,4 @@
-"""
-Persistence backends for orchestrator state storage.
+"""Persistence backends for orchestrator state storage.
 
 Supports multiple backends:
 - local: In-memory storage (for testing/development)
