@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from gearmeshing_ai.agent.orchestrator.approval import ApprovalHandler
-from gearmeshing_ai.agent.orchestrator.engine import OrchestratorEngine
-from gearmeshing_ai.agent.orchestrator.executor import WorkflowExecutor
+from gearmeshing_ai.agent.orchestrator.service import OrchestratorService
+from gearmeshing_ai.agent.orchestrator.approval_workflow import ApprovalWorkflow
 from gearmeshing_ai.agent.orchestrator.models import OrchestratorConfig
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 
@@ -14,25 +13,23 @@ from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 @pytest.fixture
 def persistence_manager() -> PersistenceManager:
     """Create a persistence manager for testing."""
-    return PersistenceManager(backend="database")
+    return PersistenceManager(backend="local")
 
 
 @pytest.fixture
-def approval_handler(
+def orchestrator_service(
     persistence_manager: PersistenceManager,
-) -> ApprovalHandler:
-    """Create an approval handler for testing."""
-    return ApprovalHandler(persistence_manager=persistence_manager)
+) -> OrchestratorService:
+    """Create an orchestrator service for testing."""
+    return OrchestratorService(persistence=persistence_manager)
 
 
 @pytest.fixture
-def executor() -> WorkflowExecutor:
-    """Create a workflow executor for testing."""
-    return WorkflowExecutor(
-        max_retries=3,
-        retry_delay_seconds=0.1,
-        timeout_seconds=5,
-    )
+def approval_workflow(
+    persistence_manager: PersistenceManager,
+) -> ApprovalWorkflow:
+    """Create an approval workflow for testing."""
+    return ApprovalWorkflow(persistence=persistence_manager)
 
 
 @pytest.fixture
@@ -43,11 +40,3 @@ def orchestrator_config() -> OrchestratorConfig:
         default_approval_timeout_seconds=5,
         enable_event_logging=True,
     )
-
-
-@pytest.fixture
-def orchestrator_engine(
-    orchestrator_config: OrchestratorConfig,
-) -> OrchestratorEngine:
-    """Create an orchestrator engine for testing."""
-    return OrchestratorEngine(config=orchestrator_config)
