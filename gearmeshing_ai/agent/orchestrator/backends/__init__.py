@@ -7,3 +7,9 @@ Supports multiple backends:
 - redis: Redis cache
 - filesystem: Local filesystem
 """
+
+from .local import LocalPersistenceBackend
+
+__all__ = [
+    "LocalPersistenceBackend",
+]
