@@ -362,55 +362,55 @@ def create_agent_workflow(
         logger.debug("Adding all 9 nodes to workflow graph")
 
         # Node 1: Capability discovery
-        async def capability_discovery_wrapper(state):
+        async def capability_discovery_wrapper(state: WorkflowState) -> dict[str, Any]:
             return await capability_discovery_node(state, capability_registry)
 
         workflow.add_node("capability_discovery", capability_discovery_wrapper)
 
         # Node 2: Agent decision
-        async def agent_decision_wrapper(state):
+        async def agent_decision_wrapper(state: WorkflowState) -> dict[str, Any]:
             return await agent_decision_node(state, agent_factory)
 
         workflow.add_node("agent_decision", agent_decision_wrapper)
 
         # Node 3: Policy validation
-        async def policy_validation_wrapper(state):
+        async def policy_validation_wrapper(state: WorkflowState) -> dict[str, Any]:
             return await policy_validation_node(state)
 
         workflow.add_node("policy_validation", policy_validation_wrapper)
 
         # Node 4: Approval check
-        async def approval_check_wrapper(state):
+        async def approval_check_wrapper(state: WorkflowState) -> dict[str, Any]:
             return await approval_check_node(state)
 
         workflow.add_node("approval_check", approval_check_wrapper)
 
         # Node 5: Approval workflow
-        async def approval_workflow_wrapper(state):
+        async def approval_workflow_wrapper(state: WorkflowState) -> dict[str, Any]:
             return await approval_workflow_node(state, policy_engine, approval_manager)
 
         workflow.add_node("approval_workflow", approval_workflow_wrapper)
 
         # Node 6: Result processing
-        async def result_processing_wrapper(state):
+        async def result_processing_wrapper(state: WorkflowState) -> dict[str, Any]:
             return await result_processing_node(state)
 
         workflow.add_node("result_processing", result_processing_wrapper)
 
         # Node 7: Completion check
-        async def completion_check_wrapper(state):
+        async def completion_check_wrapper(state: WorkflowState) -> dict[str, Any]:
             return await completion_check_node(state)
 
         workflow.add_node("completion_check", completion_check_wrapper)
 
         # Node 8: Approval resolution
-        async def approval_resolution_wrapper(state):
+        async def approval_resolution_wrapper(state: WorkflowState) -> dict[str, Any]:
             return await approval_resolution_node(state, approval_manager)
 
         workflow.add_node("approval_resolution", approval_resolution_wrapper)
 
         # Node 9: Error handler
-        async def error_handler_wrapper(state):
+        async def error_handler_wrapper(state: WorkflowState) -> dict[str, Any]:
             return await error_handler_node(state)
 
         workflow.add_node("error_handler", error_handler_wrapper)
