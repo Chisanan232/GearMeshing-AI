@@ -5,9 +5,11 @@ Handles orchestration, coordination, state management, and approval workflow
 state machine. Delegates execution details to WorkflowExecutor.
 """
 
+from __future__ import annotations
+
 import asyncio
-from datetime import datetime
-from typing import Any, AsyncIterator, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any, AsyncIterator
 from uuid import uuid4
 
 from .models import (
@@ -39,10 +41,10 @@ class OrchestratorEngine:
 
     def __init__(
         self,
-        config: Optional[OrchestratorConfig] = None,
-        persistence_manager: Optional[PersistenceManager] = None,
-        approval_handler: Optional[ApprovalHandler] = None,
-    ):
+        config: OrchestratorConfig | None = None,
+        persistence_manager: PersistenceManager | None = None,
+        approval_handler: ApprovalHandler | None = None,
+    ) -> None:
         """Initialize the orchestrator engine."""
         self.config = config or OrchestratorConfig()
         self.persistence_manager = persistence_manager or PersistenceManager(
@@ -51,18 +53,18 @@ class OrchestratorEngine:
         self.approval_handler = approval_handler or ApprovalHandler(
             persistence_manager=self.persistence_manager
         )
-        self._active_workflows: Dict[str, Dict[str, Any]] = {}
-        self._callbacks: Dict[str, WorkflowCallbacks] = {}
+        self._active_workflows: dict[str, dict[str, Any]] = {}
+        self._callbacks: dict[str, WorkflowCallbacks] = {}
 
     async def run_workflow(
         self,
         task_description: str,
-        agent_role: Optional[str] = None,
+        agent_role: str | None = None,
         user_id: str = "system",
         auto_select_role: bool = True,
-        timeout_seconds: Optional[int] = None,
-        approval_timeout_seconds: Optional[int] = None,
-        callbacks: Optional[WorkflowCallbacks] = None,
+        timeout_seconds: int | None = None,
+        approval_timeout_seconds: int | None = None,
+        callbacks: WorkflowCallbacks | None = None,
     ) -> WorkflowResult:
         """
         Execute a complete workflow and wait for completion or approval.
@@ -93,7 +95,7 @@ class OrchestratorEngine:
             "auto_select_role": auto_select_role,
             "status": WorkflowStatus.PENDING,
             "events": [],
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(UTC),
         }
 
         if callbacks:
@@ -134,11 +136,11 @@ class OrchestratorEngine:
     async def run_workflow_streaming(
         self,
         task_description: str,
-        agent_role: Optional[str] = None,
+        agent_role: str | None = None,
         user_id: str = "system",
         auto_select_role: bool = True,
-        timeout_seconds: Optional[int] = None,
-        approval_timeout_seconds: Optional[int] = None,
+        timeout_seconds: int | None = None,
+        approval_timeout_seconds: int | None = None,
     ) -> AsyncIterator[WorkflowEvent]:
         """
         Execute workflow with real-time event streaming.
@@ -170,7 +172,7 @@ class OrchestratorEngine:
             "auto_select_role": auto_select_role,
             "status": WorkflowStatus.PENDING,
             "events": [],
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(UTC),
         }
 
         try:
@@ -192,7 +194,7 @@ class OrchestratorEngine:
         run_id: str,
         approved: bool,
         approver_id: str,
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> ApprovalDecisionRecord:
         """
         Submit an approval decision for a paused workflow.
@@ -229,7 +231,7 @@ class OrchestratorEngine:
 
         return record
 
-    async def get_workflow_status(self, run_id: str) -> Optional[WorkflowStatus]:
+    async def get_workflow_status(self, run_id: str) -> WorkflowStatus | None:
         """Get the current status of a workflow."""
         workflow = self._active_workflows.get(run_id)
         if workflow:
@@ -271,7 +273,7 @@ class OrchestratorEngine:
             return True
         return False
 
-    async def get_workflow_history(self, run_id: str) -> List[WorkflowEvent]:
+    async def get_workflow_history(self, run_id: str) -> list[WorkflowEvent]:
         """Get all events for a workflow."""
         workflow = self._active_workflows.get(run_id)
         if workflow:
@@ -281,7 +283,7 @@ class OrchestratorEngine:
         events = await self.persistence_manager.get_events(run_id)
         return events or []
 
-    async def get_approval_history(self, run_id: str) -> List[ApprovalDecisionRecord]:
+    async def get_approval_history(self, run_id: str) -> list[ApprovalDecisionRecord]:
         """Get all approval decisions for a workflow."""
         return await self.approval_handler.get_approval_history(run_id)
 
@@ -291,7 +293,7 @@ class OrchestratorEngine:
         self,
         run_id: str,
         task_description: str,
-        agent_role: Optional[str],
+        agent_role: str | None,
         user_id: str,
         auto_select_role: bool,
         approval_timeout_seconds: int,
@@ -428,7 +430,7 @@ class OrchestratorEngine:
         self,
         run_id: str,
         task_description: str,
-        agent_role: Optional[str],
+        agent_role: str | None,
         user_id: str,
         auto_select_role: bool,
         approval_timeout_seconds: int,
@@ -589,8 +591,8 @@ class OrchestratorEngine:
         self,
         run_id: str,
         event_type: WorkflowEventType,
-        payload: Dict[str, Any],
-        approval_request: Optional[ApprovalRequest] = None,
+        payload: dict[str, Any],
+        approval_request: ApprovalRequest | None = None,
     ) -> None:
         """Emit a workflow event."""
         event = WorkflowEvent(

@@ -5,9 +5,10 @@ Handles approval requests, decisions, timeouts, and state management
 for workflows that require user approval.
 """
 
+from __future__ import annotations
+
 import asyncio
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from .models import (
@@ -29,12 +30,12 @@ class ApprovalHandler:
     - Approval history and audit trail
     """
 
-    def __init__(self, persistence_manager: Optional[PersistenceManager] = None):
+    def __init__(self, persistence_manager: PersistenceManager | None = None) -> None:
         """Initialize the approval handler."""
         self.persistence_manager = persistence_manager or PersistenceManager()
-        self._pending_approvals: Dict[str, ApprovalRequest] = {}
-        self._approval_decisions: Dict[str, ApprovalDecision] = {}
-        self._approval_events: Dict[str, asyncio.Event] = {}
+        self._pending_approvals: dict[str, ApprovalRequest] = {}
+        self._approval_decisions: dict[str, ApprovalDecision] = {}
+        self._approval_events: dict[str, asyncio.Event] = {}
 
     async def create_approval_request(
         self,
@@ -78,7 +79,7 @@ class ApprovalHandler:
         run_id: str,
         decision: ApprovalDecision,
         approver_id: str,
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> ApprovalDecisionRecord:
         """
         Resolve an approval request with a decision.
@@ -146,14 +147,14 @@ class ApprovalHandler:
             )
             return ApprovalDecision.TIMEOUT
 
-    async def get_approval_request(self, run_id: str) -> Optional[ApprovalRequest]:
+    async def get_approval_request(self, run_id: str) -> ApprovalRequest | None:
         """Get the approval request for a workflow."""
         return self._pending_approvals.get(run_id)
 
     async def get_approval_history(
         self,
         run_id: str,
-    ) -> List[ApprovalDecisionRecord]:
+    ) -> list[ApprovalDecisionRecord]:
         """Get all approval decisions for a workflow."""
         return await self.persistence_manager.get_approval_history(run_id)
 

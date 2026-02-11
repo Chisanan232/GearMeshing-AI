@@ -5,8 +5,7 @@ Handles saving and retrieving workflow state, events, approvals, and checkpoints
 from various storage backends (database, redis, filesystem).
 """
 
-from typing import Dict, List, Optional
-from datetime import datetime
+from __future__ import annotations
 
 from .models import (
     ApprovalDecisionRecord,
@@ -27,7 +26,7 @@ class PersistenceManager:
     - filesystem: Local filesystem (TODO: not implemented yet)
     """
 
-    def __init__(self, backend: str = "local"):
+    def __init__(self, backend: str = "local") -> None:
         """
         Initialize the persistence manager.
         
@@ -38,7 +37,7 @@ class PersistenceManager:
         self.backend = backend
         # TODO: Add support for actual database persistence backends (PostgreSQL, MongoDB, etc.)
         # Currently only in-memory storage is implemented
-        self._in_memory_store: Dict = {
+        self._in_memory_store: dict[str, list[object]] = {
             "events": [],
             "approvals": [],
             "checkpoints": [],
@@ -49,7 +48,7 @@ class PersistenceManager:
         """Save a workflow event."""
         self._in_memory_store["events"].append(event)
 
-    async def get_events(self, run_id: str) -> List[WorkflowEvent]:
+    async def get_events(self, run_id: str) -> list[WorkflowEvent]:
         """Get all events for a workflow."""
         return [
             e for e in self._in_memory_store["events"]
@@ -60,7 +59,7 @@ class PersistenceManager:
         """Save an approval request."""
         self._in_memory_store["approvals"].append(request)
 
-    async def get_approval_request(self, run_id: str) -> Optional[ApprovalRequest]:
+    async def get_approval_request(self, run_id: str) -> ApprovalRequest | None:
         """Get the approval request for a workflow."""
         for approval in self._in_memory_store["approvals"]:
             if approval.run_id == run_id:
@@ -71,7 +70,7 @@ class PersistenceManager:
         """Save an approval decision."""
         self._in_memory_store["decisions"].append(decision)
 
-    async def get_approval_history(self, run_id: str) -> List[ApprovalDecisionRecord]:
+    async def get_approval_history(self, run_id: str) -> list[ApprovalDecisionRecord]:
         """Get all approval decisions for a workflow."""
         return [
             d for d in self._in_memory_store["decisions"]
@@ -82,7 +81,7 @@ class PersistenceManager:
         """Save a workflow checkpoint."""
         self._in_memory_store["checkpoints"].append(checkpoint)
 
-    async def get_checkpoint(self, run_id: str) -> Optional[WorkflowCheckpoint]:
+    async def get_checkpoint(self, run_id: str) -> WorkflowCheckpoint | None:
         """Get the latest checkpoint for a workflow."""
         checkpoints = [
             c for c in self._in_memory_store["checkpoints"]

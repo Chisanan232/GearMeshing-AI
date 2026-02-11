@@ -6,8 +6,10 @@ timeouts, retries, and error handling. Delegates high-level orchestration
 to OrchestratorEngine.
 """
 
+from __future__ import annotations
+
 import asyncio
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class WorkflowExecutor:
@@ -26,7 +28,7 @@ class WorkflowExecutor:
         max_retries: int = 3,
         retry_delay_seconds: int = 5,
         timeout_seconds: int = 300,
-    ):
+    ) -> None:
         """Initialize the workflow executor."""
         self.max_retries = max_retries
         self.retry_delay_seconds = retry_delay_seconds
@@ -35,11 +37,11 @@ class WorkflowExecutor:
     async def execute_step(
         self,
         step_name: str,
-        step_func,
-        *args,
-        timeout_seconds: Optional[int] = None,
-        **kwargs,
-    ) -> Dict[str, Any]:
+        step_func: Any,
+        *args: Any,
+        timeout_seconds: int | None = None,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """
         Execute a workflow step with timeout and retry logic.
         
