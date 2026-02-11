@@ -19,19 +19,19 @@ from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 
 
 @pytest.fixture
-def persistence_manager():
+def persistence_manager() -> PersistenceManager:
     """Create a persistence manager for testing."""
     return PersistenceManager(backend="local")
 
 
 @pytest.fixture
-def orchestrator_service(persistence_manager):
+def orchestrator_service(persistence_manager: PersistenceManager) -> OrchestratorService:
     """Create an OrchestratorService for testing."""
     return OrchestratorService(persistence=persistence_manager)
 
 
 @pytest.fixture
-def approval_workflow(persistence_manager):
+def approval_workflow(persistence_manager: PersistenceManager) -> ApprovalWorkflow:
     """Create an ApprovalWorkflow for testing."""
     return ApprovalWorkflow(persistence=persistence_manager)
 
@@ -40,7 +40,9 @@ class TestApprovalWorkflowIntegration:
     """Integration tests for approval workflow scenarios."""
 
     @pytest.mark.asyncio
-    async def test_approve_workflow_end_to_end(self, approval_workflow, persistence_manager):
+    async def test_approve_workflow_end_to_end(
+        self, approval_workflow: ApprovalWorkflow, persistence_manager: PersistenceManager
+    ) -> None:
         """Test complete approve workflow end-to-end."""
         run_id = str(uuid4())
         approval_request = ApprovalRequest(
@@ -70,7 +72,9 @@ class TestApprovalWorkflowIntegration:
         assert len(history) > 0
 
     @pytest.mark.asyncio
-    async def test_reject_workflow_with_alternative_end_to_end(self, approval_workflow, persistence_manager):
+    async def test_reject_workflow_with_alternative_end_to_end(
+        self, approval_workflow: ApprovalWorkflow, persistence_manager: PersistenceManager
+    ) -> None:
         """Test complete reject workflow with alternative end-to-end."""
         run_id = str(uuid4())
         approval_request = ApprovalRequest(
@@ -100,7 +104,9 @@ class TestApprovalWorkflowIntegration:
         assert len(history) > 0
 
     @pytest.mark.asyncio
-    async def test_multiple_approvals_in_workflow(self, approval_workflow, persistence_manager):
+    async def test_multiple_approvals_in_workflow(
+        self, approval_workflow: ApprovalWorkflow, persistence_manager: PersistenceManager
+    ) -> None:
         """Test workflow with multiple approval points."""
         run_id_1 = str(uuid4())
         run_id_2 = str(uuid4())
@@ -139,7 +145,9 @@ class TestApprovalWorkflowIntegration:
         assert len(history_2) > 0
 
     @pytest.mark.asyncio
-    async def test_approval_with_persistence(self, approval_workflow, persistence_manager):
+    async def test_approval_with_persistence(
+        self, approval_workflow: ApprovalWorkflow, persistence_manager: PersistenceManager
+    ) -> None:
         """Test approval workflow with state persistence."""
         run_id = str(uuid4())
 
@@ -167,7 +175,7 @@ class TestApprovalWorkflowIntegration:
         assert history[0]["approver_id"] == "approver"
 
     @pytest.mark.asyncio
-    async def test_approval_timeout_and_auto_rejection(self, approval_workflow):
+    async def test_approval_timeout_and_auto_rejection(self, approval_workflow: ApprovalWorkflow) -> None:
         """Test approval timeout and auto-rejection."""
         run_id = str(uuid4())
 
@@ -183,7 +191,7 @@ class TestApprovalWorkflowIntegration:
         assert decision.approver_id == "system"
 
     @pytest.mark.asyncio
-    async def test_approval_decision_precedence(self, approval_workflow):
+    async def test_approval_decision_precedence(self, approval_workflow: ApprovalWorkflow) -> None:
         """Test that explicit decision takes precedence over auto-rejection."""
         run_id = str(uuid4())
 
@@ -210,7 +218,9 @@ class TestApprovalWorkflowIntegration:
         assert decision.approver_id == "approver"
 
     @pytest.mark.asyncio
-    async def test_alternative_action_execution_in_rejection(self, orchestrator_service):
+    async def test_alternative_action_execution_in_rejection(
+        self, orchestrator_service: OrchestratorService
+    ) -> None:
         """Test alternative action execution in rejection workflow."""
         run_id = str(uuid4())
 
@@ -223,7 +233,7 @@ class TestApprovalWorkflowIntegration:
         assert result["command"] == "npm test"
 
     @pytest.mark.asyncio
-    async def test_skip_step_alternative_action(self, orchestrator_service):
+    async def test_skip_step_alternative_action(self, orchestrator_service: OrchestratorService) -> None:
         """Test skip_step alternative action."""
         run_id = str(uuid4())
 
@@ -235,7 +245,9 @@ class TestApprovalWorkflowIntegration:
         assert result["action"] == "skip_step"
 
     @pytest.mark.asyncio
-    async def test_approval_history_filtering(self, approval_workflow, persistence_manager):
+    async def test_approval_history_filtering(
+        self, approval_workflow: ApprovalWorkflow, persistence_manager: PersistenceManager
+    ) -> None:
         """Test approval history filtering by various criteria."""
         # Create multiple approvals
         for i in range(3):
@@ -261,7 +273,9 @@ class TestApprovalWorkflowIntegration:
         assert len(history) >= 3
 
     @pytest.mark.asyncio
-    async def test_workflow_state_persistence_with_approval(self, orchestrator_service, persistence_manager):
+    async def test_workflow_state_persistence_with_approval(
+        self, orchestrator_service: OrchestratorService, persistence_manager: PersistenceManager
+    ) -> None:
         """Test workflow state persistence with approval."""
         run_id = str(uuid4())
 
@@ -280,7 +294,9 @@ class TestApprovalWorkflowIntegration:
         assert loaded_state["status"] == "awaiting_approval"
 
     @pytest.mark.asyncio
-    async def test_cancellation_workflow(self, orchestrator_service, persistence_manager):
+    async def test_cancellation_workflow(
+        self, orchestrator_service: OrchestratorService, persistence_manager: PersistenceManager
+    ) -> None:
         """Test workflow cancellation."""
         run_id = str(uuid4())
 
@@ -297,7 +313,7 @@ class TestApprovalWorkflowIntegration:
         # This test verifies the interface works
 
     @pytest.mark.asyncio
-    async def test_approval_workflow_cleanup(self, approval_workflow):
+    async def test_approval_workflow_cleanup(self, approval_workflow: ApprovalWorkflow) -> None:
         """Test approval workflow cleanup."""
         run_id = str(uuid4())
         approval_request = ApprovalRequest(

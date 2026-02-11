@@ -9,10 +9,7 @@ import pytest
 from gearmeshing_ai.agent.orchestrator.service import OrchestratorService
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 from gearmeshing_ai.agent.orchestrator.models import (
-    ApprovalDecision,
-    OrchestratorConfig,
     WorkflowStatus,
-    WorkflowEventType,
 )
 
 
@@ -20,13 +17,13 @@ class TestOrchestratorEndToEnd:
     """End-to-end tests for the orchestrator module."""
 
     @pytest.fixture
-    def service(self):
+    def service(self) -> OrchestratorService:
         """Create an orchestrator service for testing."""
         persistence = PersistenceManager(backend="local")
         return OrchestratorService(persistence=persistence)
 
     @pytest.mark.asyncio
-    async def test_complete_workflow_without_approval(self, service):
+    async def test_complete_workflow_without_approval(self, service: OrchestratorService) -> None:
         """Test complete workflow execution without approval."""
         result = await service.run_workflow(
             task_description="Process data",
@@ -39,7 +36,7 @@ class TestOrchestratorEndToEnd:
         assert result.started_at is not None
 
     @pytest.mark.asyncio
-    async def test_complete_workflow_with_approval_flow(self, service):
+    async def test_complete_workflow_with_approval_flow(self, service: OrchestratorService) -> None:
         """Test complete workflow with approval pause and resume."""
         # Start workflow
         result = await service.run_workflow(
@@ -53,7 +50,7 @@ class TestOrchestratorEndToEnd:
         assert result.status in [WorkflowStatus.SUCCESS, WorkflowStatus.AWAITING_APPROVAL, WorkflowStatus.FAILED]
 
     @pytest.mark.asyncio
-    async def test_multiple_concurrent_workflows(self, service):
+    async def test_multiple_concurrent_workflows(self, service: OrchestratorService) -> None:
         """Test handling multiple concurrent workflows."""
         # Start multiple workflows
         tasks = [
@@ -73,7 +70,7 @@ class TestOrchestratorEndToEnd:
         assert len(set(r.run_id for r in results)) == 3  # All unique run_ids
 
     @pytest.mark.asyncio
-    async def test_workflow_error_handling(self, service):
+    async def test_workflow_error_handling(self, service: OrchestratorService) -> None:
         """Test workflow error handling."""
         # This test verifies that errors are handled gracefully
         result = await service.run_workflow(
@@ -90,7 +87,7 @@ class TestOrchestratorEndToEnd:
         ]
 
     @pytest.mark.asyncio
-    async def test_workflow_state_persistence(self, service):
+    async def test_workflow_state_persistence(self, service: OrchestratorService) -> None:
         """Test workflow state persistence across operations."""
         result = await service.run_workflow(
             task_description="Test task",
@@ -115,7 +112,7 @@ class TestOrchestratorEndToEnd:
         ]
 
     @pytest.mark.asyncio
-    async def test_approval_workflow_integration(self, service):
+    async def test_approval_workflow_integration(self, service: OrchestratorService) -> None:
         """Test approval workflow integration."""
         result = await service.run_workflow(
             task_description="Deploy to production",
