@@ -75,6 +75,8 @@ class ApprovalDecisionRecord:
     approver_id: str
     decided_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     reason: str | None = None
+    alternative_action: str | None = None
+    alternative_result: dict[str, Any] | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
