@@ -204,6 +204,13 @@ def pytest_configure(config):
 @pytest.fixture(scope="session", autouse=True)
 def check_dependencies():
     """Check if required dependencies are available for smoke tests."""
+    # Enable debug logging for troubleshooting
+    import logging
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
     # Check for testcontainers
     try:
         import testcontainers

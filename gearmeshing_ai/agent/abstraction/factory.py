@@ -1,10 +1,15 @@
 from typing import Any
 
+import logging
+
 from ..models.actions import MCPToolCatalog
 from .adapter import AgentAdapter
 from .cache import AgentCache
 from .mcp import MCPClientAbstraction
 from .settings import AgentSettings, ModelSettings
+
+
+logger = logging.getLogger(__name__)
 
 
 class AgentFactory:
@@ -44,11 +49,20 @@ class AgentFactory:
     async def initialize_proposal_mode(self):
         """Initialize proposal mode with tool discovery."""
         if self.proposal_mode and self.mcp_client:
-            self._tool_catalog = await self.mcp_client.discover_tools_for_agent()
+            logger.info("Initializing proposal mode - discovering MCP tools")
+            try:
+                self._tool_catalog = await self.mcp_client.discover_tools_for_agent()
+                logger.info(f"Discovered {len(self._tool_catalog.tools) if self._tool_catalog else 0} MCP tools")
+            except Exception as e:
+                logger.error(f"MCP tool discovery failed: {e!s}", exc_info=True)
+                raise
 
             # Update adapter with tool catalog if it's a proposal adapter
             if hasattr(self.adapter, "tool_catalog"):
                 self.adapter.tool_catalog = self._tool_catalog
+                logger.debug("Updated adapter with discovered tool catalog")
+        else:
+            logger.debug("Proposal mode not enabled or no MCP client available")
 
     async def get_or_create_agent(self, role: str, override_settings: dict[str, Any] | None = None) -> Any:
         """Retrieve an agent from cache or create a new one.
