@@ -84,14 +84,26 @@ async def agent_decision_node(
             logger.debug(f"Role validated: {agent_role}")
 
         # Create or retrieve agent from factory
-        agent = await agent_factory.get_or_create_agent(agent_role)
-        logger.debug(f"Agent created/retrieved for role={agent_role}")
+        try:
+            agent = await agent_factory.get_or_create_agent(agent_role)
+            logger.debug(f"Agent created/retrieved for role={agent_role}")
+        except Exception as e:
+            msg = f"Failed to create agent for role {agent_role}: {e!s}"
+            logger.error(msg, exc_info=True)
+            raise RuntimeError(msg) from e
 
         # Run agent to get proposal
-        proposal = await agent_factory.adapter.run(
-            agent,
-            state.context.task_description,
-        )
+        try:
+            logger.debug(f"Running agent to generate proposal for task: {state.context.task_description[:100]}...")
+            proposal = await agent_factory.adapter.run(
+                agent,
+                state.context.task_description,
+            )
+            logger.debug(f"Agent returned proposal: {type(proposal).__name__}")
+        except Exception as e:
+            msg = f"Agent execution failed: {e!s}"
+            logger.error(msg, exc_info=True)
+            raise RuntimeError(msg) from e
 
         # Validate proposal type
         if not isinstance(proposal, ActionProposal):
