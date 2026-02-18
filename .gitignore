@@ -41,8 +41,11 @@ dist/
 ## Configuration
 .env*
 !.env*example
+.idea/
 
 ## Script
 scripts/ci/get-all-tests.sh
 
 ## Some usage of this project
+# Prompts for AI tools
+.ai_prompts/
