@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 # pydantic_ai imports
@@ -21,6 +22,8 @@ from ..abstraction.tools import (
 )
 from ..models.actions import ActionProposal, MCPToolCatalog
 
+logger = logging.getLogger(__name__)
+
 
 class PydanticAIAdapter(AgentAdapter):
     """Adapter implementation for Pydantic AI framework with tool registration support."""
@@ -39,6 +42,7 @@ class PydanticAIAdapter(AgentAdapter):
     def _get_model(self, provider: str, model_name: str) -> Any:
         """Create a Pydantic AI model."""
         provider = provider.lower()
+        logger.debug(f"Creating model: {provider}/{model_name}")
         if provider == "openai":
             return OpenAIModel(model_name)
         if provider == "anthropic":
@@ -46,13 +50,16 @@ class PydanticAIAdapter(AgentAdapter):
         if provider in ["google", "gemini"]:
             return GeminiModel(model_name)
         # Fallback or default to string which Pydantic AI might handle or fail
+        logger.warning(f"Unknown provider '{provider}', using fallback model string")
         return f"{provider}:{model_name}"
 
     def create_agent(self, settings: AgentSettings, tools: list[Any]) -> Any:
         """Create a Pydantic AI Agent instance with tool registration."""
+        logger.info(f"Creating agent: role={settings.role}, model={settings.model_settings.model}")
         model_instance = self._get_model(settings.model_settings.provider, settings.model_settings.model)
 
         if self.proposal_mode:
+            logger.debug("Creating proposal-only agent")
             # Create proposal-only agent
             system_prompt = self._build_proposal_prompt(settings.system_prompt)
             agent = PydanticAgent(
@@ -62,8 +69,10 @@ class PydanticAIAdapter(AgentAdapter):
             )
             # Register only file tools for proposal mode (no command execution)
             self._register_file_tools(agent)
+            logger.info("Created proposal-only agent with file tools")
             return agent
 
+        logger.debug("Creating traditional agent with full tool set")
         # Create traditional agent with tools
         agent = PydanticAgent(
             model=model_instance,
@@ -72,7 +81,7 @@ class PydanticAIAdapter(AgentAdapter):
 
         # Register all tools (file + command) using the template method
         self._register_tools(agent)
-
+        logger.info("Created traditional agent with all tools registered")
         return agent
 
     # Implement protected tool registration methods

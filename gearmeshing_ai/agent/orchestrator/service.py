@@ -7,10 +7,15 @@ Delegates all workflow execution to the runtime package.
 from __future__ import annotations
 
 import asyncio
+import logging
 from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
+from gearmeshing_ai.agent.mcp.client.core import MCPClient
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog
 from gearmeshing_ai.agent.orchestrator.exceptions import (
     ApprovalTimeoutError,
     InvalidAlternativeActionError,
@@ -26,6 +31,9 @@ from gearmeshing_ai.agent.orchestrator.models import (
 )
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 from gearmeshing_ai.agent.runtime import ExecutionContext, WorkflowState, create_agent_workflow
+from gearmeshing_ai.agent.runtime.models import WorkflowStatus as RuntimeWorkflowStatus
+
+logger = logging.getLogger(__name__)
 
 
 class OrchestratorService:
@@ -44,6 +52,51 @@ class OrchestratorService:
 
         """
         self.persistence: PersistenceManager = persistence or PersistenceManager()
+
+    def _create_workflow(self) -> Any:
+        """Create LangGraph workflow with required dependencies.
+
+        Returns:
+            Compiled LangGraph workflow graph
+
+        """
+        try:
+            # Create adapter with empty tool catalog for proposal mode
+            adapter = PydanticAIAdapter(proposal_mode=True, tool_catalog=MCPToolCatalog(tools=[]))
+
+            # Create MCP client with proper configuration
+            # Note: MCPClient requires a transport to be set via set_transport()
+            # For now, we create it without transport - the runtime will handle tool discovery
+            mcp_client = MCPClient()
+            logger.debug("Created MCPClient for workflow")
+
+            # Create agent factory with adapter and MCP client
+            agent_factory = AgentFactory(adapter=adapter, mcp_client=mcp_client, proposal_mode=True)
+
+            # Register agent settings from role registry
+            from gearmeshing_ai.agent.roles.registry import get_global_registry
+
+            registry = get_global_registry()
+            for role_name in registry.list_roles():
+                role_def = registry.get(role_name)
+                if role_def and not agent_factory.get_agent_settings(role_name):
+                    agent_settings = role_def.to_agent_settings()
+                    agent_factory.register_agent_settings(agent_settings)
+                    logger.debug(f"Registered agent settings for role: {role_name}")
+
+            # Create and return workflow
+            logger.debug("Creating LangGraph workflow with agent factory and MCP client")
+            return create_agent_workflow(
+                agent_factory=agent_factory,
+                mcp_client=mcp_client,
+                # Use default values for optional parameters
+                capability_registry=None,
+                policy_engine=None,
+                approval_manager=None,
+            )
+        except Exception as e:
+            logger.error(f"Failed to create workflow: {e}", exc_info=True)
+            raise ValueError(f"Workflow creation failed: {e}") from e
 
     async def run_workflow(
         self,
@@ -77,6 +130,8 @@ class OrchestratorService:
         run_id = str(uuid4())
         started_at = datetime.now(UTC)
 
+        logger.info(f"Starting workflow {run_id}: task='{task_description}', role='{agent_role}', user='{user_id}'")
+
         try:
             # 1. Create execution context
             context = ExecutionContext(
@@ -88,19 +143,23 @@ class OrchestratorService:
             # 2. Create initial workflow state
             state = WorkflowState(
                 run_id=run_id,
+                status=RuntimeWorkflowStatus(state="pending", message="Workflow initialized"),
                 context=context,
             )
 
             # 3. Create runtime workflow
-            workflow = create_agent_workflow()
+            logger.debug(f"Creating LangGraph workflow for run_id={run_id}")
+            workflow = self._create_workflow()
 
             # 4. Execute workflow (delegate to runtime)
+            logger.info(f"Executing workflow {run_id} with {timeout_seconds}s timeout")
             try:
                 final_state = await asyncio.wait_for(
                     workflow.ainvoke(state),
                     timeout=timeout_seconds,
                 )
             except TimeoutError:
+                logger.warning(f"Workflow {run_id} timed out after {timeout_seconds}s")
                 completed_at = datetime.now(UTC)
                 duration = (completed_at - started_at).total_seconds()
                 return WorkflowResult(
@@ -120,6 +179,7 @@ class OrchestratorService:
             # Adjust based on actual WorkflowState implementation
             if hasattr(final_state, "status") and hasattr(final_state.status, "state"):
                 if final_state.status.state == "awaiting_approval":
+                    logger.info(f"Workflow {run_id} requires approval - pausing execution")
                     approval_request = None
                     if hasattr(final_state, "approvals") and final_state.approvals:
                         approval_request = final_state.approvals[-1]
@@ -148,9 +208,12 @@ class OrchestratorService:
             if hasattr(final_state, "status") and hasattr(final_state.status, "error"):
                 error = final_state.status.error
 
+            final_status = WorkflowStatus.SUCCESS if error is None else WorkflowStatus.FAILED
+            logger.info(f"Workflow {run_id} completed: status={final_status.value}, duration={duration:.1f}s")
+
             return WorkflowResult(
                 run_id=run_id,
-                status=WorkflowStatus.SUCCESS if error is None else WorkflowStatus.FAILED,
+                status=final_status,
                 output=output,
                 error=error,
                 started_at=started_at,
@@ -159,6 +222,7 @@ class OrchestratorService:
             )
 
         except Exception as e:
+            logger.error(f"Workflow {run_id} failed: {e!s}", exc_info=True)
             completed_at = datetime.now(UTC)
             duration = (completed_at - started_at).total_seconds()
             return WorkflowResult(
@@ -194,17 +258,22 @@ class OrchestratorService:
         """
         started_at = datetime.now(UTC)
 
+        logger.info(f"Processing approval for workflow {run_id}: decision={reason}, approver={approver_id}")
+
         try:
             # 1. Load persisted state
             state = await self.persistence.load_workflow_state(run_id)
             if not state:
+                logger.warning(f"Workflow {run_id} not found for approval")
                 raise WorkflowNotFoundError(f"Workflow {run_id} not found")
 
             # 2. Check if waiting for approval
             if not (hasattr(state, "status") and hasattr(state.status, "state")):
+                logger.error(f"Workflow {run_id} state structure invalid for approval")
                 raise WorkflowNotAwaitingApprovalError(f"Workflow {run_id} state structure invalid")
 
             if state.status.state != "awaiting_approval":
+                logger.warning(f"Workflow {run_id} not awaiting approval (current state: {state.status.state})")
                 raise WorkflowNotAwaitingApprovalError(f"Workflow {run_id} is not awaiting approval")
 
             # 3. Record approval decision
@@ -216,12 +285,15 @@ class OrchestratorService:
                 reason=reason,
             )
             await self.persistence.save_approval_decision(approval_record)
+            logger.debug(f"Recorded approval decision for workflow {run_id}: {approval_record.decision.value}")
 
             # 4. Resume workflow execution with APPROVED decision
-            workflow = create_agent_workflow()
+            logger.info(f"Resuming workflow {run_id} after approval")
+            workflow = self._create_workflow()
             try:
                 final_state = await workflow.ainvoke(state)
             except Exception as e:
+                logger.error(f"Workflow {run_id} failed after approval: {e!s}", exc_info=True)
                 completed_at = datetime.now(UTC)
                 duration = (completed_at - started_at).total_seconds()
                 return WorkflowResult(
@@ -303,24 +375,35 @@ class OrchestratorService:
         """
         started_at = datetime.now(UTC)
 
+        logger.info(
+            f"Processing rejection for workflow {run_id}: alternative='{alternative_action}', approver={approver_id}"
+        )
+
         try:
             # 1. Load persisted state
+            logger.debug(f"Loading state for workflow {run_id}")
             state = await self.persistence.load_workflow_state(run_id)
             if not state:
+                logger.warning(f"Workflow {run_id} not found for rejection")
                 raise WorkflowNotFoundError(f"Workflow {run_id} not found")
 
             # 2. Check if waiting for approval
             if not (hasattr(state, "status") and hasattr(state.status, "state")):
+                logger.error(f"Workflow {run_id} state structure invalid for rejection")
                 raise WorkflowNotAwaitingApprovalError(f"Workflow {run_id} state structure invalid")
 
             if state.status.state != "awaiting_approval":
+                logger.warning(f"Workflow {run_id} not awaiting approval (current state: {state.status.state})")
                 raise WorkflowNotAwaitingApprovalError(f"Workflow {run_id} is not awaiting approval")
 
             # 3. Validate alternative action format
+            logger.debug(f"Validating alternative action for workflow {run_id}: {alternative_action}")
             if not alternative_action or not isinstance(alternative_action, str):
+                logger.error(f"Invalid alternative action for workflow {run_id}: {alternative_action}")
                 raise InvalidAlternativeActionError("alternative_action must be a non-empty string")
 
             # 4. Record rejection decision with alternative action
+            logger.debug(f"Recording rejection decision for workflow {run_id}")
             approval_record = ApprovalDecisionRecord(
                 approval_id=str(uuid4()),
                 run_id=run_id,
@@ -332,12 +415,15 @@ class OrchestratorService:
                 },
             )
             await self.persistence.save_approval_decision(approval_record)
+            logger.info(f"Recorded rejection decision for workflow {run_id}: alternative='{alternative_action}'")
 
             # 5. Execute alternative action
+            logger.debug(f"Executing alternative action for workflow {run_id}: {alternative_action}")
             alternative_result = await self._execute_alternative_action(alternative_action)
 
             # 6. Resume workflow with REJECTED decision + alternative result
-            workflow = create_agent_workflow()
+            logger.info(f"Resuming workflow {run_id} after rejection")
+            workflow = self._create_workflow()
             try:
                 # Inject alternative result into state for LLM to process
                 if hasattr(state, "metadata"):
@@ -347,6 +433,7 @@ class OrchestratorService:
 
                 final_state = await workflow.ainvoke(state)
             except Exception as e:
+                logger.error(f"Workflow {run_id} failed after rejection: {e!s}", exc_info=True)
                 completed_at = datetime.now(UTC)
                 duration = (completed_at - started_at).total_seconds()
                 return WorkflowResult(
@@ -377,9 +464,14 @@ class OrchestratorService:
             if hasattr(final_state, "status") and hasattr(final_state.status, "error"):
                 error = final_state.status.error
 
+            final_status = WorkflowStatus.SUCCESS if error is None else WorkflowStatus.FAILED
+            logger.info(
+                f"Workflow {run_id} completed after rejection: status={final_status.value}, duration={duration:.1f}s"
+            )
+
             return WorkflowResult(
                 run_id=run_id,
-                status=WorkflowStatus.SUCCESS if error is None else WorkflowStatus.FAILED,
+                status=final_status,
                 output=output,
                 error=error,
                 started_at=started_at,
@@ -395,6 +487,7 @@ class OrchestratorService:
         ):
             raise
         except Exception as e:
+            logger.error(f"Rejection processing failed for workflow {run_id}: {e!s}", exc_info=True)
             completed_at = datetime.now(UTC)
             duration = (completed_at - started_at).total_seconds()
             return WorkflowResult(
@@ -427,20 +520,26 @@ class OrchestratorService:
             WorkflowAlreadyCompletedError: If workflow already completed
 
         """
+        logger.info(f"Processing cancellation for workflow {run_id}: canceller={canceller_id}, reason='{reason}'")
+
         try:
             # 1. Load persisted state
+            logger.debug(f"Loading state for workflow {run_id}")
             state = await self.persistence.load_workflow_state(run_id)
             if not state:
+                logger.warning(f"Workflow {run_id} not found for cancellation")
                 raise WorkflowNotFoundError(f"Workflow {run_id} not found")
 
             # 2. Check if already completed
             if hasattr(state, "status") and hasattr(state.status, "state"):
                 if state.status.state in ["success", "failed", "cancelled", "timeout"]:
+                    logger.warning(f"Workflow {run_id} already completed with status {state.status.state}")
                     raise WorkflowAlreadyCompletedError(
                         f"Workflow {run_id} already completed with status {state.status.state}"
                     )
 
             # 3. Record cancellation
+            logger.debug(f"Recording cancellation for workflow {run_id}")
             await self.persistence.save_cancellation(
                 {
                     "run_id": run_id,
@@ -451,6 +550,7 @@ class OrchestratorService:
             )
 
             # 4. Return cancelled result
+            logger.info(f"Workflow {run_id} successfully cancelled")
             return WorkflowResult(
                 run_id=run_id,
                 status=WorkflowStatus.CANCELLED,
@@ -463,6 +563,7 @@ class OrchestratorService:
         except (WorkflowNotFoundError, WorkflowAlreadyCompletedError):
             raise
         except Exception as e:
+            logger.error(f"Cancellation failed for workflow {run_id}: {e!s}", exc_info=True)
             return WorkflowResult(
                 run_id=run_id,
                 status=WorkflowStatus.FAILED,
@@ -487,6 +588,7 @@ class OrchestratorService:
         """
         state = await self.persistence.load_workflow_state(run_id)
         if not state:
+            logger.warning(f"Status query failed - workflow {run_id} not found")
             raise WorkflowNotFoundError(f"Workflow {run_id} not found")
 
         status_dict = {
@@ -507,6 +609,7 @@ class OrchestratorService:
                     "created_at": getattr(approval_req, "created_at", None),
                 }
 
+        logger.debug(f"Workflow {run_id} status: {status_dict['state']}")
         return status_dict
 
     async def get_history(
@@ -530,13 +633,18 @@ class OrchestratorService:
             List of workflow history entries
 
         """
-        return await self.persistence.get_workflow_history(
+        logger.debug(
+            f"Querying workflow history: user={user_id}, role={agent_role}, status={status}, limit={limit}, offset={offset}"
+        )
+        history = await self.persistence.get_workflow_history(
             user_id=user_id,
             agent_role=agent_role,
             status=status,
             limit=limit,
             offset=offset,
         )
+        logger.info(f"Retrieved {len(history)} workflow history entries")
+        return history
 
     async def get_approval_history(
         self,
@@ -559,13 +667,18 @@ class OrchestratorService:
             List of approval history entries
 
         """
-        return await self.persistence.get_approval_history(
+        logger.debug(
+            f"Querying approval history: run_id={run_id}, approver={approver_id}, status={status}, limit={limit}, offset={offset}"
+        )
+        history = await self.persistence.get_approval_history(
             run_id=run_id,
             approver_id=approver_id,
             status=status,
             limit=limit,
             offset=offset,
         )
+        logger.info(f"Retrieved {len(history)} approval history entries")
+        return history
 
     async def _execute_alternative_action(self, alternative_action: str) -> dict[str, Any]:
         """Execute an alternative action.
@@ -577,28 +690,38 @@ class OrchestratorService:
             Dictionary with execution result
 
         """
+        logger.debug(f"Executing alternative action: {alternative_action}")
         try:
             if alternative_action.startswith("run_command:"):
                 command = alternative_action.replace("run_command:", "").strip()
+                logger.debug(f"Executing command: {command}")
                 # TODO: Implement actual command execution
                 # For now, return mock result
-                return {
+                result = {
                     "status": "executed",
                     "command": command,
                     "output": f"Executed: {command}",
                     "exit_code": 0,
                 }
+                logger.info(f"Alternative action executed successfully: {alternative_action}")
+                return result
             if alternative_action == "skip_step":
-                return {
+                logger.debug("Skipping step as alternative action")
+                result = {
                     "status": "skipped",
                     "action": "skip_step",
                 }
-            return {
+                logger.info("Alternative action executed successfully: skip_step")
+                return result
+            logger.warning(f"Unknown alternative action: {alternative_action}")
+            result = {
                 "status": "unknown",
                 "action": alternative_action,
                 "error": f"Unknown alternative action: {alternative_action}",
             }
+            return result
         except Exception as e:
+            logger.error(f"Alternative action execution failed: {alternative_action} - {e!s}", exc_info=True)
             return {
                 "status": "failed",
                 "action": alternative_action,
