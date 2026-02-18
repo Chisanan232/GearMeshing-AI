@@ -27,6 +27,11 @@ from gearmeshing_ai.agent.orchestrator.models import (
 )
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 from gearmeshing_ai.agent.runtime import ExecutionContext, WorkflowState, create_agent_workflow
+from gearmeshing_ai.agent.runtime.models import WorkflowStatus as RuntimeWorkflowStatus
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent.mcp.client.core import MCPClient
+from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog
 
 
 logger = logging.getLogger(__name__)
@@ -48,6 +53,39 @@ class OrchestratorService:
 
         """
         self.persistence: PersistenceManager = persistence or PersistenceManager()
+
+    def _create_workflow(self) -> Any:
+        """Create LangGraph workflow with required dependencies.
+        
+        Returns:
+            Compiled LangGraph workflow graph
+        """
+        try:
+            # Create adapter with empty tool catalog for proposal mode
+            adapter = PydanticAIAdapter(proposal_mode=True, tool_catalog=MCPToolCatalog(tools=[]))
+            
+            # Create MCP client with proper configuration
+            # Note: MCPClient requires a transport to be set via set_transport()
+            # For now, we create it without transport - the runtime will handle tool discovery
+            mcp_client = MCPClient()
+            logger.debug("Created MCPClient for workflow")
+            
+            # Create agent factory with adapter and MCP client
+            agent_factory = AgentFactory(adapter=adapter, mcp_client=mcp_client, proposal_mode=True)
+            
+            # Create and return workflow
+            logger.debug("Creating LangGraph workflow with agent factory and MCP client")
+            return create_agent_workflow(
+                agent_factory=agent_factory,
+                mcp_client=mcp_client,
+                # Use default values for optional parameters
+                capability_registry=None,
+                policy_engine=None,
+                approval_manager=None
+            )
+        except Exception as e:
+            logger.error(f"Failed to create workflow: {e}", exc_info=True)
+            raise ValueError(f"Workflow creation failed: {e}") from e
 
     async def run_workflow(
         self,
@@ -94,12 +132,16 @@ class OrchestratorService:
             # 2. Create initial workflow state
             state = WorkflowState(
                 run_id=run_id,
+                status=RuntimeWorkflowStatus(
+                    state="pending",
+                    message="Workflow initialized"
+                ),
                 context=context,
             )
 
             # 3. Create runtime workflow
             logger.debug(f"Creating LangGraph workflow for run_id={run_id}")
-            workflow = create_agent_workflow()
+            workflow = self._create_workflow()
 
             # 4. Execute workflow (delegate to runtime)
             logger.info(f"Executing workflow {run_id} with {timeout_seconds}s timeout")
@@ -239,7 +281,7 @@ class OrchestratorService:
 
             # 4. Resume workflow execution with APPROVED decision
             logger.info(f"Resuming workflow {run_id} after approval")
-            workflow = create_agent_workflow()
+            workflow = self._create_workflow()
             try:
                 final_state = await workflow.ainvoke(state)
             except Exception as e:
@@ -371,7 +413,7 @@ class OrchestratorService:
 
             # 6. Resume workflow with REJECTED decision + alternative result
             logger.info(f"Resuming workflow {run_id} after rejection")
-            workflow = create_agent_workflow()
+            workflow = self._create_workflow()
             try:
                 # Inject alternative result into state for LLM to process
                 if hasattr(state, "metadata"):
