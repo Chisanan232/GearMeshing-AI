@@ -1,13 +1,11 @@
-from typing import Any
-
 import logging
+from typing import Any
 
 from ..models.actions import MCPToolCatalog
 from .adapter import AgentAdapter
 from .cache import AgentCache
 from .mcp import MCPClientAbstraction
 from .settings import AgentSettings, ModelSettings
-
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +46,7 @@ class AgentFactory:
 
     async def initialize_proposal_mode(self):
         """Initialize proposal mode with tool discovery.
-        
+
         In proposal mode, tool discovery is optional - if MCP servers are not available,
         the agent will still work but without access to external tools.
         """
@@ -61,6 +59,7 @@ class AgentFactory:
                 logger.warning(f"MCP tool discovery failed (continuing without tools): {e!s}")
                 # In proposal mode, tool discovery is optional - create empty catalog
                 from gearmeshing_ai.agent.models.actions import MCPToolCatalog
+
                 self._tool_catalog = MCPToolCatalog(tools=[])
                 logger.debug("Created empty tool catalog for proposal mode")
 

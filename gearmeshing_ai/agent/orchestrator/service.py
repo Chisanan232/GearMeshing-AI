@@ -12,6 +12,10 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
+from gearmeshing_ai.agent.abstraction.factory import AgentFactory
+from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
+from gearmeshing_ai.agent.mcp.client.core import MCPClient
+from gearmeshing_ai.agent.models.actions import MCPToolCatalog
 from gearmeshing_ai.agent.orchestrator.exceptions import (
     ApprovalTimeoutError,
     InvalidAlternativeActionError,
@@ -28,11 +32,6 @@ from gearmeshing_ai.agent.orchestrator.models import (
 from gearmeshing_ai.agent.orchestrator.persistence import PersistenceManager
 from gearmeshing_ai.agent.runtime import ExecutionContext, WorkflowState, create_agent_workflow
 from gearmeshing_ai.agent.runtime.models import WorkflowStatus as RuntimeWorkflowStatus
-from gearmeshing_ai.agent.abstraction.factory import AgentFactory
-from gearmeshing_ai.agent.mcp.client.core import MCPClient
-from gearmeshing_ai.agent.adapters.pydantic_ai import PydanticAIAdapter
-from gearmeshing_ai.agent.models.actions import MCPToolCatalog
-
 
 logger = logging.getLogger(__name__)
 
@@ -56,25 +55,27 @@ class OrchestratorService:
 
     def _create_workflow(self) -> Any:
         """Create LangGraph workflow with required dependencies.
-        
+
         Returns:
             Compiled LangGraph workflow graph
+
         """
         try:
             # Create adapter with empty tool catalog for proposal mode
             adapter = PydanticAIAdapter(proposal_mode=True, tool_catalog=MCPToolCatalog(tools=[]))
-            
+
             # Create MCP client with proper configuration
             # Note: MCPClient requires a transport to be set via set_transport()
             # For now, we create it without transport - the runtime will handle tool discovery
             mcp_client = MCPClient()
             logger.debug("Created MCPClient for workflow")
-            
+
             # Create agent factory with adapter and MCP client
             agent_factory = AgentFactory(adapter=adapter, mcp_client=mcp_client, proposal_mode=True)
-            
+
             # Register agent settings from role registry
             from gearmeshing_ai.agent.roles.registry import get_global_registry
+
             registry = get_global_registry()
             for role_name in registry.list_roles():
                 role_def = registry.get(role_name)
@@ -82,7 +83,7 @@ class OrchestratorService:
                     agent_settings = role_def.to_agent_settings()
                     agent_factory.register_agent_settings(agent_settings)
                     logger.debug(f"Registered agent settings for role: {role_name}")
-            
+
             # Create and return workflow
             logger.debug("Creating LangGraph workflow with agent factory and MCP client")
             return create_agent_workflow(
@@ -91,7 +92,7 @@ class OrchestratorService:
                 # Use default values for optional parameters
                 capability_registry=None,
                 policy_engine=None,
-                approval_manager=None
+                approval_manager=None,
             )
         except Exception as e:
             logger.error(f"Failed to create workflow: {e}", exc_info=True)
@@ -142,10 +143,7 @@ class OrchestratorService:
             # 2. Create initial workflow state
             state = WorkflowState(
                 run_id=run_id,
-                status=RuntimeWorkflowStatus(
-                    state="pending",
-                    message="Workflow initialized"
-                ),
+                status=RuntimeWorkflowStatus(state="pending", message="Workflow initialized"),
                 context=context,
             )
 
@@ -377,7 +375,9 @@ class OrchestratorService:
         """
         started_at = datetime.now(UTC)
 
-        logger.info(f"Processing rejection for workflow {run_id}: alternative='{alternative_action}', approver={approver_id}")
+        logger.info(
+            f"Processing rejection for workflow {run_id}: alternative='{alternative_action}', approver={approver_id}"
+        )
 
         try:
             # 1. Load persisted state
@@ -465,7 +465,9 @@ class OrchestratorService:
                 error = final_state.status.error
 
             final_status = WorkflowStatus.SUCCESS if error is None else WorkflowStatus.FAILED
-            logger.info(f"Workflow {run_id} completed after rejection: status={final_status.value}, duration={duration:.1f}s")
+            logger.info(
+                f"Workflow {run_id} completed after rejection: status={final_status.value}, duration={duration:.1f}s"
+            )
 
             return WorkflowResult(
                 run_id=run_id,
@@ -631,7 +633,9 @@ class OrchestratorService:
             List of workflow history entries
 
         """
-        logger.debug(f"Querying workflow history: user={user_id}, role={agent_role}, status={status}, limit={limit}, offset={offset}")
+        logger.debug(
+            f"Querying workflow history: user={user_id}, role={agent_role}, status={status}, limit={limit}, offset={offset}"
+        )
         history = await self.persistence.get_workflow_history(
             user_id=user_id,
             agent_role=agent_role,
@@ -663,7 +667,9 @@ class OrchestratorService:
             List of approval history entries
 
         """
-        logger.debug(f"Querying approval history: run_id={run_id}, approver={approver_id}, status={status}, limit={limit}, offset={offset}")
+        logger.debug(
+            f"Querying approval history: run_id={run_id}, approver={approver_id}, status={status}, limit={limit}, offset={offset}"
+        )
         history = await self.persistence.get_approval_history(
             run_id=run_id,
             approver_id=approver_id,

@@ -1,6 +1,5 @@
-from typing import Any
-
 import logging
+from typing import Any
 
 # pydantic_ai imports
 from pydantic_ai import Agent as PydanticAgent
@@ -22,7 +21,6 @@ from ..abstraction.tools import (
     write_file_handler,
 )
 from ..models.actions import ActionProposal, MCPToolCatalog
-
 
 logger = logging.getLogger(__name__)
 
