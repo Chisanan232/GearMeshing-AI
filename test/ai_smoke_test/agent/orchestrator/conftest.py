@@ -211,6 +211,14 @@ def check_dependencies():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
+    # Load default roles from config
+    from gearmeshing_ai.agent.roles.loader import load_default_roles
+    try:
+        roles = load_default_roles()
+        logging.info(f"Loaded {len(roles)} default roles for smoke tests")
+    except Exception as e:
+        logging.warning(f"Failed to load default roles: {e}")
+    
     # Check for testcontainers
     try:
         import testcontainers
