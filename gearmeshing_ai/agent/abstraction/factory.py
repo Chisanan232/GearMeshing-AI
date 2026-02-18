@@ -47,20 +47,27 @@ class AgentFactory:
         return self._model_settings_registry.get(customized_name)
 
     async def initialize_proposal_mode(self):
-        """Initialize proposal mode with tool discovery."""
+        """Initialize proposal mode with tool discovery.
+        
+        In proposal mode, tool discovery is optional - if MCP servers are not available,
+        the agent will still work but without access to external tools.
+        """
         if self.proposal_mode and self.mcp_client:
-            logger.info("Initializing proposal mode - discovering MCP tools")
+            logger.info("Initializing proposal mode - attempting MCP tool discovery")
             try:
                 self._tool_catalog = await self.mcp_client.discover_tools_for_agent()
                 logger.info(f"Discovered {len(self._tool_catalog.tools) if self._tool_catalog else 0} MCP tools")
             except Exception as e:
-                logger.error(f"MCP tool discovery failed: {e!s}", exc_info=True)
-                raise
+                logger.warning(f"MCP tool discovery failed (continuing without tools): {e!s}")
+                # In proposal mode, tool discovery is optional - create empty catalog
+                from gearmeshing_ai.agent.models.actions import MCPToolCatalog
+                self._tool_catalog = MCPToolCatalog(tools=[])
+                logger.debug("Created empty tool catalog for proposal mode")
 
             # Update adapter with tool catalog if it's a proposal adapter
             if hasattr(self.adapter, "tool_catalog"):
                 self.adapter.tool_catalog = self._tool_catalog
-                logger.debug("Updated adapter with discovered tool catalog")
+                logger.debug("Updated adapter with tool catalog")
         else:
             logger.debug("Proposal mode not enabled or no MCP client available")
 
