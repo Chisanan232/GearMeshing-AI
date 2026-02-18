@@ -73,6 +73,16 @@ class OrchestratorService:
             # Create agent factory with adapter and MCP client
             agent_factory = AgentFactory(adapter=adapter, mcp_client=mcp_client, proposal_mode=True)
             
+            # Register agent settings from role registry
+            from gearmeshing_ai.agent.roles.registry import get_global_registry
+            registry = get_global_registry()
+            for role_name in registry.list_roles():
+                role_def = registry.get(role_name)
+                if role_def and not agent_factory.get_agent_settings(role_name):
+                    agent_settings = role_def.to_agent_settings()
+                    agent_factory.register_agent_settings(agent_settings)
+                    logger.debug(f"Registered agent settings for role: {role_name}")
+            
             # Create and return workflow
             logger.debug("Creating LangGraph workflow with agent factory and MCP client")
             return create_agent_workflow(
