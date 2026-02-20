@@ -1,5 +1,4 @@
-"""
-Temporal Workflows Package
+"""Temporal Workflows Package
 
 This package contains the Temporal workflow definitions for the scheduler system,
 including the main monitoring workflow and AI workflow executor.

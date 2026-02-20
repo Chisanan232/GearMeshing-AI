@@ -1,5 +1,4 @@
-"""
-Temporal Integration Package
+"""Temporal Integration Package
 
 This package contains the Temporal client and worker setup for the scheduler system,
 providing the infrastructure for running Temporal workflows and activities.

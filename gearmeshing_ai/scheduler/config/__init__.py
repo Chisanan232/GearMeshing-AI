@@ -1,5 +1,4 @@
-"""
-Configuration Management Package
+"""Configuration Management Package
 
 This package contains the configuration management system for the scheduler,
 including settings loading, validation, and environment variable handling.

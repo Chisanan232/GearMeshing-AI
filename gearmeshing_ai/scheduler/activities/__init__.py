@@ -1,5 +1,4 @@
-"""
-Temporal Activities Package
+"""Temporal Activities Package
 
 This package contains the Temporal activity implementations for the scheduler system,
 including data fetching, action execution, and AI workflow activities.

@@ -1,5 +1,4 @@
-"""
-Prompt Templates Package
+"""Prompt Templates Package
 
 This package contains the prompt template management system for the scheduler,
 including YAML-based templates, registry system, and LangFuse integration.

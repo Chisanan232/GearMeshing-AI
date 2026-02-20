@@ -1,8 +1,7 @@
-"""
-GearMeshing-AI Event-Driven Scheduler Package
+"""GearMeshing-AI Event-Driven Scheduler Package
 
-This package provides a sophisticated, human-like automation system that proactively 
-monitors external systems (ClickUp, Slack, etc.) and makes intelligent decisions 
+This package provides a sophisticated, human-like automation system that proactively
+monitors external systems (ClickUp, Slack, etc.) and makes intelligent decisions
 to take actions using Temporal workflows.
 
 Key Features:

@@ -1,5 +1,4 @@
-"""
-Scheduler Utilities Package
+"""Scheduler Utilities Package
 
 This package contains utility functions and helpers for the scheduler system,
 including monitoring, health checks, and metrics collection.

@@ -1,5 +1,4 @@
-"""
-Checking Points Package
+"""Checking Points Package
 
 This package contains the checking point system that provides flexible, code-based
 monitoring logic for external systems. Checking points are the core components that

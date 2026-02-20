@@ -1,5 +1,4 @@
-"""
-ClickUp Checking Points Package
+"""ClickUp Checking Points Package
 
 This package contains checking point implementations for monitoring ClickUp tasks,
 including urgent task detection, overdue task escalation, and smart assignment.
