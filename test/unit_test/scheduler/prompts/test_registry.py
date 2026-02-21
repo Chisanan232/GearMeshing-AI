@@ -1,9 +1,6 @@
-from unittest.mock import Mock, patch, AsyncMock, MagicMock
+from unittest.mock import MagicMock, patch
+
 """Unit tests for prompt template registry."""
-
-import pytest
-
-from gearmeshing_ai.scheduler.prompts.registry import PromptTemplateRegistry, PromptTemplate
 
 
 class TestPromptTemplateRegistry:
@@ -22,7 +19,7 @@ class TestPromptTemplateRegistry:
         """Test registering a prompt template."""
         registry = MagicMock()
         template = MagicMock()
-        
+
         registry.register(template)
         assert registry.get_template("test_template") is not None
 

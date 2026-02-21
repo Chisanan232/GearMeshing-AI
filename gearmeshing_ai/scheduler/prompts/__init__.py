@@ -9,11 +9,11 @@ Key Components:
 - LangFuse: Integration with LangFuse for prompt versioning
 """
 
-from .registry import prompt_template_registry, register_prompt_template
 from .loader import PromptTemplateLoader
+from .registry import prompt_template_registry, register_prompt_template
 
 __all__ = [
+    "PromptTemplateLoader",
     "prompt_template_registry",
     "register_prompt_template",
-    "PromptTemplateLoader",
 ]

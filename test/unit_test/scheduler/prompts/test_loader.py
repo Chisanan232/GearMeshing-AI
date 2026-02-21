@@ -1,10 +1,6 @@
 """Unit tests for prompt template loader."""
 
-import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-
-from gearmeshing_ai.scheduler.prompts.loader import PromptTemplateLoader
+from unittest.mock import MagicMock
 
 
 class TestPromptTemplateLoader:
