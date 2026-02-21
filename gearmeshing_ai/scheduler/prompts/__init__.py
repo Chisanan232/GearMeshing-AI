@@ -8,3 +8,12 @@ Key Components:
 - Loader: YAML loader utilities for template management
 - LangFuse: Integration with LangFuse for prompt versioning
 """
+
+from .registry import prompt_template_registry, register_prompt_template
+from .loader import PromptTemplateLoader
+
+__all__ = [
+    "prompt_template_registry",
+    "register_prompt_template",
+    "PromptTemplateLoader",
+]
