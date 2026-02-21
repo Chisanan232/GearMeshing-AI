@@ -1,7 +1,8 @@
 """Unit tests for base scheduler models."""
 
-import pytest
 from datetime import datetime
+
+import pytest
 from pydantic import ValidationError
 
 from gearmeshing_ai.scheduler.models.base import BaseSchedulerModel, TimestampedModel
@@ -79,11 +80,12 @@ class TestTimestampedModel:
         """Test that model_copy updates the updated_at timestamp."""
         original = TimestampedModel()
         original_updated_at = original.updated_at
-        
+
         # Wait a tiny bit to ensure timestamp difference
         import time
+
         time.sleep(0.01)
-        
+
         copy = original.model_copy()
         assert copy.updated_at > original_updated_at
 

@@ -1,7 +1,8 @@
 """Unit tests for workflow models."""
 
-import pytest
 from datetime import datetime
+
+import pytest
 from pydantic import ValidationError
 
 from gearmeshing_ai.scheduler.models.workflow import (
@@ -38,7 +39,7 @@ class TestAIAction:
             name="test_action",
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
-            checking_point_name="test_cp"
+            checking_point_name="test_cp",
         )
         assert action.name == "test_action"
         assert action.type == AIActionType.WORKFLOW_EXECUTION
@@ -51,7 +52,7 @@ class TestAIAction:
             name="test_action",
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
-            checking_point_name="test_cp"
+            checking_point_name="test_cp",
         )
         assert action.timeout_seconds == 600
 
@@ -62,7 +63,7 @@ class TestAIAction:
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
             checking_point_name="test_cp",
-            timeout_seconds=1200
+            timeout_seconds=1200,
         )
         assert action.timeout_seconds == 1200
 
@@ -74,7 +75,7 @@ class TestAIAction:
                 type=AIActionType.WORKFLOW_EXECUTION,
                 workflow_name="test_workflow",
                 checking_point_name="test_cp",
-                timeout_seconds=0
+                timeout_seconds=0,
             )
 
     def test_empty_name_validation(self):
@@ -84,7 +85,7 @@ class TestAIAction:
                 name="",
                 type=AIActionType.WORKFLOW_EXECUTION,
                 workflow_name="test_workflow",
-                checking_point_name="test_cp"
+                checking_point_name="test_cp",
             )
 
     def test_empty_workflow_name_validation(self):
@@ -94,7 +95,7 @@ class TestAIAction:
                 name="test_action",
                 type=AIActionType.WORKFLOW_EXECUTION,
                 workflow_name="",
-                checking_point_name="test_cp"
+                checking_point_name="test_cp",
             )
 
     def test_default_retry_attempts(self):
@@ -103,7 +104,7 @@ class TestAIAction:
             name="test_action",
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
-            checking_point_name="test_cp"
+            checking_point_name="test_cp",
         )
         assert action.retry_attempts == 3
 
@@ -113,7 +114,7 @@ class TestAIAction:
             name="test_action",
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
-            checking_point_name="test_cp"
+            checking_point_name="test_cp",
         )
         assert action.retry_delay_seconds == 60
 
@@ -123,7 +124,7 @@ class TestAIAction:
             name="test_action",
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
-            checking_point_name="test_cp"
+            checking_point_name="test_cp",
         )
         assert action.approval_required is False
 
@@ -134,7 +135,7 @@ class TestAIAction:
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
             checking_point_name="test_cp",
-            approval_required=True
+            approval_required=True,
         )
         assert action.approval_required is True
 
@@ -144,7 +145,7 @@ class TestAIAction:
             name="test_action",
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
-            checking_point_name="test_cp"
+            checking_point_name="test_cp",
         )
         assert action.approval_timeout_seconds == 3600
 
@@ -156,7 +157,7 @@ class TestAIAction:
                 type=AIActionType.WORKFLOW_EXECUTION,
                 workflow_name="test_workflow",
                 checking_point_name="test_cp",
-                approval_timeout_seconds=30
+                approval_timeout_seconds=30,
             )
 
     def test_default_priority(self):
@@ -165,7 +166,7 @@ class TestAIAction:
             name="test_action",
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
-            checking_point_name="test_cp"
+            checking_point_name="test_cp",
         )
         assert action.priority == 5
 
@@ -177,7 +178,7 @@ class TestAIAction:
                 type=AIActionType.WORKFLOW_EXECUTION,
                 workflow_name="test_workflow",
                 checking_point_name="test_cp",
-                priority=0
+                priority=0,
             )
 
     def test_priority_validation_max(self):
@@ -188,7 +189,7 @@ class TestAIAction:
                 type=AIActionType.WORKFLOW_EXECUTION,
                 workflow_name="test_workflow",
                 checking_point_name="test_cp",
-                priority=11
+                priority=11,
             )
 
     def test_parameters_field(self):
@@ -198,7 +199,7 @@ class TestAIAction:
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
             checking_point_name="test_cp",
-            parameters={"key": "value"}
+            parameters={"key": "value"},
         )
         assert action.parameters["key"] == "value"
 
@@ -209,7 +210,7 @@ class TestAIAction:
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
             checking_point_name="test_cp",
-            prompt_template_id="template_123"
+            prompt_template_id="template_123",
         )
         assert action.prompt_template_id == "template_123"
 
@@ -220,7 +221,7 @@ class TestAIAction:
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
             checking_point_name="test_cp",
-            agent_role="dev"
+            agent_role="dev",
         )
         assert action.agent_role == "dev"
 
@@ -232,7 +233,7 @@ class TestAIAction:
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
             checking_point_name="test_cp",
-            scheduled_at=now
+            scheduled_at=now,
         )
         assert action.scheduled_at == now
 
@@ -243,7 +244,7 @@ class TestAIAction:
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
             checking_point_name="test_cp",
-            execution_id="exec_123"
+            execution_id="exec_123",
         )
         assert action.execution_id == "exec_123"
 
@@ -254,7 +255,7 @@ class TestAIAction:
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
             checking_point_name="test_cp",
-            parent_execution_id="parent_exec_123"
+            parent_execution_id="parent_exec_123",
         )
         assert action.parent_execution_id == "parent_exec_123"
 
@@ -264,7 +265,7 @@ class TestAIAction:
             name="test_action",
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
-            checking_point_name="test_cp"
+            checking_point_name="test_cp",
         )
         summary = action.get_summary()
         assert summary["name"] == "test_action"
@@ -279,7 +280,7 @@ class TestAIAction:
             type=AIActionType.WORKFLOW_EXECUTION,
             workflow_name="test_workflow",
             checking_point_name="test_cp",
-            prompt_variables={"var1": "value1", "var2": "value2"}
+            prompt_variables={"var1": "value1", "var2": "value2"},
         )
         assert action.prompt_variables["var1"] == "value1"
         assert action.prompt_variables["var2"] == "value2"
