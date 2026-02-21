@@ -1,9 +1,10 @@
 """Unit tests for prompt template loader."""
 
-import pytest
 import tempfile
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 from gearmeshing_ai.scheduler.prompts.loader import PromptTemplate, PromptTemplateLoader
 
@@ -26,9 +27,9 @@ class TestPromptTemplate:
             tags=["test", "example"],
             author="Test Author",
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
-        
+
         assert template.template_id == "test_template"
         assert template.name == "Test Template"
         assert template.version == "1.0"
@@ -44,9 +45,9 @@ class TestPromptTemplate:
             description="Minimal template",
             version="1.0",
             template="Content",
-            variables_schema={}
+            variables_schema={},
         )
-        
+
         assert template.timeout_seconds == 600
         assert template.approval_timeout_seconds == 3600
         assert template.author == "System"
@@ -61,9 +62,9 @@ class TestPromptTemplate:
             version="1.0",
             template="Content",
             variables_schema={},
-            tags=None
+            tags=None,
         )
-        
+
         assert template.tags == []
 
 
@@ -89,7 +90,7 @@ prompt_templates:
 """
         loader = PromptTemplateLoader()
         templates = loader.load_from_yaml_string(yaml_content)
-        
+
         assert len(templates) == 1
         assert templates[0].template_id == "greeting"
         assert templates[0].name == "Greeting Template"
@@ -116,7 +117,7 @@ prompt_templates:
 """
         loader = PromptTemplateLoader()
         templates = loader.load_from_yaml_string(yaml_content)
-        
+
         assert len(templates) == 2
         assert templates[0].template_id == "greeting"
         assert templates[1].template_id == "farewell"
@@ -136,7 +137,7 @@ prompt_templates:
 """
         loader = PromptTemplateLoader()
         templates = loader.load_from_yaml_string(yaml_content)
-        
+
         assert templates[0].agent_role == "analyzer"
 
     def test_load_from_yaml_string_with_custom_timeout(self):
@@ -155,7 +156,7 @@ prompt_templates:
 """
         loader = PromptTemplateLoader()
         templates = loader.load_from_yaml_string(yaml_content)
-        
+
         assert templates[0].timeout_seconds == 1200
         assert templates[0].approval_timeout_seconds == 7200
 
@@ -176,7 +177,7 @@ prompt_templates:
 """
         loader = PromptTemplateLoader()
         templates = loader.load_from_yaml_string(yaml_content)
-        
+
         assert len(templates[0].tags) == 3
         assert "urgent" in templates[0].tags
         assert "critical" in templates[0].tags
@@ -196,7 +197,7 @@ prompt_templates:
 """
         loader = PromptTemplateLoader()
         templates = loader.load_from_yaml_string(yaml_content)
-        
+
         assert templates[0].created_at is not None
         assert templates[0].updated_at is not None
 
@@ -211,7 +212,7 @@ prompt_templates:
     variables_schema: {}
 """
         loader = PromptTemplateLoader()
-        
+
         with pytest.raises(ValueError, match="Missing required field"):
             loader.load_from_yaml_string(yaml_content)
 
@@ -224,7 +225,7 @@ prompt_templates:
     [invalid yaml content
 """
         loader = PromptTemplateLoader()
-        
+
         with pytest.raises(ValueError, match="Invalid YAML format"):
             loader.load_from_yaml_string(yaml_content)
 
@@ -236,7 +237,7 @@ templates:
     name: Test
 """
         loader = PromptTemplateLoader()
-        
+
         with pytest.raises(ValueError, match="prompt_templates"):
             loader.load_from_yaml_string(yaml_content)
 
@@ -251,14 +252,14 @@ prompt_templates:
     template: "Content from file"
     variables_schema: {}
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(yaml_content)
             temp_file = f.name
-        
+
         try:
             loader = PromptTemplateLoader()
             templates = loader.load_from_yaml(temp_file)
-            
+
             assert len(templates) == 1
             assert templates[0].template_id == "file_template"
         finally:
@@ -267,7 +268,7 @@ prompt_templates:
     def test_load_from_yaml_file_not_found(self):
         """Test error handling for non-existent file."""
         loader = PromptTemplateLoader()
-        
+
         with pytest.raises(FileNotFoundError):
             loader.load_from_yaml("/non/existent/file.yaml")
 
@@ -283,14 +284,14 @@ prompt_templates:
     variables_schema:
       name: string
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(yaml_content)
             temp_file = f.name
-        
+
         try:
             loader = PromptTemplateLoader()
             errors = loader.validate_template_file(temp_file)
-            
+
             assert len(errors) == 0
         finally:
             Path(temp_file).unlink()
@@ -307,14 +308,14 @@ prompt_templates:
     variables_schema:
       var: invalid_type
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(yaml_content)
             temp_file = f.name
-        
+
         try:
             loader = PromptTemplateLoader()
             errors = loader.validate_template_file(temp_file)
-            
+
             assert len(errors) > 0
             assert any("Invalid variable type" in error for error in errors)
         finally:
@@ -332,14 +333,14 @@ prompt_templates:
     variables_schema:
       name: string
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(yaml_content)
             temp_file = f.name
-        
+
         try:
             loader = PromptTemplateLoader()
             errors = loader.validate_template_file(temp_file)
-            
+
             assert len(errors) > 0
             assert any("not defined in schema" in error for error in errors)
         finally:
@@ -359,14 +360,14 @@ prompt_templates:
       age: number
       email: string
 """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(yaml_content)
             temp_file = f.name
-        
+
         try:
             loader = PromptTemplateLoader()
             errors = loader.validate_template_file(temp_file)
-            
+
             assert len(errors) > 0
             assert any("not used in template" in error for error in errors)
         finally:
@@ -382,17 +383,17 @@ prompt_templates:
             template="Content {var}",
             variables_schema={"var": "string"},
             agent_role="executor",
-            tags=["test"]
+            tags=["test"],
         )
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             output_file = Path(temp_dir) / "exported.yaml"
-            
+
             loader = PromptTemplateLoader()
             loader.export_to_yaml([template], str(output_file))
-            
+
             assert output_file.exists()
-            
+
             # Verify exported content
             exported_templates = loader.load_from_yaml(str(output_file))
             assert len(exported_templates) == 1
@@ -402,10 +403,10 @@ prompt_templates:
     def test_extract_template_variables(self):
         """Test extracting variables from template content."""
         loader = PromptTemplateLoader()
-        
+
         template_content = "Hello {name}, your status is {status} and priority is {priority}"
         variables = loader._extract_template_variables(template_content)
-        
+
         assert len(variables) == 3
         assert "name" in variables
         assert "status" in variables
@@ -414,7 +415,7 @@ prompt_templates:
     def test_parse_datetime_iso_format(self):
         """Test parsing ISO format datetime."""
         loader = PromptTemplateLoader()
-        
+
         dt = loader._parse_datetime("2024-01-15T10:30:00")
         assert dt.year == 2024
         assert dt.month == 1
@@ -423,7 +424,7 @@ prompt_templates:
     def test_parse_datetime_date_only(self):
         """Test parsing date-only format."""
         loader = PromptTemplateLoader()
-        
+
         dt = loader._parse_datetime("2024-01-15")
         assert dt.year == 2024
         assert dt.month == 1
@@ -432,6 +433,6 @@ prompt_templates:
     def test_parse_datetime_invalid_format(self):
         """Test error handling for invalid datetime format."""
         loader = PromptTemplateLoader()
-        
+
         with pytest.raises(ValueError, match="Invalid datetime format"):
             loader._parse_datetime("invalid-date")
