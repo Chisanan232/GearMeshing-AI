@@ -1,6 +1,5 @@
 """End-to-end tests for scheduler configuration."""
 
-import pytest
 from pathlib import Path
 
 from gearmeshing_ai.scheduler.config.settings import SchedulerSettings
@@ -38,9 +37,9 @@ class TestConfigE2E:
             log_file_dir=Path("/var/log/scheduler"),
             database_pool_size=10,
             redis_max_connections=20,
-            enable_authentication=True
+            enable_authentication=True,
         )
-        
+
         # Verify complete configuration
         assert settings.name == "production-scheduler"
         assert settings.environment == "production"
@@ -59,9 +58,9 @@ class TestConfigE2E:
             log_level="DEBUG",
             temporal_worker_count=1,
             monitoring_interval_seconds=60,
-            enable_authentication=False
+            enable_authentication=False,
         )
-        
+
         # Production configuration
         prod_config = SchedulerSettings(
             environment="production",
@@ -69,9 +68,9 @@ class TestConfigE2E:
             log_level="WARNING",
             temporal_worker_count=4,
             monitoring_interval_seconds=300,
-            enable_authentication=True
+            enable_authentication=True,
         )
-        
+
         # Verify differences
         assert dev_config.debug is True
         assert prod_config.debug is False
@@ -92,9 +91,9 @@ class TestConfigE2E:
             mcp_gateway_url="https://mcp-gateway.example.com",
             clickup_api_token=None,  # Would be set from env
             slack_bot_token=None,  # Would be set from env
-            openai_api_key=None  # Would be set from env
+            openai_api_key=None,  # Would be set from env
         )
-        
+
         # Verify external service configuration
         assert settings.temporal_host == "temporal.example.com"
         assert settings.api_host == "api.example.com"
@@ -116,9 +115,9 @@ class TestConfigE2E:
             log_level="INFO",
             log_format="json",
             enable_file_logging=True,
-            log_file_dir=Path("/var/log/scheduler")
+            log_file_dir=Path("/var/log/scheduler"),
         )
-        
+
         # Verify monitoring configuration
         assert settings.monitoring_enabled is True
         assert settings.monitoring_interval_seconds == 300
@@ -130,20 +129,17 @@ class TestConfigE2E:
         """Test scheduler configuration for scalability."""
         # Small deployment
         small_config = SchedulerSettings(
-            temporal_worker_count=1,
-            monitoring_max_concurrent_checks=5,
-            database_pool_size=5,
-            redis_max_connections=10
+            temporal_worker_count=1, monitoring_max_concurrent_checks=5, database_pool_size=5, redis_max_connections=10
         )
-        
+
         # Large deployment
         large_config = SchedulerSettings(
             temporal_worker_count=10,
             monitoring_max_concurrent_checks=100,
             database_pool_size=50,
-            redis_max_connections=100
+            redis_max_connections=100,
         )
-        
+
         # Verify scalability differences
         assert small_config.temporal_worker_count < large_config.temporal_worker_count
         assert small_config.monitoring_max_concurrent_checks < large_config.monitoring_max_concurrent_checks
@@ -152,20 +148,13 @@ class TestConfigE2E:
     def test_scheduler_configuration_logging_strategies(self):
         """Test different logging strategies."""
         # Console-only logging
-        console_config = SchedulerSettings(
-            log_level="INFO",
-            log_format="simple",
-            enable_file_logging=False
-        )
-        
+        console_config = SchedulerSettings(log_level="INFO", log_format="simple", enable_file_logging=False)
+
         # File-based logging
         file_config = SchedulerSettings(
-            log_level="DEBUG",
-            log_format="json",
-            enable_file_logging=True,
-            log_file_dir=Path("/var/log/scheduler")
+            log_level="DEBUG", log_format="json", enable_file_logging=True, log_file_dir=Path("/var/log/scheduler")
         )
-        
+
         # Verify logging strategies
         assert console_config.enable_file_logging is False
         assert file_config.enable_file_logging is True
@@ -178,9 +167,9 @@ class TestConfigE2E:
             temporal_port=7233,
             temporal_namespace="production",
             temporal_task_queue="prod-tasks",
-            temporal_worker_count=4
+            temporal_worker_count=4,
         )
-        
+
         # Verify Temporal configuration
         assert settings.temporal_host == "temporal.example.com"
         assert settings.temporal_port == 7233
@@ -196,9 +185,9 @@ class TestConfigE2E:
             enable_api=True,
             enable_metrics=True,
             metrics_port=9090,
-            enable_authentication=True
+            enable_authentication=True,
         )
-        
+
         # Verify API configuration
         assert settings.api_host == "0.0.0.0"
         assert settings.api_port == 8080
@@ -213,9 +202,9 @@ class TestConfigE2E:
             name="persistent-scheduler",
             environment="production",
             temporal_host="temporal.example.com",
-            config_file=Path("/etc/scheduler/config.yaml")
+            config_file=Path("/etc/scheduler/config.yaml"),
         )
-        
+
         # Verify configuration can be retrieved
         assert settings.name == "persistent-scheduler"
         assert settings.config_file == Path("/etc/scheduler/config.yaml")
@@ -224,7 +213,7 @@ class TestConfigE2E:
         """Test configuration validation and defaults."""
         # Minimal configuration
         minimal_config = SchedulerSettings()
-        
+
         # Verify defaults are applied
         assert minimal_config.name == "gearmeshing-scheduler"
         assert minimal_config.environment == "development"
@@ -236,22 +225,14 @@ class TestConfigE2E:
         """Test configuration for different deployment scenarios."""
         # Local development
         local_config = SchedulerSettings(
-            environment="development",
-            temporal_host="localhost",
-            api_host="localhost",
-            api_port=8000,
-            debug=True
+            environment="development", temporal_host="localhost", api_host="localhost", api_port=8000, debug=True
         )
-        
+
         # Docker deployment
         docker_config = SchedulerSettings(
-            environment="staging",
-            temporal_host="temporal",
-            api_host="0.0.0.0",
-            api_port=8080,
-            debug=False
+            environment="staging", temporal_host="temporal", api_host="0.0.0.0", api_port=8080, debug=False
         )
-        
+
         # Kubernetes deployment
         k8s_config = SchedulerSettings(
             environment="production",
@@ -260,9 +241,9 @@ class TestConfigE2E:
             api_port=8080,
             temporal_worker_count=4,
             enable_metrics=True,
-            enable_health_checks=True
+            enable_health_checks=True,
         )
-        
+
         # Verify deployment-specific configurations
         assert local_config.temporal_host == "localhost"
         assert docker_config.temporal_host == "temporal"

@@ -1,8 +1,6 @@
 """Unit tests for scheduler settings."""
 
-import pytest
 from pathlib import Path
-from unittest.mock import patch
 
 from gearmeshing_ai.scheduler.config.settings import SchedulerSettings
 
@@ -70,7 +68,7 @@ class TestSchedulerSettings:
         # Valid values
         settings = SchedulerSettings(temporal_worker_count=1)
         assert settings.temporal_worker_count == 1
-        
+
         settings = SchedulerSettings(temporal_worker_count=10)
         assert settings.temporal_worker_count == 10
 
@@ -94,9 +92,9 @@ class TestSchedulerSettings:
             debug=True,
             temporal_host="temporal.example.com",
             temporal_port=7234,
-            monitoring_interval_seconds=600
+            monitoring_interval_seconds=600,
         )
-        
+
         assert settings.name == "custom-scheduler"
         assert settings.environment == "production"
         assert settings.debug is True
@@ -141,7 +139,7 @@ class TestSchedulerSettings:
         """Test config file setting."""
         settings = SchedulerSettings()
         assert settings.config_file is None
-        
+
         # Test with custom config file
         settings = SchedulerSettings(config_file=Path("/path/to/config.yaml"))
         assert settings.config_file == Path("/path/to/config.yaml")
@@ -150,7 +148,7 @@ class TestSchedulerSettings:
         """Test log file directory setting."""
         settings = SchedulerSettings()
         assert settings.log_file_dir is None
-        
+
         # Test with custom log file dir
         settings = SchedulerSettings(log_file_dir=Path("/var/log/scheduler"))
         assert settings.log_file_dir == Path("/var/log/scheduler")
