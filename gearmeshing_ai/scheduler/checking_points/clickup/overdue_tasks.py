@@ -5,7 +5,7 @@ workflows to ensure they receive proper attention and resolution.
 """
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType, ClickUpCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
@@ -81,6 +81,66 @@ class OverdueTaskCheckingPoint(ClickUpCheckingPoint):
                 "compliance",
             ],
         )
+
+    async def fetch_data(self, list_ids: Optional[list[str]] = None) -> list[MonitoringData]:
+        """Fetch overdue tasks - different logic than urgent tasks.
+
+        This method implements specific logic for overdue tasks:
+        - Uses parent's get_workspace_tasks() method
+        - Fetches ALL tasks (not just high priority)
+        - Filters by due date locally
+        - Includes completed tasks that were overdue when completed
+
+        Args:
+            list_ids: Optional list of ClickUp list IDs to fetch from
+
+        Returns:
+            List of MonitoringData objects containing overdue tasks
+
+        """
+        list_ids = list_ids or self.config.get("list_ids", [])
+        if not list_ids:
+            raise ValueError("list_ids must be provided for overdue task checking")
+
+        all_tasks = []
+
+        for list_id in list_ids:
+            # Use parent's get_workspace_tasks method (different parameters)
+            tasks = await self.get_workspace_tasks(list_id=list_id)
+            all_tasks.extend(tasks)
+
+        # Filter overdue tasks locally (different filtering logic)
+        overdue_tasks = self._filter_overdue_tasks(all_tasks)
+
+        # Convert to monitoring data using parent's utility
+        return self.convert_to_monitoring_data(overdue_tasks)
+
+    def _filter_overdue_tasks(self, tasks: list[dict]) -> list[dict]:
+        """Filter tasks that are overdue (different from due-soon logic).
+
+        Args:
+            tasks: List of task dictionaries
+
+        Returns:
+            List of overdue tasks
+
+        """
+        now = datetime.utcnow()
+        overdue_tasks = []
+
+        for task in tasks:
+            due_date_str = task.get("due_date")
+            if not due_date_str:
+                continue
+
+            try:
+                due_date = datetime.fromisoformat(due_date_str.replace("Z", "+00:00"))
+                if due_date < now:
+                    overdue_tasks.append(task)
+            except ValueError:
+                continue
+
+        return overdue_tasks
 
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         """Evaluate ClickUp task for overdue status.
