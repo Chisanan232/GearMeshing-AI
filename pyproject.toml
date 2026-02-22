@@ -7,7 +7,7 @@ name = "gearmeshing-ai"
 version = "0.0.0"
 description = "🤖 Enterprise AI bases development team."
 authors = [{ name = "Chisanan232", email = "chi10211201@cycu.org.tw" }]
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.13,<4.0"
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = [
