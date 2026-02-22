@@ -8,3 +8,13 @@ Key Components:
 - OverdueTasks: Identifies overdue tasks and triggers escalation
 - Assignment: Handles smart assignment of unassigned tasks
 """
+
+from .urgent_tasks import UrgentTaskCheckingPoint
+from .overdue_tasks import OverdueTaskCheckingPoint
+from .assignment import SmartAssignmentCheckingPoint
+
+__all__ = [
+    "UrgentTaskCheckingPoint",
+    "OverdueTaskCheckingPoint",
+    "SmartAssignmentCheckingPoint",
+]
