@@ -1,10 +1,10 @@
 """Unit tests for ClickUp checking points."""
 
-import pytest
 from datetime import datetime, timedelta
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import AsyncMock, Mock, patch
 
-from gearmeshing_ai.scheduler.checking_points.base import CheckingPoint, CheckingPointType
+import pytest
+
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 
@@ -45,11 +45,11 @@ class TestClickUpSmartAssignmentCP:
                 "status": {"status": "open"},
                 "tags": [],
                 "date_created": created_date,
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
@@ -63,7 +63,7 @@ class TestClickUpSmartAssignmentCP:
                     "task_categories": ["backend", "api"],
                     "confidence_factors": ["Urgent priority", "Very old (48 hours)"],
                     "available_team_members": 4,
-                }
+                },
             )
 
             result = await cp.evaluate(data)
@@ -87,18 +87,18 @@ class TestClickUpSmartAssignmentCP:
                 "priority": "urgent",
                 "status": {"status": "open"},
                 "tags": [],
-                "assignees": {"user_1": "John Doe"}
-            }
+                "assignees": {"user_1": "John Doe"},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
                 result_type=CheckResultType.NO_MATCH,
                 should_act=False,
                 reason="Task is already assigned",
-                confidence=1.0
+                confidence=1.0,
             )
 
             result = await cp.evaluate(data)
@@ -121,18 +121,18 @@ class TestClickUpSmartAssignmentCP:
                 "priority": "urgent",
                 "status": {"status": "completed"},
                 "tags": [],
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
                 result_type=CheckResultType.NO_MATCH,
                 should_act=False,
                 reason="Task status 'completed' is ignored",
-                confidence=1.0
+                confidence=1.0,
             )
 
             result = await cp.evaluate(data)
@@ -157,18 +157,18 @@ class TestClickUpSmartAssignmentCP:
                 "status": {"status": "open"},
                 "tags": [],
                 "date_created": created_date,
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
                 result_type=CheckResultType.NO_MATCH,
                 should_act=False,
                 reason="Task priority 'low' is below threshold",
-                confidence=1.0
+                confidence=1.0,
             )
 
             result = await cp.evaluate(data)
@@ -193,18 +193,18 @@ class TestClickUpSmartAssignmentCP:
                 "status": {"status": "open"},
                 "tags": ["blocked", "waiting"],
                 "date_created": created_date,
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
                 result_type=CheckResultType.NO_MATCH,
                 should_act=False,
                 reason="Task has excluded tags: blocked, waiting",
-                confidence=1.0
+                confidence=1.0,
             )
 
             result = await cp.evaluate(data)
@@ -230,18 +230,18 @@ class TestClickUpSmartAssignmentCP:
                 "status": {"status": "open"},
                 "tags": [],
                 "date_created": created_date,
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
                 result_type=CheckResultType.NO_MATCH,
                 should_act=False,
                 reason="Task is only 12.0 hours old (threshold: 24)",
-                confidence=1.0
+                confidence=1.0,
             )
 
             result = await cp.evaluate(data)
@@ -267,18 +267,18 @@ class TestClickUpSmartAssignmentCP:
                 "status": {"status": "open"},
                 "tags": ["bug"],
                 "date_created": created_date,
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
                 result_type=CheckResultType.NO_MATCH,
                 should_act=False,
                 reason="Missing required tags: critical",
-                confidence=1.0
+                confidence=1.0,
             )
 
             result = await cp.evaluate(data)
@@ -304,11 +304,11 @@ class TestClickUpSmartAssignmentCP:
                 "status": {"status": "open"},
                 "tags": ["database"],
                 "date_created": created_date,
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
@@ -322,7 +322,7 @@ class TestClickUpSmartAssignmentCP:
                     "task_categories": ["backend"],
                     "confidence_factors": ["High priority", "Old (36 hours)"],
                     "available_team_members": 4,
-                }
+                },
             )
 
             result = await cp.evaluate(data)
@@ -349,11 +349,11 @@ class TestClickUpSmartAssignmentCP:
                 "status": {"status": "open"},
                 "tags": ["feature"],
                 "date_created": created_date,
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
@@ -367,7 +367,7 @@ class TestClickUpSmartAssignmentCP:
                     "task_categories": ["backend", "frontend"],
                     "confidence_factors": ["Urgent priority", "Very old (48 hours)"],
                     "available_team_members": 4,
-                }
+                },
             )
 
             result = await cp.evaluate(data)
@@ -391,18 +391,18 @@ class TestClickUpSmartAssignmentCP:
                 "status": {"status": "open"},
                 "tags": [],
                 "date_created": "invalid-date-format",
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
                 result_type=CheckResultType.NO_MATCH,
                 should_act=False,
                 reason="Task is only 0.0 hours old (threshold: 24)",
-                confidence=1.0
+                confidence=1.0,
             )
 
             result = await cp.evaluate(data)
@@ -419,17 +419,17 @@ class TestClickUpSmartAssignmentCP:
             id="task_error",
             type=MonitoringDataType.CLICKUP_TASK,
             source="clickup",
-            data={}  # Empty data dict
+            data={},  # Empty data dict
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
                 result_type=CheckResultType.NO_MATCH,
                 should_act=False,
                 confidence=1.0,
-                reason="Task is only 0.0 hours old (threshold: 24)"
+                reason="Task is only 0.0 hours old (threshold: 24)",
             )
 
             result = await cp.evaluate(data)
@@ -451,8 +451,8 @@ class TestClickUpSmartAssignmentCP:
                 "name": "Task Needing Actions",
                 "priority": "urgent",
                 "status": {"status": "open"},
-                "tags": []
-            }
+                "tags": [],
+            },
         )
 
         check_result = CheckResult(
@@ -461,10 +461,10 @@ class TestClickUpSmartAssignmentCP:
             result_type=CheckResultType.MATCH,
             should_act=True,
             confidence=0.85,
-            context={"hours_unassigned": 48.0}
+            context={"hours_unassigned": 48.0},
         )
 
-        with patch.object(cp, 'get_actions') as mock_actions:
+        with patch.object(cp, "get_actions") as mock_actions:
             mock_actions.return_value = [
                 {
                     "type": "status_update",
@@ -473,7 +473,7 @@ class TestClickUpSmartAssignmentCP:
                         "system": "clickup",
                         "entity_id": "task_actions",
                         "add_tags": ["needs_assignment"],
-                    }
+                    },
                 },
                 {
                     "type": "notification",
@@ -482,8 +482,8 @@ class TestClickUpSmartAssignmentCP:
                         "notification_type": "slack",
                         "recipient": "#team-leads",
                         "subject": "Unassigned Task: Task Needing Actions",
-                    }
-                }
+                    },
+                },
             ]
 
             actions = cp.get_actions(data, check_result)
@@ -514,8 +514,8 @@ class TestClickUpSmartAssignmentCP:
                 "name": "Task for AI Assignment",
                 "priority": "urgent",
                 "status": {"status": "open"},
-                "tags": []
-            }
+                "tags": [],
+            },
         )
 
         check_result = CheckResult(
@@ -527,10 +527,10 @@ class TestClickUpSmartAssignmentCP:
             context={
                 "hours_unassigned": 48.0,
                 "task_categories": ["backend"],
-            }
+            },
         )
 
-        with patch.object(cp, 'get_after_process') as mock_after:
+        with patch.object(cp, "get_after_process") as mock_after:
             mock_after.return_value = [
                 {
                     "type": "ai_workflow",
@@ -570,11 +570,11 @@ class TestClickUpSmartAssignmentCP:
                 "status": {"status": "open"},
                 "tags": [],
                 "date_created": created_date,
-                "assignees": {}
-            }
+                "assignees": {},
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="clickup_smart_assignment_cp",
                 checking_point_type="clickup_smart_assignment_cp",
@@ -588,7 +588,7 @@ class TestClickUpSmartAssignmentCP:
                     "task_categories": ["general"],
                     "confidence_factors": ["High priority", "Very old (72 hours)"],
                     "available_team_members": 4,
-                }
+                },
             )
 
             result = await cp.evaluate(data)

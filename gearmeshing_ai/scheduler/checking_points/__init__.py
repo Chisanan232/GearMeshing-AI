@@ -11,12 +11,12 @@ Key Components:
 """
 
 from .base import CheckingPoint, CheckingPointType
-from .registry import checking_point_registry, register_checking_point
 
 # Import all checking point implementations to trigger registration
 from .clickup import *
-from .slack import *
 from .custom import *
+from .registry import checking_point_registry, register_checking_point
+from .slack import *
 
 __all__ = [
     "CheckingPoint",

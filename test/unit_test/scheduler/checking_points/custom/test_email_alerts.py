@@ -1,10 +1,7 @@
 """Unit tests for email alert checking point."""
 
-import pytest
 from unittest.mock import Mock, patch
-from datetime import datetime
 
-from gearmeshing_ai.scheduler.checking_points.base import CheckingPoint, CheckingPointType
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 
@@ -31,14 +28,38 @@ class TestEmailAlertCheckingPoint:
         """Test email alert CP has default keywords."""
         cp = Mock()
         cp.alert_keywords = [
-            "alert", "critical", "error", "failure", "down", "offline",
-            "emergency", "urgent", "immediate", "attention", "warning",
-            "incident", "outage", "breach", "security", "threat",
+            "alert",
+            "critical",
+            "error",
+            "failure",
+            "down",
+            "offline",
+            "emergency",
+            "urgent",
+            "immediate",
+            "attention",
+            "warning",
+            "incident",
+            "outage",
+            "breach",
+            "security",
+            "threat",
         ]
         cp.urgency_keywords = [
-            "critical", "emergency", "urgent", "immediate", "asap",
-            "production", "down", "offline", "breach", "security",
-            "outage", "severe", "major", "high priority",
+            "critical",
+            "emergency",
+            "urgent",
+            "immediate",
+            "asap",
+            "production",
+            "down",
+            "offline",
+            "breach",
+            "security",
+            "outage",
+            "severe",
+            "major",
+            "high priority",
         ]
 
         assert len(cp.alert_keywords) >= 10
@@ -54,14 +75,10 @@ class TestEmailAlertCheckingPoint:
             id="email_123",
             type=MonitoringDataType.EMAIL_ALERT,
             source="email",
-            data={
-                "subject": "Critical Alert",
-                "body": "System is down",
-                "sender": "alerts@example.com"
-            }
+            data={"subject": "Critical Alert", "body": "System is down", "sender": "alerts@example.com"},
         )
 
-        with patch.object(cp, 'can_handle') as mock_can_handle:
+        with patch.object(cp, "can_handle") as mock_can_handle:
             mock_can_handle.return_value = True
             result = cp.can_handle(data)
             assert result is True
@@ -73,13 +90,10 @@ class TestEmailAlertCheckingPoint:
         cp.name = "email_alert_cp"
 
         data = MonitoringData(
-            id="slack_123",
-            type=MonitoringDataType.SLACK_MESSAGE,
-            source="slack",
-            data={"text": "Some message"}
+            id="slack_123", type=MonitoringDataType.SLACK_MESSAGE, source="slack", data={"text": "Some message"}
         )
 
-        with patch.object(cp, 'can_handle') as mock_can_handle:
+        with patch.object(cp, "can_handle") as mock_can_handle:
             mock_can_handle.return_value = False
             result = cp.can_handle(data)
             assert result is False
@@ -96,11 +110,11 @@ class TestEmailAlertCheckingPoint:
             data={
                 "subject": "CRITICAL: Production Database Down",
                 "body": "The production database is offline and requires immediate attention",
-                "sender": "monitoring@company.com"
-            }
+                "sender": "monitoring@company.com",
+            },
         )
 
-        with patch.object(cp, 'evaluate') as mock_eval:
+        with patch.object(cp, "evaluate") as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="email_alert_cp",
                 checking_point_type="custom_cp",
@@ -119,7 +133,7 @@ class TestEmailAlertCheckingPoint:
                     "email_length": 100,
                     "requires_triage": True,
                 },
-                suggested_actions=["log_email_alert", "immediate_triage", "escalate_team"]
+                suggested_actions=["log_email_alert", "immediate_triage", "escalate_team"],
             )
 
             result = cp.evaluate(data)
@@ -139,11 +153,11 @@ class TestEmailAlertCheckingPoint:
             data={
                 "subject": "Urgent: API Error Rate Spike",
                 "body": "The API is experiencing high error rates. Immediate action required.",
-                "sender": "alerts@monitoring.io"
-            }
+                "sender": "alerts@monitoring.io",
+            },
         )
 
-        with patch.object(cp, 'evaluate') as mock_eval:
+        with patch.object(cp, "evaluate") as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="email_alert_cp",
                 checking_point_type="custom_cp",
@@ -162,7 +176,7 @@ class TestEmailAlertCheckingPoint:
                     "email_length": 80,
                     "requires_triage": True,
                 },
-                suggested_actions=["log_email_alert", "create_ticket", "notify_team"]
+                suggested_actions=["log_email_alert", "create_ticket", "notify_team"],
             )
 
             result = cp.evaluate(data)
@@ -182,11 +196,11 @@ class TestEmailAlertCheckingPoint:
             data={
                 "subject": "Alert: Disk Usage at 85%",
                 "body": "The disk usage on server has reached 85%. Please review.",
-                "sender": "monitoring@company.com"
-            }
+                "sender": "monitoring@company.com",
+            },
         )
 
-        with patch.object(cp, 'evaluate') as mock_eval:
+        with patch.object(cp, "evaluate") as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="email_alert_cp",
                 checking_point_type="custom_cp",
@@ -205,7 +219,7 @@ class TestEmailAlertCheckingPoint:
                     "email_length": 70,
                     "requires_triage": True,
                 },
-                suggested_actions=["log_email_alert", "triage_alert", "track_response"]
+                suggested_actions=["log_email_alert", "triage_alert", "track_response"],
             )
 
             result = cp.evaluate(data)
@@ -224,11 +238,11 @@ class TestEmailAlertCheckingPoint:
             data={
                 "subject": "Weekly Status Report",
                 "body": "Here is the weekly status report for the team.",
-                "sender": "manager@company.com"
-            }
+                "sender": "manager@company.com",
+            },
         )
 
-        with patch.object(cp, 'evaluate') as mock_eval:
+        with patch.object(cp, "evaluate") as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="email_alert_cp",
                 checking_point_type="custom_cp",
@@ -236,7 +250,7 @@ class TestEmailAlertCheckingPoint:
                 should_act=False,
                 confidence=0.9,
                 reason="No alert indicators found in email",
-                context={"subject": "Weekly Status Report"}
+                context={"subject": "Weekly Status Report"},
             )
 
             result = cp.evaluate(data)
@@ -253,14 +267,10 @@ class TestEmailAlertCheckingPoint:
             id="email_trusted",
             type=MonitoringDataType.EMAIL_ALERT,
             source="email",
-            data={
-                "subject": "System Status",
-                "body": "Regular system status update",
-                "sender": "system@monitoring.io"
-            }
+            data={"subject": "System Status", "body": "Regular system status update", "sender": "system@monitoring.io"},
         )
 
-        with patch.object(cp, 'evaluate') as mock_eval:
+        with patch.object(cp, "evaluate") as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="email_alert_cp",
                 checking_point_type="custom_cp",
@@ -278,7 +288,7 @@ class TestEmailAlertCheckingPoint:
                     "subject": "System Status",
                     "email_length": 40,
                     "requires_triage": True,
-                }
+                },
             )
 
             result = cp.evaluate(data)
@@ -296,11 +306,11 @@ class TestEmailAlertCheckingPoint:
             data={
                 "subject": "CRITICAL SECURITY BREACH DETECTED",
                 "body": "A security breach has been detected in the production environment. Immediate action required.",
-                "sender": "security@company.com"
-            }
+                "sender": "security@company.com",
+            },
         )
 
-        with patch.object(cp, 'evaluate') as mock_eval:
+        with patch.object(cp, "evaluate") as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="email_alert_cp",
                 checking_point_type="custom_cp",
@@ -319,7 +329,7 @@ class TestEmailAlertCheckingPoint:
                     "email_length": 120,
                     "requires_triage": True,
                 },
-                suggested_actions=["log_email_alert", "immediate_triage", "escalate_team"]
+                suggested_actions=["log_email_alert", "immediate_triage", "escalate_team"],
             )
 
             result = cp.evaluate(data)
@@ -338,11 +348,11 @@ class TestEmailAlertCheckingPoint:
             data={
                 "subject": "Service Outage Alert",
                 "body": "The payment service is down. Multiple customers are affected. This is critical.",
-                "sender": "alerts@company.com"
-            }
+                "sender": "alerts@company.com",
+            },
         )
 
-        with patch.object(cp, 'evaluate') as mock_eval:
+        with patch.object(cp, "evaluate") as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="email_alert_cp",
                 checking_point_type="custom_cp",
@@ -361,7 +371,7 @@ class TestEmailAlertCheckingPoint:
                     "email_length": 110,
                     "requires_triage": True,
                 },
-                suggested_actions=["log_email_alert", "immediate_triage", "escalate_team"]
+                suggested_actions=["log_email_alert", "immediate_triage", "escalate_team"],
             )
 
             result = cp.evaluate(data)
@@ -379,11 +389,7 @@ class TestEmailAlertCheckingPoint:
             id="email_critical",
             type=MonitoringDataType.EMAIL_ALERT,
             source="email",
-            data={
-                "subject": "CRITICAL: System Down",
-                "body": "System is down",
-                "sender": "monitoring@company.com"
-            }
+            data={"subject": "CRITICAL: System Down", "body": "System is down", "sender": "monitoring@company.com"},
         )
 
         check_result = CheckResult(
@@ -392,10 +398,10 @@ class TestEmailAlertCheckingPoint:
             result_type=CheckResultType.MATCH,
             should_act=True,
             confidence=0.95,
-            context={"urgency_level": "critical"}
+            context={"urgency_level": "critical"},
         )
 
-        with patch.object(cp, 'get_actions') as mock_actions:
+        with patch.object(cp, "get_actions") as mock_actions:
             mock_actions.return_value = [
                 {
                     "type": "email_response",
@@ -426,7 +432,7 @@ class TestEmailAlertCheckingPoint:
                         "urgency_level": "critical",
                     },
                     "priority": 10,
-                }
+                },
             ]
 
             actions = cp.get_actions(data, check_result)
@@ -446,11 +452,7 @@ class TestEmailAlertCheckingPoint:
             id="email_normal",
             type=MonitoringDataType.EMAIL_ALERT,
             source="email",
-            data={
-                "subject": "Alert: Disk Usage",
-                "body": "Disk usage is high",
-                "sender": "monitoring@company.com"
-            }
+            data={"subject": "Alert: Disk Usage", "body": "Disk usage is high", "sender": "monitoring@company.com"},
         )
 
         check_result = CheckResult(
@@ -459,10 +461,10 @@ class TestEmailAlertCheckingPoint:
             result_type=CheckResultType.MATCH,
             should_act=True,
             confidence=0.75,
-            context={"urgency_level": "normal"}
+            context={"urgency_level": "normal"},
         )
 
-        with patch.object(cp, 'get_actions') as mock_actions:
+        with patch.object(cp, "get_actions") as mock_actions:
             mock_actions.return_value = [
                 {
                     "type": "email_response",
@@ -483,7 +485,7 @@ class TestEmailAlertCheckingPoint:
                         "urgency_level": "normal",
                     },
                     "priority": 7,
-                }
+                },
             ]
 
             actions = cp.get_actions(data, check_result)
@@ -508,11 +510,7 @@ class TestEmailAlertCheckingPoint:
             id="email_ai",
             type=MonitoringDataType.EMAIL_ALERT,
             source="email",
-            data={
-                "subject": "Critical Alert",
-                "body": "System is experiencing issues",
-                "sender": "alerts@company.com"
-            }
+            data={"subject": "Critical Alert", "body": "System is experiencing issues", "sender": "alerts@company.com"},
         )
 
         check_result = CheckResult(
@@ -526,10 +524,10 @@ class TestEmailAlertCheckingPoint:
                 "found_urgency_keywords": ["critical"],
                 "urgency_level": "critical",
                 "is_trusted_sender": True,
-            }
+            },
         )
 
-        with patch.object(cp, 'get_after_process') as mock_after:
+        with patch.object(cp, "get_after_process") as mock_after:
             mock_after.return_value = [
                 {
                     "name": "email_alert_cp_workflow",
@@ -563,7 +561,7 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_extract_domain') as mock_extract:
+        with patch.object(cp, "_extract_domain") as mock_extract:
             mock_extract.return_value = "company.com"
             domain = cp._extract_domain("user@company.com")
             assert domain == "company.com"
@@ -573,7 +571,7 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_extract_domain') as mock_extract:
+        with patch.object(cp, "_extract_domain") as mock_extract:
             mock_extract.return_value = ""
             domain = cp._extract_domain("invalid-email")
             assert domain == ""
@@ -583,7 +581,7 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_determine_urgency_level') as mock_urgency:
+        with patch.object(cp, "_determine_urgency_level") as mock_urgency:
             mock_urgency.return_value = "critical"
             level = cp._determine_urgency_level("CRITICAL SECURITY BREACH", "breach detected", ["critical", "security"])
             assert level == "critical"
@@ -593,9 +591,11 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_determine_urgency_level') as mock_urgency:
+        with patch.object(cp, "_determine_urgency_level") as mock_urgency:
             mock_urgency.return_value = "high"
-            level = cp._determine_urgency_level("Urgent action needed", "immediate response required", ["urgent", "immediate"])
+            level = cp._determine_urgency_level(
+                "Urgent action needed", "immediate response required", ["urgent", "immediate"]
+            )
             assert level == "high"
 
     def test_determine_urgency_level_normal(self):
@@ -603,7 +603,7 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_determine_urgency_level') as mock_urgency:
+        with patch.object(cp, "_determine_urgency_level") as mock_urgency:
             mock_urgency.return_value = "normal"
             level = cp._determine_urgency_level("Regular alert", "normal priority", [])
             assert level == "normal"
@@ -613,13 +613,13 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_calculate_alert_confidence') as mock_confidence:
+        with patch.object(cp, "_calculate_alert_confidence") as mock_confidence:
             mock_confidence.return_value = 0.95
             confidence = cp._calculate_alert_confidence(
                 {"subject": "CRITICAL", "body": "Long email body with details" * 10},
                 ["critical", "alert"],
                 ["critical", "urgent"],
-                True
+                True,
             )
             assert confidence >= 0.9
 
@@ -628,14 +628,9 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_calculate_alert_confidence') as mock_confidence:
+        with patch.object(cp, "_calculate_alert_confidence") as mock_confidence:
             mock_confidence.return_value = 0.55
-            confidence = cp._calculate_alert_confidence(
-                {"subject": "Alert", "body": "Short"},
-                ["alert"],
-                [],
-                False
-            )
+            confidence = cp._calculate_alert_confidence({"subject": "Alert", "body": "Short"}, ["alert"], [], False)
             assert confidence < 0.65
 
     def test_get_acknowledgment_message_critical(self):
@@ -643,7 +638,7 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_get_acknowledgment_message') as mock_msg:
+        with patch.object(cp, "_get_acknowledgment_message") as mock_msg:
             mock_msg.return_value = "We have received your critical alert and our team is responding immediately. This is our highest priority."
             msg = cp._get_acknowledgment_message("critical")
             assert "critical" in msg.lower()
@@ -654,8 +649,10 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_get_acknowledgment_message') as mock_msg:
-            mock_msg.return_value = "We have received your alert and our team is prioritizing it for immediate attention."
+        with patch.object(cp, "_get_acknowledgment_message") as mock_msg:
+            mock_msg.return_value = (
+                "We have received your alert and our team is prioritizing it for immediate attention."
+            )
             msg = cp._get_acknowledgment_message("high")
             assert "prioritizing" in msg.lower()
 
@@ -664,8 +661,10 @@ class TestEmailAlertCheckingPoint:
         cp = Mock()
         cp.name = "email_alert_cp"
 
-        with patch.object(cp, '_get_acknowledgment_message') as mock_msg:
-            mock_msg.return_value = "We have received your alert and our team is reviewing it. We will respond as soon as possible."
+        with patch.object(cp, "_get_acknowledgment_message") as mock_msg:
+            mock_msg.return_value = (
+                "We have received your alert and our team is reviewing it. We will respond as soon as possible."
+            )
             msg = cp._get_acknowledgment_message("normal")
             assert "reviewing" in msg.lower()
 
@@ -675,7 +674,7 @@ class TestEmailAlertCheckingPoint:
         cp.name = "email_alert_cp"
         cp.alert_keywords = ["alert", "critical"]
 
-        with patch.object(cp, 'validate_config') as mock_validate:
+        with patch.object(cp, "validate_config") as mock_validate:
             mock_validate.return_value = []
             errors = cp.validate_config()
             assert len(errors) == 0
@@ -688,8 +687,10 @@ class TestEmailAlertCheckingPoint:
         cp.sender_domains = []
         cp.subject_patterns = []
 
-        with patch.object(cp, 'validate_config') as mock_validate:
-            mock_validate.return_value = ["At least one alert keyword, sender domain, or subject pattern must be configured"]
+        with patch.object(cp, "validate_config") as mock_validate:
+            mock_validate.return_value = [
+                "At least one alert keyword, sender domain, or subject pattern must be configured"
+            ]
             errors = cp.validate_config()
             assert len(errors) > 0
 
@@ -706,11 +707,11 @@ class TestEmailAlertCheckingPoint:
             data={
                 "subject": "ALERT: Service Down",
                 "body": "Service is experiencing issues",
-                "sender": "monitoring@company.com"
-            }
+                "sender": "monitoring@company.com",
+            },
         )
 
-        with patch.object(cp, 'evaluate') as mock_eval:
+        with patch.object(cp, "evaluate") as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="email_alert_cp",
                 checking_point_type="custom_cp",
@@ -728,7 +729,7 @@ class TestEmailAlertCheckingPoint:
                     "subject": "ALERT: Service Down",
                     "email_length": 50,
                     "requires_triage": True,
-                }
+                },
             )
 
             result = cp.evaluate(data)
@@ -746,11 +747,11 @@ class TestEmailAlertCheckingPoint:
             data={
                 "subject": "CRITICAL ERROR: System Failure and Outage",
                 "body": "Critical error detected. System is down. Emergency response needed.",
-                "sender": "alerts@company.com"
-            }
+                "sender": "alerts@company.com",
+            },
         )
 
-        with patch.object(cp, 'evaluate') as mock_eval:
+        with patch.object(cp, "evaluate") as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="email_alert_cp",
                 checking_point_type="custom_cp",
@@ -769,7 +770,7 @@ class TestEmailAlertCheckingPoint:
                     "email_length": 110,
                     "requires_triage": True,
                 },
-                suggested_actions=["log_email_alert", "immediate_triage", "escalate_team"]
+                suggested_actions=["log_email_alert", "immediate_triage", "escalate_team"],
             )
 
             result = cp.evaluate(data)

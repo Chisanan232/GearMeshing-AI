@@ -1,35 +1,27 @@
 """Unit tests for base checking point classes."""
 
-import pytest
-from datetime import datetime
-from unittest.mock import Mock, AsyncMock
-
 from gearmeshing_ai.scheduler.checking_points.base import (
     CheckingPoint,
     CheckingPointType,
     ClickUpCheckingPoint,
-    SlackCheckingPoint,
-    EmailCheckingPoint,
     CustomCheckingPoint,
+    EmailCheckingPoint,
+    SlackCheckingPoint,
 )
-from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult
+from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 
 
 class ConcreteCheckingPoint(CheckingPoint):
     """Concrete implementation for testing abstract CheckingPoint."""
-    
+
     name = "test_cp"
     type = CheckingPointType.CUSTOM_CP
     description = "Test checking point"
-    
+
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         """Simple evaluation for testing."""
-        return CheckResult(
-            should_act=True,
-            reason="Test match",
-            confidence=0.9
-        )
+        return CheckResult(should_act=True, reason="Test match", confidence=0.9)
 
 
 class TestCheckingPointType:
@@ -81,12 +73,7 @@ class TestCheckingPoint:
 
     def test_initialization_with_config(self):
         """Test initialization with configuration."""
-        config = {
-            "enabled": False,
-            "priority": 8,
-            "stop_on_match": True,
-            "timeout_seconds": 300
-        }
+        config = {"enabled": False, "priority": 8, "stop_on_match": True, "timeout_seconds": 300}
         cp = ConcreteCheckingPoint(config)
         assert cp.enabled is False
         assert cp.priority == 8
@@ -96,40 +83,29 @@ class TestCheckingPoint:
     def test_can_handle_enabled(self):
         """Test can_handle returns True for enabled checking point."""
         cp = ConcreteCheckingPoint()
-        data = MonitoringData(
-            id="test_1",
-            type=MonitoringDataType.CUSTOM_DATA,
-            source="test"
-        )
+        data = MonitoringData(id="test_1", type=MonitoringDataType.CUSTOM_DATA, source="test")
         assert cp.can_handle(data) is True
 
     def test_can_handle_disabled(self):
         """Test can_handle returns False for disabled checking point."""
         config = {"enabled": False}
         cp = ConcreteCheckingPoint(config)
-        data = MonitoringData(
-            id="test_1",
-            type=MonitoringDataType.CUSTOM_DATA,
-            source="test"
-        )
+        data = MonitoringData(id="test_1", type=MonitoringDataType.CUSTOM_DATA, source="test")
         assert cp.can_handle(data) is False
 
     def test_get_actions_default(self):
         """Test get_actions returns empty list by default."""
         cp = ConcreteCheckingPoint()
-        data = MonitoringData(
-            id="test_1",
-            type=MonitoringDataType.CUSTOM_DATA,
-            source="test"
-        )
+        data = MonitoringData(id="test_1", type=MonitoringDataType.CUSTOM_DATA, source="test")
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
+
         result = CheckResult(
             checking_point_name="test_cp",
             checking_point_type="custom_cp",
             result_type=CheckResultType.MATCH,
             should_act=True,
             reason="test",
-            confidence=0.9
+            confidence=0.9,
         )
         actions = cp.get_actions(data, result)
         assert actions == []
@@ -138,19 +114,16 @@ class TestCheckingPoint:
         """Test get_after_process returns empty list when AI workflow disabled."""
         config = {"ai_workflow_enabled": False}
         cp = ConcreteCheckingPoint(config)
-        data = MonitoringData(
-            id="test_1",
-            type=MonitoringDataType.CUSTOM_DATA,
-            source="test"
-        )
+        data = MonitoringData(id="test_1", type=MonitoringDataType.CUSTOM_DATA, source="test")
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
+
         result = CheckResult(
             checking_point_name="test_cp",
             checking_point_type="custom_cp",
             result_type=CheckResultType.MATCH,
             should_act=True,
             reason="test",
-            confidence=0.9
+            confidence=0.9,
         )
         actions = cp.get_after_process(data, result)
         assert actions == []
@@ -158,19 +131,16 @@ class TestCheckingPoint:
     def test_get_after_process_should_not_act(self):
         """Test get_after_process returns empty list when should_act is False."""
         cp = ConcreteCheckingPoint()
-        data = MonitoringData(
-            id="test_1",
-            type=MonitoringDataType.CUSTOM_DATA,
-            source="test"
-        )
+        data = MonitoringData(id="test_1", type=MonitoringDataType.CUSTOM_DATA, source="test")
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
+
         result = CheckResult(
             checking_point_name="test_cp",
             checking_point_type="custom_cp",
             result_type=CheckResultType.NO_MATCH,
             should_act=False,
             reason="no match",
-            confidence=0.1
+            confidence=0.1,
         )
         actions = cp.get_after_process(data, result)
         assert actions == []
@@ -178,19 +148,16 @@ class TestCheckingPoint:
     def test_get_after_process_creates_ai_action(self):
         """Test get_after_process creates AI action when enabled."""
         cp = ConcreteCheckingPoint()
-        data = MonitoringData(
-            id="test_1",
-            type=MonitoringDataType.CUSTOM_DATA,
-            source="test"
-        )
+        data = MonitoringData(id="test_1", type=MonitoringDataType.CUSTOM_DATA, source="test")
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
+
         result = CheckResult(
             checking_point_name="test_cp",
             checking_point_type="custom_cp",
             result_type=CheckResultType.MATCH,
             should_act=True,
             reason="test match",
-            confidence=0.9
+            confidence=0.9,
         )
         # Note: get_after_process may not create actions if the checking point
         # doesn't have AI workflow configured. Test that the method works.
@@ -253,30 +220,23 @@ class TestClickUpCheckingPoint:
 
     class ConcreteClickUpCP(ClickUpCheckingPoint):
         """Concrete ClickUp checking point for testing."""
+
         name = "clickup_test"
         type = CheckingPointType.CLICKUP_URGENT_TASK_CP
-        
+
         async def evaluate(self, data: MonitoringData) -> CheckResult:
             return CheckResult(should_act=True, reason="test", confidence=0.9)
 
     def test_can_handle_clickup_task(self):
         """Test can_handle accepts ClickUp task data."""
         cp = self.ConcreteClickUpCP()
-        data = MonitoringData(
-            id="task_123",
-            type=MonitoringDataType.CLICKUP_TASK,
-            source="clickup"
-        )
+        data = MonitoringData(id="task_123", type=MonitoringDataType.CLICKUP_TASK, source="clickup")
         assert cp.can_handle(data) is True
 
     def test_cannot_handle_slack_message(self):
         """Test can_handle rejects Slack message data."""
         cp = self.ConcreteClickUpCP()
-        data = MonitoringData(
-            id="msg_456",
-            type=MonitoringDataType.SLACK_MESSAGE,
-            source="slack"
-        )
+        data = MonitoringData(id="msg_456", type=MonitoringDataType.SLACK_MESSAGE, source="slack")
         # Note: _can_handle_data_type only checks type, can_handle also checks enabled
         assert cp._can_handle_data_type(data.type) is False
 
@@ -296,20 +256,21 @@ class TestClickUpCheckingPoint:
                 "assignees": {"id": "user_1", "name": "John"},
                 "due_date": "2026-02-28",
                 "tags": ["urgent"],
-                "custom_fields": {"field1": "value1"}
-            }
+                "custom_fields": {"field1": "value1"},
+            },
         )
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
+
         result = CheckResult(
             checking_point_name="clickup_test",
             checking_point_type="clickup_urgent_task_cp",
             result_type=CheckResultType.MATCH,
             should_act=True,
             reason="test",
-            confidence=0.9
+            confidence=0.9,
         )
         variables = cp._get_prompt_variables(data, result)
-        
+
         assert variables["task_id"] == "task_123"
         assert variables["task_name"] == "Test Task"
         assert variables["task_priority"] == "high"
@@ -320,30 +281,23 @@ class TestSlackCheckingPoint:
 
     class ConcreteSlackCP(SlackCheckingPoint):
         """Concrete Slack checking point for testing."""
+
         name = "slack_test"
         type = CheckingPointType.SLACK_BOT_MENTION_CP
-        
+
         async def evaluate(self, data: MonitoringData) -> CheckResult:
             return CheckResult(should_act=True, reason="test", confidence=0.9)
 
     def test_can_handle_slack_message(self):
         """Test can_handle accepts Slack message data."""
         cp = self.ConcreteSlackCP()
-        data = MonitoringData(
-            id="msg_456",
-            type=MonitoringDataType.SLACK_MESSAGE,
-            source="slack"
-        )
+        data = MonitoringData(id="msg_456", type=MonitoringDataType.SLACK_MESSAGE, source="slack")
         assert cp.can_handle(data) is True
 
     def test_cannot_handle_clickup_task(self):
         """Test can_handle rejects ClickUp task data."""
         cp = self.ConcreteSlackCP()
-        data = MonitoringData(
-            id="task_123",
-            type=MonitoringDataType.CLICKUP_TASK,
-            source="clickup"
-        )
+        data = MonitoringData(id="task_123", type=MonitoringDataType.CLICKUP_TASK, source="clickup")
         assert cp._can_handle_data_type(data.type) is False
 
     def test_prompt_variables_include_slack_fields(self):
@@ -360,20 +314,21 @@ class TestSlackCheckingPoint:
                 "thread_ts": "1234567890.123456",
                 "ts": "1234567890.123456",
                 "mentions": ["@bot"],
-                "reactions": ["thumbsup"]
-            }
+                "reactions": ["thumbsup"],
+            },
         )
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
+
         result = CheckResult(
             checking_point_name="slack_test",
             checking_point_type="slack_help_request_cp",
             result_type=CheckResultType.MATCH,
             should_act=True,
             reason="test",
-            confidence=0.9
+            confidence=0.9,
         )
         variables = cp._get_prompt_variables(data, result)
-        
+
         assert variables["user_name"] == "user_123"
         assert variables["channel"] == "general"
         assert variables["message_text"] == "Help needed!"
@@ -384,20 +339,17 @@ class TestEmailCheckingPoint:
 
     class ConcreteEmailCP(EmailCheckingPoint):
         """Concrete email checking point for testing."""
+
         name = "email_test"
         type = CheckingPointType.EMAIL_ALERT_CP
-        
+
         async def evaluate(self, data: MonitoringData) -> CheckResult:
             return CheckResult(should_act=True, reason="test", confidence=0.9)
 
     def test_can_handle_email_alert(self):
         """Test can_handle accepts email alert data."""
         cp = self.ConcreteEmailCP()
-        data = MonitoringData(
-            id="email_789",
-            type=MonitoringDataType.EMAIL_ALERT,
-            source="email"
-        )
+        data = MonitoringData(id="email_789", type=MonitoringDataType.EMAIL_ALERT, source="email")
         assert cp.can_handle(data) is True
 
     def test_prompt_variables_include_email_fields(self):
@@ -413,20 +365,21 @@ class TestEmailCheckingPoint:
                 "body": "System down",
                 "priority": "critical",
                 "recipients": ["admin@example.com"],
-                "attachments": []
-            }
+                "attachments": [],
+            },
         )
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
+
         result = CheckResult(
             checking_point_name="email_test",
             checking_point_type="email_alert_cp",
             result_type=CheckResultType.MATCH,
             should_act=True,
             reason="test",
-            confidence=0.9
+            confidence=0.9,
         )
         variables = cp._get_prompt_variables(data, result)
-        
+
         assert variables["sender"] == "alerts@example.com"
         assert variables["subject"] == "Critical Alert"
 
@@ -436,21 +389,18 @@ class TestCustomCheckingPoint:
 
     class ConcreteCustomCP(CustomCheckingPoint):
         """Concrete custom checking point for testing."""
+
         name = "custom_test"
         type = CheckingPointType.CUSTOM_CP
-        
+
         async def evaluate(self, data: MonitoringData) -> CheckResult:
             return CheckResult(should_act=True, reason="test", confidence=0.9)
 
     def test_can_handle_any_data_type(self):
         """Test that custom checking point can handle any data type."""
         cp = self.ConcreteCustomCP()
-        
+
         # Test with different data types
         for data_type in MonitoringDataType.get_all_values():
-            data = MonitoringData(
-                id="test_1",
-                type=MonitoringDataType(data_type),
-                source="test"
-            )
+            data = MonitoringData(id="test_1", type=MonitoringDataType(data_type), source="test")
             assert cp._can_handle_data_type(data.type) is True

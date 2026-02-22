@@ -9,12 +9,12 @@ Key Components:
 - Assignment: Handles smart assignment of unassigned tasks
 """
 
-from .urgent_tasks import UrgentTaskCheckingPoint
-from .overdue_tasks import OverdueTaskCheckingPoint
 from .assignment import SmartAssignmentCheckingPoint
+from .overdue_tasks import OverdueTaskCheckingPoint
+from .urgent_tasks import UrgentTaskCheckingPoint
 
 __all__ = [
-    "UrgentTaskCheckingPoint",
     "OverdueTaskCheckingPoint",
     "SmartAssignmentCheckingPoint",
+    "UrgentTaskCheckingPoint",
 ]

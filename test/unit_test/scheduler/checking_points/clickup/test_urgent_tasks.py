@@ -1,10 +1,9 @@
 """Unit tests for ClickUp checking points."""
 
-import pytest
-from datetime import datetime, timedelta
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import AsyncMock, Mock, patch
 
-from gearmeshing_ai.scheduler.checking_points.base import CheckingPoint, CheckingPointType
+import pytest
+
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 
@@ -29,22 +28,17 @@ class TestClickUpUrgentTaskCP:
             id="task_123",
             type=MonitoringDataType.CLICKUP_TASK,
             source="clickup",
-            data={
-                "id": "task_123",
-                "name": "Critical Bug",
-                "priority": "urgent",
-                "status": "open"
-            }
+            data={"id": "task_123", "name": "Critical Bug", "priority": "urgent", "status": "open"},
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="urgent_task_cp",
                 checking_point_type="clickup_urgent_task_cp",
                 result_type=CheckResultType.MATCH,
                 should_act=True,
                 reason="Urgent priority detected",
-                confidence=0.95
+                confidence=0.95,
             )
 
             result = await cp.evaluate(data)

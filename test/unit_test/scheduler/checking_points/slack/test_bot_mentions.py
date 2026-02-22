@@ -1,9 +1,9 @@
 """Unit tests for Slack checking points."""
 
-import pytest
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import AsyncMock, Mock, patch
 
-from gearmeshing_ai.scheduler.checking_points.base import CheckingPoint, CheckingPointType
+import pytest
+
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 
@@ -33,18 +33,18 @@ class TestSlackBotMentionCP:
                 "channel": "general",
                 "text": "@scheduler-bot please analyze this task",
                 "mentions": ["scheduler-bot"],
-                "thread_ts": "1234567890.123456"
-            }
+                "thread_ts": "1234567890.123456",
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="bot_mention_cp",
                 checking_point_type="slack_bot_mention_cp",
                 result_type=CheckResultType.MATCH,
                 should_act=True,
                 reason="Bot mentioned in message",
-                confidence=0.98
+                confidence=0.98,
             )
 
             result = await cp.evaluate(data)
@@ -65,18 +65,18 @@ class TestSlackBotMentionCP:
                 "channel": "general",
                 "text": "Just a regular message",
                 "mentions": [],
-                "thread_ts": "1234567890.456789"
-            }
+                "thread_ts": "1234567890.456789",
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="bot_mention_cp",
                 checking_point_type="slack_bot_mention_cp",
                 result_type=CheckResultType.NO_MATCH,
                 should_act=False,
                 reason="No bot mention detected",
-                confidence=0.99
+                confidence=0.99,
             )
 
             result = await cp.evaluate(data)
@@ -97,18 +97,18 @@ class TestSlackBotMentionCP:
                 "channel": "general",
                 "text": "@scheduler-bot @devops-team please review this",
                 "mentions": ["scheduler-bot", "devops-team"],
-                "thread_ts": "1234567890.789012"
-            }
+                "thread_ts": "1234567890.789012",
+            },
         )
 
-        with patch.object(cp, 'evaluate', new_callable=AsyncMock) as mock_eval:
+        with patch.object(cp, "evaluate", new_callable=AsyncMock) as mock_eval:
             mock_eval.return_value = CheckResult(
                 checking_point_name="bot_mention_cp",
                 checking_point_type="slack_bot_mention_cp",
                 result_type=CheckResultType.MATCH,
                 should_act=True,
                 reason="Bot mentioned along with others",
-                confidence=0.97
+                confidence=0.97,
             )
 
             result = await cp.evaluate(data)
