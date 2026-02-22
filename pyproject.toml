@@ -55,6 +55,8 @@ dependencies = [
     "langgraph>=1.0.7",
     # Scheduler framework as a workflow engine
     "temporalio>=1.20.0",
+    # Extranal service operations
+    "clickup-mcp-server>=0.1.0",
 ]
 
 [project.scripts]

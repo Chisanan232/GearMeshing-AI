@@ -7,6 +7,15 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "abstract-backend"
+version = "0.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/99/3c/2fde5cac67d4ba3b1544638acfb0ea0119c27d5d37f1e1a4dc0e2529fdee/abstract_backend-0.0.1.tar.gz", hash = "sha256:b716fc23f937cf96b4693e7663dbec143b59e6f12e7a4eccc566b99cdd73c2ed", size = 16748, upload-time = "2025-11-02T11:51:12.817Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c2/11/9b98d704f6b908a5ea60652de0bd497e58aae1e342031333076880536f95/abstract_backend-0.0.1-py3-none-any.whl", hash = "sha256:5f59200b098633d9150e41953a8fec8610047e14afdb5ef9e4986dcc6b99d485", size = 23525, upload-time = "2025-11-02T11:51:11.449Z" },
+]
+
+[[package]]
 name = "ag-ui-protocol"
 version = "0.1.10"
 source = { registry = "https://pypi.org/simple" }
@@ -456,6 +465,24 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3d/fa/656b739db8587d7b5dfa22e22ed02566950fbfbcdc20311993483657a5c0/click-8.3.1.tar.gz", hash = "sha256:12ff4785d337a1bb490bb7e9c2b1ee5da3112e94a8622f26a6c77f5d2fc6842a", size = 295065, upload-time = "2025-11-15T20:45:42.706Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/98/78/01c019cdb5d6498122777c1a43056ebb3ebfeef2076d9d026bfe15583b2b/click-8.3.1-py3-none-any.whl", hash = "sha256:981153a64e25f12d547d3426c367a4857371575ee7ad18df2a6183ab0545b2a6", size = 108274, upload-time = "2025-11-15T20:45:41.139Z" },
+]
+
+[[package]]
+name = "clickup-mcp-server"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "abstract-backend" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "mcp", extra = ["cli"] },
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "uvicorn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5f/92/f8c2a8b728ea2ad894ebf12ea5e994f977acbf14f260a1f73c40a3a255e1/clickup_mcp_server-0.1.0.tar.gz", hash = "sha256:7170077e4f590d4f4c7e5a52c43c87168d0ffcb4cd2c19555808caa62023ec2c", size = 49804, upload-time = "2025-11-23T12:57:23.887Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/30/51/65b1d2a6ad5e6d9a1e76855d8419a734ead0ca9c7c2d5168c9dab06bc8bb/clickup_mcp_server-0.1.0-py3-none-any.whl", hash = "sha256:28c96861ce6db60caff035124a614860277b2c9e89e9e25a93bca86a5d95581c", size = 86009, upload-time = "2025-11-23T12:57:22.55Z" },
 ]
 
 [[package]]
@@ -911,6 +938,7 @@ name = "gearmeshing-ai"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [
+    { name = "clickup-mcp-server" },
     { name = "fastapi" },
     { name = "httpx" },
     { name = "langgraph" },
@@ -945,6 +973,7 @@ pre-commit-ci = [
 
 [package.metadata]
 requires-dist = [
+    { name = "clickup-mcp-server", specifier = ">=0.1.0" },
     { name = "fastapi", specifier = ">=0.128.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "langgraph", specifier = ">=1.0.7" },
@@ -1876,6 +1905,12 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/fc/6d/62e76bbb8144d6ed86e202b5edd8a4cb631e7c8130f3f4893c3f90262b10/mcp-1.26.0.tar.gz", hash = "sha256:db6e2ef491eecc1a0d93711a76f28dec2e05999f93afd48795da1c1137142c66", size = 608005, upload-time = "2026-01-24T19:40:32.468Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fd/d9/eaa1f80170d2b7c5ba23f3b59f766f3a0bb41155fbc32a69adfa1adaaef9/mcp-1.26.0-py3-none-any.whl", hash = "sha256:904a21c33c25aa98ddbeb47273033c435e595bbacfdb177f4bd87f6dceebe1ca", size = 233615, upload-time = "2026-01-24T19:40:30.652Z" },
+]
+
+[package.optional-dependencies]
+cli = [
+    { name = "python-dotenv" },
+    { name = "typer" },
 ]
 
 [[package]]
