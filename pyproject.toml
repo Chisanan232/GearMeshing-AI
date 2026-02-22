@@ -57,7 +57,7 @@ dependencies = [
     "temporalio>=1.20.0",
     # Extranal service operations
     "clickup-mcp-server>=0.1.0",
-    "slack-mcp-server>=0.2.1",
+    "slack-mcp>=0.1.0",
 ]
 
 [project.scripts]
