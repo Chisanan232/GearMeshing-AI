@@ -9,3 +9,18 @@ Key Components:
 - Registry: Auto-registration system for checking points
 - Implementations: Concrete checking point implementations for different systems
 """
+
+from .base import CheckingPoint, CheckingPointType
+from .registry import checking_point_registry, register_checking_point
+
+# Import all checking point implementations to trigger registration
+from .clickup import *
+from .slack import *
+from .custom import *
+
+__all__ = [
+    "CheckingPoint",
+    "CheckingPointType",
+    "checking_point_registry",
+    "register_checking_point",
+]
