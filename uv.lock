@@ -947,6 +947,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-ai" },
     { name = "pydantic-settings" },
+    { name = "slack-mcp-server" },
     { name = "sse-starlette" },
     { name = "temporalio" },
     { name = "typer" },
@@ -982,6 +983,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-ai", specifier = ">=1.48.0" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
+    { name = "slack-mcp-server", specifier = ">=0.2.1" },
     { name = "sse-starlette", specifier = ">=3.2.0" },
     { name = "temporalio", specifier = ">=1.20.0" },
     { name = "typer", specifier = ">=0.21.1" },
@@ -3451,6 +3453,24 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
+]
+
+[[package]]
+name = "slack-mcp-server"
+version = "0.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "fastmcp" },
+    { name = "mcp" },
+    { name = "python-dotenv" },
+    { name = "requests" },
+    { name = "starlette" },
+    { name = "uvicorn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5e/2e/8b5480b15ea67d0d975d8795fcc451a6bf500e2bca1c0934f0be68f90533/slack_mcp_server-0.2.1.tar.gz", hash = "sha256:81681d7b3b4abc04db26c266961f35d1e8f897ccc6c4f7309da798ea20723823", size = 33397, upload-time = "2025-08-19T08:40:55.268Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a8/e2/eca800ae0244167cd72e5e8373522c25a747472cd25e3af607e396d5dcfb/slack_mcp_server-0.2.1-py3-none-any.whl", hash = "sha256:f79d7734138ca76f41055dc335bfa173dd9a8a15e2739a86cb291ba61f9eb351", size = 33926, upload-time = "2025-08-19T08:40:53.61Z" },
 ]
 
 [[package]]
