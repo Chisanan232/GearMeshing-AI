@@ -116,27 +116,30 @@ class UrgentTaskCheckingPoint(ClickUpCheckingPoint):
         # Convert to monitoring data using parent's utility
         return self.convert_to_monitoring_data(all_urgent_tasks)
 
-    def _filter_tasks_due_soon(self, tasks: list[dict]) -> list[dict]:
+    def _filter_tasks_due_soon(self, tasks: list["TaskResp"]) -> list["TaskResp"]:
         """Filter tasks that are due within the threshold.
 
         Args:
-            tasks: List of task dictionaries
+            tasks: List of TaskResp objects from ClickUp API
 
         Returns:
-            List of tasks due within the threshold
+            List of TaskResp objects due within the threshold
 
         """
+        from clickup_mcp.models.dto.task import TaskResp
+
         threshold = datetime.utcnow() + timedelta(hours=self.due_date_threshold_hours)
 
-        due_soon_tasks = []
+        due_soon_tasks: list[TaskResp] = []
         for task in tasks:
-            due_date_str = task.get("due_date")
-            if due_date_str:
+            # TaskResp.due_date is in milliseconds (epoch time)
+            if task.due_date:
                 try:
-                    due_date = datetime.fromisoformat(due_date_str.replace("Z", "+00:00"))
+                    # Convert milliseconds to seconds for datetime
+                    due_date = datetime.fromtimestamp(task.due_date / 1000)
                     if due_date <= threshold:
                         due_soon_tasks.append(task)
-                except ValueError:
+                except (ValueError, OSError):
                     continue  # Skip invalid dates
 
         return due_soon_tasks

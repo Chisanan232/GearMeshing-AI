@@ -110,8 +110,8 @@ class SmartAssignmentCheckingPoint(ClickUpCheckingPoint):
             # Get tasks from workspace (uses parent's client)
             tasks = await self.get_workspace_tasks(list_id=None, status=None, priority=None)
 
-            # Filter for unassigned tasks
-            unassigned_tasks = [task for task in tasks if not task.get("assignees")]
+            # Filter for unassigned tasks (TaskResp objects have assignees as a list)
+            unassigned_tasks = [task for task in tasks if not task.assignees]
 
             # Convert to MonitoringData
             return self.convert_to_monitoring_data(unassigned_tasks)

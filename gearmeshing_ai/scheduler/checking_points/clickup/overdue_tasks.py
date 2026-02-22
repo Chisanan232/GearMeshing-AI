@@ -115,29 +115,32 @@ class OverdueTaskCheckingPoint(ClickUpCheckingPoint):
         # Convert to monitoring data using parent's utility
         return self.convert_to_monitoring_data(overdue_tasks)
 
-    def _filter_overdue_tasks(self, tasks: list[dict]) -> list[dict]:
+    def _filter_overdue_tasks(self, tasks: list["TaskResp"]) -> list["TaskResp"]:
         """Filter tasks that are overdue (different from due-soon logic).
 
         Args:
-            tasks: List of task dictionaries
+            tasks: List of TaskResp objects from ClickUp API
 
         Returns:
-            List of overdue tasks
+            List of TaskResp objects that are overdue
 
         """
+        from clickup_mcp.models.dto.task import TaskResp
+
         now = datetime.utcnow()
-        overdue_tasks = []
+        overdue_tasks: list[TaskResp] = []
 
         for task in tasks:
-            due_date_str = task.get("due_date")
-            if not due_date_str:
+            # TaskResp.due_date is in milliseconds (epoch time)
+            if not task.due_date:
                 continue
 
             try:
-                due_date = datetime.fromisoformat(due_date_str.replace("Z", "+00:00"))
+                # Convert milliseconds to seconds for datetime
+                due_date = datetime.fromtimestamp(task.due_date / 1000)
                 if due_date < now:
                     overdue_tasks.append(task)
-            except ValueError:
+            except (ValueError, OSError):
                 continue
 
         return overdue_tasks

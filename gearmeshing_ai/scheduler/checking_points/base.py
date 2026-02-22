@@ -453,7 +453,7 @@ class ClickUpCheckingPoint(CheckingPoint):
         list_id: str | None = None,
         status: str | None = None,
         priority: str | None = None,
-    ) -> list[dict]:
+    ) -> list["TaskResp"]:
         """Get tasks from ClickUp workspace using MCP server client with proper data models.
 
         Args:
@@ -462,10 +462,10 @@ class ClickUpCheckingPoint(CheckingPoint):
             priority: Optional priority filter
 
         Returns:
-            List of task dictionaries
+            List of TaskResp objects containing task data with proper typing
 
         """
-        from clickup_mcp.models.dto.task import TaskListQuery
+        from clickup_mcp.models.dto.task import TaskListQuery, TaskResp
 
         client = await self._get_client()  # Lazy initialization happens here
 
@@ -479,7 +479,7 @@ class ClickUpCheckingPoint(CheckingPoint):
         tasks = await client.task.list_in_list(list_id, query)
 
         # Apply additional filters if needed using typed data models
-        filtered_tasks = []
+        filtered_tasks: list[TaskResp] = []
         for task in tasks:
             # Filter by status using typed status info
             if status and task.status and task.status.status:
@@ -491,16 +491,16 @@ class ClickUpCheckingPoint(CheckingPoint):
                 if task.priority.priority.lower() != priority.lower():
                     continue
 
-            # Convert TaskResp to dict for monitoring data
-            filtered_tasks.append(task.model_dump())
+            # Keep TaskResp objects for type safety and clarity
+            filtered_tasks.append(task)
 
         return filtered_tasks
 
-    def convert_to_monitoring_data(self, tasks: list[dict]) -> list[MonitoringData]:
+    def convert_to_monitoring_data(self, tasks: list["TaskResp"]) -> list[MonitoringData]:
         """Convert ClickUp tasks to MonitoringData objects.
 
         Args:
-            tasks: List of task dictionaries
+            tasks: List of TaskResp objects from ClickUp API
 
         Returns:
             List of MonitoringData objects
@@ -508,12 +508,14 @@ class ClickUpCheckingPoint(CheckingPoint):
         """
         data_items = []
         for task in tasks:
+            # Convert TaskResp to dict for MonitoringData storage
+            task_dict = task.model_dump()
             data_items.append(
                 MonitoringData(
-                    id=f"clickup_{task['id']}",
+                    id=f"clickup_{task.id}",
                     type=MonitoringDataType.CLICKUP_TASK,
                     source="clickup",
-                    data=task,
+                    data=task_dict,
                     timestamp=datetime.utcnow(),
                 )
             )
