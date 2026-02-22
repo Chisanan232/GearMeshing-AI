@@ -18,6 +18,7 @@ from gearmeshing_ai.scheduler.checking_points.base import (
     get_registry_summary,
     is_checking_point_registered,
 )
+from gearmeshing_ai.scheduler.checking_points.clickup.assignment import SmartAssignmentCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.overdue_tasks import OverdueTaskCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.urgent_tasks import UrgentTaskCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.custom.email_alerts import EmailAlertCheckingPoint
@@ -85,6 +86,7 @@ class TestMetaclassAutoRegistration:
         # ClickUp checking points (registered by their 'name' attribute)
         assert "clickup_urgent_task_cp" in all_classes
         assert "clickup_overdue_task_cp" in all_classes
+        assert "clickup_smart_assignment_cp" in all_classes
 
         # Slack checking points
         assert "slack_help_request_cp" in all_classes
@@ -242,6 +244,15 @@ class TestRegistryWithConcreteCheckingPoints:
         cp_class = get_checking_point_class("clickup_overdue_task_cp")
         assert cp_class is OverdueTaskCheckingPoint
         assert cp_class.type == CheckingPointType.CLICKUP_OVERDUE_TASK_CP
+
+    def test_smart_assignment_checking_point_registered(self):
+        """Test that SmartAssignmentCheckingPoint is registered."""
+        assert is_checking_point_registered("clickup_smart_assignment_cp")
+        cp_class = get_checking_point_class("clickup_smart_assignment_cp")
+        assert cp_class is SmartAssignmentCheckingPoint
+        assert cp_class.type == CheckingPointType.CLICKUP_SMART_ASSIGNMENT_CP
+        # Verify it has fetch_data implementation
+        assert hasattr(cp_class, "fetch_data")
 
     def test_all_clickup_checking_points_registered(self):
         """Test that all ClickUp checking points are registered."""
