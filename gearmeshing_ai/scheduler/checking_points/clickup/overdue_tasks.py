@@ -82,7 +82,7 @@ class OverdueTaskCheckingPoint(ClickUpCheckingPoint):
             ],
         )
 
-    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData]:
+    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData[dict[str, Any]]]:
         """Fetch overdue tasks - different logic than urgent tasks.
 
         This method implements specific logic for overdue tasks:

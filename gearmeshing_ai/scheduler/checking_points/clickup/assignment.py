@@ -93,7 +93,7 @@ class SmartAssignmentCheckingPoint(ClickUpCheckingPoint):
         self.notify_new_assignee = self.config.get("notify_new_assignee", True)
         self.notify_team_lead = self.config.get("notify_team_lead", True)
 
-    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData]:
+    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData[dict[str, Any]]]:
         """Fetch unassigned tasks from ClickUp workspace.
 
         This method fetches unassigned high-priority tasks that need smart assignment.

@@ -87,7 +87,7 @@ class EmailAlertCheckingPoint(CheckingPoint):
                 "high priority",
             ]
 
-    def can_handle(self, data: MonitoringData) -> bool:
+    def can_handle(self, data: MonitoringData[dict[str, Any]]) -> bool:
         """Check if this checking point can handle the monitoring data.
 
         Args:
@@ -127,7 +127,7 @@ class EmailAlertCheckingPoint(CheckingPoint):
 
         return False
 
-    def evaluate(self, data: MonitoringData) -> CheckResult:
+    def evaluate(self, data: MonitoringData[dict[str, Any]]) -> CheckResult:
         """Evaluate the monitoring data for email alerts.
 
         Args:
@@ -209,7 +209,7 @@ class EmailAlertCheckingPoint(CheckingPoint):
             suggested_actions=suggested_actions,
         )
 
-    def get_actions(self, data: MonitoringData, result: CheckResult) -> list[dict[str, Any]]:
+    def get_actions(self, data: MonitoringData[dict[str, Any]], result: CheckResult) -> list[dict[str, Any]]:
         """Get immediate actions for email alert.
 
         Args:

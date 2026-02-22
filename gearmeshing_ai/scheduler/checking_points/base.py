@@ -161,7 +161,7 @@ class CheckingPoint(metaclass=CheckingPointMeta):
         self.approval_timeout_seconds = self.config.get("approval_timeout_seconds", self.approval_timeout_seconds)
 
     @abstractmethod
-    async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+    async def fetch_data(self, **kwargs) -> list[MonitoringData[dict[str, Any]]]:
         """Fetch data relevant to this checking point.
 
         Each checking point implements this to:
@@ -180,7 +180,7 @@ class CheckingPoint(metaclass=CheckingPointMeta):
         pass
 
     @abstractmethod
-    async def evaluate(self, data: MonitoringData) -> CheckResult:
+    async def evaluate(self, data: MonitoringData[dict[str, Any]]) -> CheckResult:
         """Evaluate monitoring data against this checking point's criteria.
 
         This is the main method that checking points must implement. It should
@@ -496,17 +496,17 @@ class ClickUpCheckingPoint(CheckingPoint):
 
         return filtered_tasks
 
-    def convert_to_monitoring_data(self, tasks: list["TaskResp"]) -> list[MonitoringData]:
+    def convert_to_monitoring_data(self, tasks: list["TaskResp"]) -> list[MonitoringData[dict[str, Any]]]:
         """Convert ClickUp tasks to MonitoringData objects.
 
         Args:
             tasks: List of TaskResp objects from ClickUp API
 
         Returns:
-            List of MonitoringData objects
+            List of MonitoringData objects with typed task data
 
         """
-        data_items = []
+        data_items: list[MonitoringData[dict[str, Any]]] = []
         for task in tasks:
             # Convert TaskResp to dict for MonitoringData storage
             task_dict = task.model_dump()

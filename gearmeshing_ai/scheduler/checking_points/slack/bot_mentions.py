@@ -54,7 +54,7 @@ class BotMentionCheckingPoint(CheckingPoint):
                 f"{self.bot_name}",
             ]
 
-    def can_handle(self, data: MonitoringData) -> bool:
+    def can_handle(self, data: MonitoringData[dict[str, Any]]) -> bool:
         """Check if this checking point can handle the monitoring data.
 
         Args:
@@ -80,7 +80,7 @@ class BotMentionCheckingPoint(CheckingPoint):
 
         return False
 
-    def evaluate(self, data: MonitoringData) -> CheckResult:
+    def evaluate(self, data: MonitoringData[dict[str, Any]]) -> CheckResult:
         """Evaluate the monitoring data for bot mentions.
 
         Args:
