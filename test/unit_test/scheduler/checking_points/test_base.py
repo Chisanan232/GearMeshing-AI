@@ -19,6 +19,17 @@ class ConcreteCheckingPoint(CheckingPoint):
     type = CheckingPointType.CUSTOM_CP
     description = "Test checking point"
 
+    async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+        """Fetch test data."""
+        return [
+            MonitoringData(
+                id="test_1",
+                type=MonitoringDataType.CUSTOM_DATA,
+                source="test",
+                data={"test": "data"},
+            )
+        ]
+
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         """Simple evaluation for testing."""
         return CheckResult(should_act=True, reason="Test match", confidence=0.9)
@@ -224,6 +235,17 @@ class TestClickUpCheckingPoint:
         name = "clickup_test"
         type = CheckingPointType.CLICKUP_URGENT_TASK_CP
 
+        async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+            """Fetch test ClickUp data."""
+            return [
+                MonitoringData(
+                    id="task_123",
+                    type=MonitoringDataType.CLICKUP_TASK,
+                    source="clickup",
+                    data={"id": "task_123", "name": "Test Task"},
+                )
+            ]
+
         async def evaluate(self, data: MonitoringData) -> CheckResult:
             return CheckResult(should_act=True, reason="test", confidence=0.9)
 
@@ -285,6 +307,17 @@ class TestSlackCheckingPoint:
         name = "slack_test"
         type = CheckingPointType.SLACK_BOT_MENTION_CP
 
+        async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+            """Fetch test Slack data."""
+            return [
+                MonitoringData(
+                    id="msg_456",
+                    type=MonitoringDataType.SLACK_MESSAGE,
+                    source="slack",
+                    data={"user": "user_123", "channel": "general", "text": "Test message"},
+                )
+            ]
+
         async def evaluate(self, data: MonitoringData) -> CheckResult:
             return CheckResult(should_act=True, reason="test", confidence=0.9)
 
@@ -343,6 +376,17 @@ class TestEmailCheckingPoint:
         name = "email_test"
         type = CheckingPointType.EMAIL_ALERT_CP
 
+        async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+            """Fetch test email data."""
+            return [
+                MonitoringData(
+                    id="email_789",
+                    type=MonitoringDataType.EMAIL_ALERT,
+                    source="email",
+                    data={"from": "alerts@example.com", "subject": "Test Alert"},
+                )
+            ]
+
         async def evaluate(self, data: MonitoringData) -> CheckResult:
             return CheckResult(should_act=True, reason="test", confidence=0.9)
 
@@ -392,6 +436,17 @@ class TestCustomCheckingPoint:
 
         name = "custom_test"
         type = CheckingPointType.CUSTOM_CP
+
+        async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+            """Fetch test custom data."""
+            return [
+                MonitoringData(
+                    id="test_1",
+                    type=MonitoringDataType.CUSTOM_DATA,
+                    source="test",
+                    data={"test": "data"},
+                )
+            ]
 
         async def evaluate(self, data: MonitoringData) -> CheckResult:
             return CheckResult(should_act=True, reason="test", confidence=0.9)

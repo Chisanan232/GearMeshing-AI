@@ -21,6 +21,17 @@ class UrgentTaskCP(ClickUpCheckingPoint):
     type = CheckingPointType.CLICKUP_URGENT_TASK_CP
     description = "Detects urgent ClickUp tasks"
 
+    async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+        """Fetch urgent tasks."""
+        return [
+            MonitoringData(
+                id="task_urgent_123",
+                type=MonitoringDataType.CLICKUP_TASK,
+                source="clickup",
+                data={"id": "task_urgent_123", "name": "Urgent Task", "priority": "urgent"},
+            )
+        ]
+
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
 
@@ -44,6 +55,17 @@ class OverdueTaskCP(ClickUpCheckingPoint):
     type = CheckingPointType.CLICKUP_OVERDUE_TASK_CP
     description = "Detects overdue ClickUp tasks"
 
+    async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+        """Fetch overdue tasks."""
+        return [
+            MonitoringData(
+                id="task_overdue_456",
+                type=MonitoringDataType.CLICKUP_TASK,
+                source="clickup",
+                data={"id": "task_overdue_456", "name": "Overdue Task", "status": {"status": "overdue"}},
+            )
+        ]
+
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
 
@@ -66,6 +88,17 @@ class HelpRequestCP(SlackCheckingPoint):
     name = "help_request_cp"
     type = CheckingPointType.SLACK_HELP_REQUEST_CP
     description = "Detects help requests in Slack"
+
+    async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+        """Fetch help request messages."""
+        return [
+            MonitoringData(
+                id="msg_help_789",
+                type=MonitoringDataType.SLACK_MESSAGE,
+                source="slack",
+                data={"text": "Help! I need urgent assistance", "user": "user_123", "channel": "general"},
+            )
+        ]
 
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType

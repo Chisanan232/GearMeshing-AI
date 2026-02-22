@@ -20,6 +20,10 @@ class MockCheckingPoint(CheckingPoint):
     name = "mock_cp"
     type = CheckingPointType.CUSTOM_CP
 
+    async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+        """Fetch test data."""
+        return [MonitoringData(id="test_1", type="custom_data", source="test", data={})]
+
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         return CheckResult(should_act=True, reason="test", confidence=0.9)
 
@@ -29,6 +33,10 @@ class AnotherMockCP(CheckingPoint):
 
     name = "another_mock_cp"
     type = CheckingPointType.CLICKUP_URGENT_TASK_CP
+
+    async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+        """Fetch test data."""
+        return [MonitoringData(id="test_2", type="clickup_task", source="clickup", data={})]
 
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         return CheckResult(should_act=False, reason="no match", confidence=0.1)
@@ -82,6 +90,9 @@ class TestCheckingPointRegistry:
 
         class NoNameCP(CheckingPoint):
             type = CheckingPointType.CUSTOM_CP
+
+            async def fetch_data(self, **kwargs):
+                return []
 
             async def evaluate(self, data):
                 pass

@@ -19,6 +19,17 @@ class UrgentTaskCP(ClickUpCheckingPoint):
     type = CheckingPointType.CLICKUP_URGENT_TASK_CP
     description = "Detects urgent ClickUp tasks"
 
+    async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+        """Fetch urgent tasks for testing."""
+        return [
+            MonitoringData(
+                id="task_123",
+                type=MonitoringDataType.CLICKUP_TASK,
+                source="clickup",
+                data={"name": "Critical Bug", "priority": "urgent"},
+            )
+        ]
+
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         """Evaluate if task is urgent."""
         from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
@@ -42,6 +53,17 @@ class HelpRequestCP(SlackCheckingPoint):
     name = "help_request_cp"
     type = CheckingPointType.SLACK_HELP_REQUEST_CP
     description = "Detects help requests in Slack"
+
+    async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+        """Fetch help request messages for testing."""
+        return [
+            MonitoringData(
+                id="msg_789",
+                type=MonitoringDataType.SLACK_MESSAGE,
+                source="slack",
+                data={"text": "Help! I need urgent assistance", "user": "user_123", "channel": "general"},
+            )
+        ]
 
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         """Evaluate if message is a help request."""
