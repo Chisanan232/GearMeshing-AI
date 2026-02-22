@@ -5,7 +5,7 @@ attention and triggers appropriate AI workflows for triage and action.
 """
 
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 
 from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType, ClickUpCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
@@ -74,7 +74,7 @@ class UrgentTaskCheckingPoint(ClickUpCheckingPoint):
         self.notify_assignee = self.config.get("notify_assignee", True)
         self.create_follow_up = self.config.get("create_follow_up", True)
 
-    async def fetch_data(self, list_ids: Optional[list[str]] = None) -> list[MonitoringData]:
+    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData]:
         """Fetch urgent tasks using parent's initialized client.
 
         This method implements the specific data fetching logic for urgent tasks:

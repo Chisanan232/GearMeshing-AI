@@ -5,22 +5,21 @@ must inherit from, ensuring consistent behavior and interface across the system.
 """
 
 from abc import ABCMeta, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, Dict, Type
+from typing import Any
 
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 from gearmeshing_ai.scheduler.models.workflow import AIAction, AIActionType
 
-
 # Global registry for all checking point classes
-_CHECKING_POINT_REGISTRY: Dict[str, Type["CheckingPoint"]] = {}
+_CHECKING_POINT_REGISTRY: dict[str, type["CheckingPoint"]] = {}
 
 
 class CheckingPointMeta(ABCMeta):
     """Metaclass for automatic registration of checking point classes.
-    
+
     When a CheckingPoint subclass is defined, this metaclass automatically
     registers it in the global registry using its 'name' attribute as the key.
     This enables dynamic discovery and instantiation of checking points without
@@ -29,15 +28,16 @@ class CheckingPointMeta(ABCMeta):
 
     def __new__(mcs, name: str, bases: tuple, namespace: dict, **kwargs):
         """Create a new checking point class and auto-register it.
-        
+
         Args:
             name: Class name
             bases: Base classes
             namespace: Class namespace/attributes
             **kwargs: Additional keyword arguments
-            
+
         Returns:
             The newly created class
+
         """
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
 
@@ -46,7 +46,7 @@ class CheckingPointMeta(ABCMeta):
         if bases and any(isinstance(base, CheckingPointMeta) for base in bases):
             # Get the checking point name
             cp_name = getattr(cls, "name", None)
-            
+
             # Only register if it has a non-empty name and is not abstract
             if cp_name and not getattr(cls, "__abstractmethods__", None):
                 _CHECKING_POINT_REGISTRY[cp_name] = cls
@@ -116,7 +116,7 @@ class CheckingPoint(metaclass=CheckingPointMeta):
     2. Evaluating the data against its criteria
     3. Determining what actions should be taken based on the evaluation
     4. Providing AI workflow actions if needed
-    
+
     All concrete subclasses are automatically registered in the global registry
     via the CheckingPointMeta metaclass.
     """
@@ -450,9 +450,9 @@ class ClickUpCheckingPoint(CheckingPoint):
 
     async def get_workspace_tasks(
         self,
-        list_id: Optional[str] = None,
-        status: Optional[str] = None,
-        priority: Optional[str] = None,
+        list_id: str | None = None,
+        status: str | None = None,
+        priority: str | None = None,
     ) -> list[dict]:
         """Get tasks from ClickUp workspace using MCP server client with proper data models.
 
@@ -585,7 +585,7 @@ class SlackCheckingPoint(CheckingPoint):
         self,
         channel: str,
         limit: int = 100,
-        oldest: Optional[str] = None,
+        oldest: str | None = None,
     ) -> list[dict]:
         """Get messages from a Slack channel using MCP server client with proper data models.
 
@@ -621,8 +621,7 @@ class SlackCheckingPoint(CheckingPoint):
         # SlackChannelMessagesResponse has typed fields: ok, messages, has_more, etc.
         if response.ok and response.messages:
             return response.messages
-        else:
-            return []
+        return []
 
     def convert_to_monitoring_data(self, messages: list[dict]) -> list[MonitoringData]:
         """Convert Slack messages to MonitoringData objects.
@@ -707,39 +706,39 @@ class CustomCheckingPoint(CheckingPoint):
 # Registry Utility Functions
 # ============================================================================
 
-def get_checking_point_class(name: str) -> Type[CheckingPoint]:
+
+def get_checking_point_class(name: str) -> type[CheckingPoint]:
     """Get a checking point class by name from the registry.
-    
+
     Args:
         name: Name of the checking point class
-        
+
     Returns:
         The checking point class
-        
+
     Raises:
         ValueError: If the checking point is not registered
+
     """
     if name not in _CHECKING_POINT_REGISTRY:
         available = list(_CHECKING_POINT_REGISTRY.keys())
-        raise ValueError(
-            f"Checking point '{name}' not found in registry. "
-            f"Available: {available}"
-        )
+        raise ValueError(f"Checking point '{name}' not found in registry. Available: {available}")
     return _CHECKING_POINT_REGISTRY[name]
 
 
-def get_all_checking_point_classes() -> Dict[str, Type[CheckingPoint]]:
+def get_all_checking_point_classes() -> dict[str, type[CheckingPoint]]:
     """Get all registered checking point classes.
-    
+
     Returns:
         Dictionary mapping checking point names to their classes
+
     """
     return _CHECKING_POINT_REGISTRY.copy()
 
 
-def get_checking_point_classes_by_filter(**filters) -> Dict[str, Type[CheckingPoint]]:
+def get_checking_point_classes_by_filter(**filters) -> dict[str, type[CheckingPoint]]:
     """Get checking point classes filtered by criteria.
-    
+
     Supported filters:
     - name_contains: Filter by name substring (case-insensitive)
     - type_value: Filter by exact type value
@@ -747,121 +746,126 @@ def get_checking_point_classes_by_filter(**filters) -> Dict[str, Type[CheckingPo
     - priority_min: Filter by minimum priority
     - priority_max: Filter by maximum priority
     - enabled: Filter by enabled status (True/False)
-    
+
     Args:
         **filters: Filter criteria
-        
+
     Returns:
         Dictionary of filtered checking point classes
-        
+
     Example:
         # Get all urgent task checking points
         urgent_cps = get_checking_point_classes_by_filter(
             name_contains="urgent"
         )
-        
+
         # Get high-priority checking points
         high_priority_cps = get_checking_point_classes_by_filter(
             priority_min=7
         )
-        
+
         # Get ClickUp checking points
         clickup_cps = get_checking_point_classes_by_filter(
             type_contains="clickup"
         )
+
     """
     filtered = {}
-    
+
     for cp_name, cp_class in _CHECKING_POINT_REGISTRY.items():
         match = True
-        
+
         # Filter by name substring
-        if 'name_contains' in filters:
-            if filters['name_contains'].lower() not in cp_name.lower():
+        if "name_contains" in filters:
+            if filters["name_contains"].lower() not in cp_name.lower():
                 match = False
-        
+
         # Filter by exact type value
-        if 'type_value' in filters and match:
+        if "type_value" in filters and match:
             cp_type = cp_class.type.value if isinstance(cp_class.type, CheckingPointType) else cp_class.type
-            if cp_type != filters['type_value']:
+            if cp_type != filters["type_value"]:
                 match = False
-        
+
         # Filter by type substring
-        if 'type_contains' in filters and match:
+        if "type_contains" in filters and match:
             cp_type = cp_class.type.value if isinstance(cp_class.type, CheckingPointType) else cp_class.type
-            if filters['type_contains'].lower() not in cp_type.lower():
+            if filters["type_contains"].lower() not in cp_type.lower():
                 match = False
-        
+
         # Filter by minimum priority
-        if 'priority_min' in filters and match:
-            if cp_class.priority < filters['priority_min']:
+        if "priority_min" in filters and match:
+            if cp_class.priority < filters["priority_min"]:
                 match = False
-        
+
         # Filter by maximum priority
-        if 'priority_max' in filters and match:
-            if cp_class.priority > filters['priority_max']:
+        if "priority_max" in filters and match:
+            if cp_class.priority > filters["priority_max"]:
                 match = False
-        
+
         # Filter by enabled status
-        if 'enabled' in filters and match:
-            if cp_class.enabled != filters['enabled']:
+        if "enabled" in filters and match:
+            if cp_class.enabled != filters["enabled"]:
                 match = False
-        
+
         if match:
             filtered[cp_name] = cp_class
-    
+
     return filtered
 
 
-def get_checking_point_classes_by_type(cp_type: str | CheckingPointType) -> Dict[str, Type[CheckingPoint]]:
+def get_checking_point_classes_by_type(cp_type: str | CheckingPointType) -> dict[str, type[CheckingPoint]]:
     """Get all checking point classes of a specific type.
-    
+
     Args:
         cp_type: Checking point type (string or CheckingPointType enum)
-        
+
     Returns:
         Dictionary of checking point classes of the specified type
+
     """
     if isinstance(cp_type, CheckingPointType):
         type_value = cp_type.value
     else:
         type_value = cp_type
-    
+
     return get_checking_point_classes_by_filter(type_value=type_value)
 
 
 def get_checking_point_count() -> int:
     """Get the total number of registered checking points.
-    
+
     Returns:
         Number of registered checking point classes
+
     """
     return len(_CHECKING_POINT_REGISTRY)
 
 
 def is_checking_point_registered(name: str) -> bool:
     """Check if a checking point is registered.
-    
+
     Args:
         name: Name of the checking point
-        
+
     Returns:
         True if registered, False otherwise
+
     """
     return name in _CHECKING_POINT_REGISTRY
 
 
-def get_registry_summary() -> Dict[str, Any]:
+def get_registry_summary() -> dict[str, Any]:
     """Get a summary of the checking point registry.
-    
+
     Returns:
         Dictionary containing registry summary information
+
     """
     type_counts = {}
     for cp_class in _CHECKING_POINT_REGISTRY.values():
         cp_type = cp_class.type.value if isinstance(cp_class.type, CheckingPointType) else str(cp_class.type)
         type_counts[cp_type] = type_counts.get(cp_type, 0) + 1
-    
+
     return {
         "total_checking_points": len(_CHECKING_POINT_REGISTRY),
         "type_counts": type_counts,

@@ -4,29 +4,26 @@ import pytest
 
 from gearmeshing_ai.scheduler.checking_points.base import (
     CheckingPoint,
-    CheckingPointType,
     CheckingPointMeta,
-    get_checking_point_class,
+    CheckingPointType,
+    ClickUpCheckingPoint,
+    CustomCheckingPoint,
+    EmailCheckingPoint,
+    SlackCheckingPoint,
     get_all_checking_point_classes,
+    get_checking_point_class,
     get_checking_point_classes_by_filter,
     get_checking_point_classes_by_type,
     get_checking_point_count,
-    is_checking_point_registered,
     get_registry_summary,
-    ClickUpCheckingPoint,
-    SlackCheckingPoint,
-    EmailCheckingPoint,
-    CustomCheckingPoint,
+    is_checking_point_registered,
 )
-from gearmeshing_ai.scheduler.checking_points.clickup.urgent_tasks import UrgentTaskCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.overdue_tasks import OverdueTaskCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.clickup.assignment import SmartAssignmentCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.slack.help_requests import HelpRequestCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.slack.bot_mentions import BotMentionCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.slack.vip_users import VIPUserCheckingPoint
+from gearmeshing_ai.scheduler.checking_points.clickup.urgent_tasks import UrgentTaskCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.custom.email_alerts import EmailAlertCheckingPoint
+from gearmeshing_ai.scheduler.checking_points.slack.help_requests import HelpRequestCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult
-from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
+from gearmeshing_ai.scheduler.models.monitoring import MonitoringData
 
 
 class TestMetaclassAutoRegistration:
@@ -35,6 +32,7 @@ class TestMetaclassAutoRegistration:
     def test_metaclass_is_abcmeta_subclass(self):
         """Test that CheckingPointMeta is a subclass of ABCMeta."""
         from abc import ABCMeta
+
         assert issubclass(CheckingPointMeta, ABCMeta)
 
     def test_checking_point_uses_metaclass(self):
@@ -49,6 +47,7 @@ class TestMetaclassAutoRegistration:
 
     def test_new_checking_point_auto_registers(self):
         """Test that a new checking point class auto-registers on creation."""
+
         # Create a new checking point class
         class TestAutoRegisterCP(CheckingPoint):
             name = "test_auto_register_cp"
@@ -155,11 +154,7 @@ class TestRegistryUtilityFunctions:
 
     def test_get_checking_point_classes_by_filter_multiple_criteria(self):
         """Test filtering with multiple criteria."""
-        filtered = get_checking_point_classes_by_filter(
-            type_contains="clickup",
-            priority_min=5,
-            enabled=True
-        )
+        filtered = get_checking_point_classes_by_filter(type_contains="clickup", priority_min=5, enabled=True)
         assert isinstance(filtered, dict)
         # All results should match all criteria
         for cp_class in filtered.values():
@@ -327,8 +322,8 @@ class TestRegistryIntegration:
         assert isinstance(cp_instance, CheckingPoint)
         assert isinstance(cp_instance, ClickUpCheckingPoint)
         assert cp_instance.name == "clickup_urgent_task_cp"
-        assert hasattr(cp_instance, 'fetch_data')
-        assert hasattr(cp_instance, 'evaluate')
+        assert hasattr(cp_instance, "fetch_data")
+        assert hasattr(cp_instance, "evaluate")
 
     def test_instantiate_slack_checking_point(self):
         """Test that Slack checking points can be instantiated."""
@@ -338,5 +333,5 @@ class TestRegistryIntegration:
         assert isinstance(cp_instance, CheckingPoint)
         assert isinstance(cp_instance, SlackCheckingPoint)
         assert cp_instance.name == "slack_help_request_cp"
-        assert hasattr(cp_instance, 'fetch_data')
-        assert hasattr(cp_instance, 'evaluate')
+        assert hasattr(cp_instance, "fetch_data")
+        assert hasattr(cp_instance, "evaluate")

@@ -5,7 +5,7 @@ workflows to ensure they receive proper attention and resolution.
 """
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType, ClickUpCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
@@ -82,7 +82,7 @@ class OverdueTaskCheckingPoint(ClickUpCheckingPoint):
             ],
         )
 
-    async def fetch_data(self, list_ids: Optional[list[str]] = None) -> list[MonitoringData]:
+    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData]:
         """Fetch overdue tasks - different logic than urgent tasks.
 
         This method implements specific logic for overdue tasks:
