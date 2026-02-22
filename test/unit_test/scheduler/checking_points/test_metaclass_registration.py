@@ -21,7 +21,6 @@ from gearmeshing_ai.scheduler.checking_points.base import (
 from gearmeshing_ai.scheduler.checking_points.clickup.overdue_tasks import OverdueTaskCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.urgent_tasks import UrgentTaskCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.custom.email_alerts import EmailAlertCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.slack.help_requests import HelpRequestCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData
 
@@ -42,7 +41,6 @@ class TestMetaclassAutoRegistration:
     def test_concrete_checking_point_inherits_metaclass(self):
         """Test that concrete checking point classes inherit the metaclass."""
         assert type(UrgentTaskCheckingPoint) is CheckingPointMeta
-        assert type(HelpRequestCheckingPoint) is CheckingPointMeta
         assert type(EmailAlertCheckingPoint) is CheckingPointMeta
 
     def test_new_checking_point_auto_registers(self):
@@ -96,7 +94,6 @@ class TestMetaclassAutoRegistration:
         all_classes = get_all_checking_point_classes()
 
         assert all_classes["clickup_urgent_task_cp"] is UrgentTaskCheckingPoint
-        assert all_classes["slack_help_request_cp"] is HelpRequestCheckingPoint
 
 
 class TestRegistryUtilityFunctions:
@@ -245,13 +242,6 @@ class TestRegistryWithConcreteCheckingPoints:
         cp_class = get_checking_point_class("clickup_overdue_task_cp")
         assert cp_class is OverdueTaskCheckingPoint
         assert cp_class.type == CheckingPointType.CLICKUP_OVERDUE_TASK_CP
-
-    def test_help_request_checking_point_registered(self):
-        """Test that HelpRequestCheckingPoint is registered."""
-        assert is_checking_point_registered("slack_help_request_cp")
-        cp_class = get_checking_point_class("slack_help_request_cp")
-        assert cp_class is HelpRequestCheckingPoint
-        assert cp_class.type == CheckingPointType.SLACK_HELP_REQUEST_CP
 
     def test_all_clickup_checking_points_registered(self):
         """Test that all ClickUp checking points are registered."""
