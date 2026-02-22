@@ -6,11 +6,14 @@ including ClickUp tasks, Slack messages, and other data sources.
 
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from pydantic import Field, field_validator
 
 from .base import BaseSchedulerModel
+
+# Generic type variable for monitoring data content
+T = TypeVar("T", bound=dict[str, Any])
 
 
 class MonitoringDataType(str, Enum):
@@ -28,11 +31,14 @@ class MonitoringDataType(str, Enum):
         return [member.value for member in cls]
 
 
-class MonitoringData(BaseSchedulerModel):
-    """Represents a piece of monitoring data from an external system.
+class MonitoringData(BaseSchedulerModel, Generic[T]):
+    """Generic monitoring data model for external system data.
 
     This model encapsulates data from various sources (ClickUp, Slack, etc.)
     in a consistent format that can be processed by checking points.
+    
+    The generic type parameter T allows type-safe access to the data field,
+    making it clear what structure of data is contained in each instance.
     """
 
     # Core identification
@@ -40,8 +46,8 @@ class MonitoringData(BaseSchedulerModel):
     type: MonitoringDataType = Field(..., description="Type of monitoring data")
     source: str = Field(..., description="Source system where this data originated")
 
-    # Data content
-    data: dict[str, Any] = Field(default_factory=dict, description="Raw data from the source system")
+    # Data content - generic to support different data structures
+    data: T = Field(default_factory=dict, description="Raw data from the source system")
 
     # Metadata
     timestamp: datetime = Field(default_factory=datetime.utcnow, description="Timestamp when this data was captured")
@@ -181,4 +187,11 @@ class MonitoringData(BaseSchedulerModel):
         """Get the user ID if this is a user-related data item."""
         if self.is_slack_message():
             return self.get_data_field("user")
-        return self.get_data_field("user_id")
+        return self.get_data_field("user") or self.get_data_field("user_id")
+
+
+# Type aliases for specific data types
+ClickUpTaskData = MonitoringData[dict[str, Any]]
+SlackMessageData = MonitoringData[dict[str, Any]]
+EmailAlertData = MonitoringData[dict[str, Any]]
+CustomData = MonitoringData[dict[str, Any]]
