@@ -4,8 +4,8 @@ This checking point identifies urgent ClickUp tasks that require immediate
 attention and triggers appropriate AI workflows for triage and action.
 """
 
-from datetime import datetime
-from typing import Any
+from datetime import datetime, timedelta
+from typing import Any, Optional
 
 from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType, ClickUpCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
@@ -73,6 +73,73 @@ class UrgentTaskCheckingPoint(ClickUpCheckingPoint):
         self.notify_channel = self.config.get("notify_channel", "#alerts")
         self.notify_assignee = self.config.get("notify_assignee", True)
         self.create_follow_up = self.config.get("create_follow_up", True)
+
+    async def fetch_data(self, list_ids: Optional[list[str]] = None) -> list[MonitoringData]:
+        """Fetch urgent tasks using parent's initialized client.
+
+        This method implements the specific data fetching logic for urgent tasks:
+        - Uses parent's get_workspace_tasks() method
+        - Fetches tasks with high priority levels
+        - Fetches tasks due soon
+        - Applies urgent keyword filters
+
+        Args:
+            list_ids: Optional list of ClickUp list IDs to fetch from
+
+        Returns:
+            List of MonitoringData objects containing urgent tasks
+
+        """
+        list_ids = list_ids or self.config.get("list_ids", [])
+        if not list_ids:
+            raise ValueError("list_ids must be provided for urgent task checking")
+
+        all_urgent_tasks = []
+
+        for list_id in list_ids:
+            # Use parent's get_workspace_tasks method with initialized client
+            high_priority_tasks = await self.get_workspace_tasks(
+                list_id=list_id,
+                priority="urgent",  # ClickUp API specific
+            )
+            all_urgent_tasks.extend(high_priority_tasks)
+
+            # Fetch tasks due soon
+            due_soon_tasks = await self.get_workspace_tasks(
+                list_id=list_id,
+                status="in_progress",  # Only active tasks
+            )
+            # Filter by due date locally
+            due_soon_tasks = self._filter_tasks_due_soon(due_soon_tasks)
+            all_urgent_tasks.extend(due_soon_tasks)
+
+        # Convert to monitoring data using parent's utility
+        return self.convert_to_monitoring_data(all_urgent_tasks)
+
+    def _filter_tasks_due_soon(self, tasks: list[dict]) -> list[dict]:
+        """Filter tasks that are due within the threshold.
+
+        Args:
+            tasks: List of task dictionaries
+
+        Returns:
+            List of tasks due within the threshold
+
+        """
+        threshold = datetime.utcnow() + timedelta(hours=self.due_date_threshold_hours)
+
+        due_soon_tasks = []
+        for task in tasks:
+            due_date_str = task.get("due_date")
+            if due_date_str:
+                try:
+                    due_date = datetime.fromisoformat(due_date_str.replace("Z", "+00:00"))
+                    if due_date <= threshold:
+                        due_soon_tasks.append(task)
+                except ValueError:
+                    continue  # Skip invalid dates
+
+        return due_soon_tasks
 
     async def evaluate(self, data: MonitoringData) -> CheckResult:
         """Evaluate ClickUp task data for urgency.
