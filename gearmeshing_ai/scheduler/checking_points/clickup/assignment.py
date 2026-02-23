@@ -8,10 +8,12 @@ and task requirements.
 from datetime import datetime
 from typing import Any
 
-from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType, ClickUpCheckingPoint
+from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, ClickUpTaskModel
 from gearmeshing_ai.scheduler.models.workflow import AIAction
+
+from .base import ClickUpCheckingPoint
 
 
 class SmartAssignmentCheckingPoint(ClickUpCheckingPoint):
