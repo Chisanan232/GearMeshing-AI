@@ -436,14 +436,6 @@ class EmailCheckingPoint(CheckingPoint):
         return variables
 
 
-class CustomCheckingPoint(CheckingPoint):
-    """Base class for custom checking points."""
-
-    def _can_handle_data_type(self, data_type: str) -> bool:
-        """Custom checking points can handle any data type by default."""
-        return True
-
-
 # ============================================================================
 # Registry Utility Functions
 # ============================================================================
