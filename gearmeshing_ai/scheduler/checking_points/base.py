@@ -409,33 +409,6 @@ class CheckingPoint(metaclass=CheckingPointMeta):
         )
 
 
-class EmailCheckingPoint(CheckingPoint):
-    """Base class for email checking points."""
-
-    def _can_handle_data_type(self, data_type: str) -> bool:
-        """Check if this checking point can handle email alert data."""
-        return data_type == "email_alert"
-
-    def _get_prompt_variables(self, data: MonitoringData, result: CheckResult) -> dict[str, Any]:
-        """Get email-specific prompt variables."""
-        variables = super()._get_prompt_variables(data, result)
-
-        # Add email-specific variables
-        email_data = data.data
-        variables.update(
-            {
-                "sender": email_data.get("from"),
-                "subject": email_data.get("subject", ""),
-                "body": email_data.get("body", ""),
-                "priority": email_data.get("priority", ""),
-                "recipients": email_data.get("recipients", []),
-                "attachments": email_data.get("attachments", []),
-            }
-        )
-
-        return variables
-
-
 # ============================================================================
 # Registry Utility Functions
 # ============================================================================
