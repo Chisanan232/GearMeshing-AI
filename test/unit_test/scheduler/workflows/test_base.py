@@ -1,11 +1,11 @@
 """Unit tests for base workflow classes."""
 
-import pytest
 from datetime import timedelta
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import Mock
+
+import pytest
 
 from gearmeshing_ai.scheduler.workflows.base import BaseWorkflow
-from gearmeshing_ai.scheduler.models.config import MonitorConfig
 
 
 class TestBaseWorkflow:
@@ -20,7 +20,7 @@ class TestBaseWorkflow:
         """Test create_retry_policy with default values."""
         workflow = BaseWorkflow()
         policy = workflow.create_retry_policy()
-        
+
         assert policy.initial_interval == timedelta(seconds=1)
         assert policy.maximum_interval == timedelta(minutes=1)
         assert policy.backoff_coefficient == 2.0
@@ -33,9 +33,9 @@ class TestBaseWorkflow:
             initial_interval=timedelta(seconds=2),
             maximum_interval=timedelta(minutes=2),
             backoff_coefficient=3.0,
-            maximum_attempts=5
+            maximum_attempts=5,
         )
-        
+
         assert policy.initial_interval == timedelta(seconds=2)
         assert policy.maximum_interval == timedelta(minutes=2)
         assert policy.backoff_coefficient == 3.0
@@ -52,7 +52,7 @@ class TestBaseWorkflow:
         workflow = BaseWorkflow()
         config = Mock()
         config.test_key = "test_value"
-        
+
         value = workflow.get_config_value(config, "test_key", "default")
         assert value == "test_value"
 
@@ -60,7 +60,7 @@ class TestBaseWorkflow:
         """Test get_config_value returns default for missing attribute."""
         workflow = BaseWorkflow()
         config = Mock(spec=[])  # Empty spec means no attributes
-        
+
         value = workflow.get_config_value(config, "nonexistent", "default")
         assert value == "default"
 
@@ -108,7 +108,7 @@ class TestBaseWorkflow:
         # We can't easily test asyncio.sleep, but we can test the calculation
         base_delay = timedelta(seconds=1)
         max_delay = timedelta(seconds=10)
-        
+
         # Test that method is callable
         assert callable(workflow.sleep_with_backoff)
 
