@@ -87,9 +87,6 @@ class TestMetaclassAutoRegistration:
         assert "clickup_overdue_task_cp" in all_classes
         assert "clickup_smart_assignment_cp" in all_classes
 
-        # Slack checking points
-        assert "slack_help_request_cp" in all_classes
-
     def test_registered_classes_are_correct_types(self):
         """Test that registered classes are the correct types."""
         all_classes = get_all_checking_point_classes()
@@ -119,7 +116,6 @@ class TestRegistryUtilityFunctions:
         assert len(all_classes) > 0
         # Should contain at least the concrete implementations
         assert "clickup_urgent_task_cp" in all_classes
-        assert "slack_help_request_cp" in all_classes
 
     def test_get_checking_point_classes_by_filter_name(self):
         """Test filtering checking points by name."""
@@ -166,12 +162,6 @@ class TestRegistryUtilityFunctions:
         assert len(clickup_urgent_cps) > 0
         assert "clickup_urgent_task_cp" in clickup_urgent_cps
 
-    def test_get_checking_point_classes_by_type_enum(self):
-        """Test getting checking points by type (enum)."""
-        slack_help_cps = get_checking_point_classes_by_type(CheckingPointType.SLACK_HELP_REQUEST_CP)
-        assert len(slack_help_cps) > 0
-        assert "slack_help_request_cp" in slack_help_cps
-
     def test_get_checking_point_count(self):
         """Test getting total count of registered checking points."""
         count = get_checking_point_count()
@@ -183,7 +173,6 @@ class TestRegistryUtilityFunctions:
     def test_is_checking_point_registered_true(self):
         """Test checking if a registered checking point exists."""
         assert is_checking_point_registered("clickup_urgent_task_cp") is True
-        assert is_checking_point_registered("slack_help_request_cp") is True
         assert is_checking_point_registered("clickup_overdue_task_cp") is True
 
     def test_is_checking_point_registered_false(self):
@@ -261,11 +250,6 @@ class TestRegistryWithConcreteCheckingPoints:
         clickup_overdue = get_checking_point_classes_by_type(CheckingPointType.CLICKUP_OVERDUE_TASK_CP)
         assert len(clickup_overdue) > 0
 
-    def test_all_slack_checking_points_registered(self):
-        """Test that all Slack checking points are registered."""
-        slack_help = get_checking_point_classes_by_type(CheckingPointType.SLACK_HELP_REQUEST_CP)
-        assert len(slack_help) > 0
-
     def test_instantiate_registered_checking_point(self):
         """Test that registered checking points can be instantiated."""
         cp_class = get_checking_point_class("clickup_urgent_task_cp")
@@ -274,15 +258,6 @@ class TestRegistryWithConcreteCheckingPoints:
         assert isinstance(cp_instance, CheckingPoint)
         assert isinstance(cp_instance, ClickUpCheckingPoint)
         assert cp_instance.name == "clickup_urgent_task_cp"
-
-    def test_instantiate_with_config(self):
-        """Test that registered checking points can be instantiated with config."""
-        cp_class = get_checking_point_class("slack_help_request_cp")
-        config = {"enabled": False, "priority": 8}
-        cp_instance = cp_class(config=config)
-
-        assert cp_instance.enabled is False
-        assert cp_instance.priority == 8
 
 
 class TestRegistryIntegration:
@@ -322,16 +297,5 @@ class TestRegistryIntegration:
         assert isinstance(cp_instance, CheckingPoint)
         assert isinstance(cp_instance, ClickUpCheckingPoint)
         assert cp_instance.name == "clickup_urgent_task_cp"
-        assert hasattr(cp_instance, "fetch_data")
-        assert hasattr(cp_instance, "evaluate")
-
-    def test_instantiate_slack_checking_point(self):
-        """Test that Slack checking points can be instantiated."""
-        cp_class = get_checking_point_class("slack_help_request_cp")
-        cp_instance = cp_class()
-
-        assert isinstance(cp_instance, CheckingPoint)
-        assert isinstance(cp_instance, SlackCheckingPoint)
-        assert cp_instance.name == "slack_help_request_cp"
         assert hasattr(cp_instance, "fetch_data")
         assert hasattr(cp_instance, "evaluate")
