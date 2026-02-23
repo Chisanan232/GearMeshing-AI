@@ -2,10 +2,10 @@
 
 from unittest.mock import Mock, patch
 
-from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
-from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 from gearmeshing_ai.scheduler import CheckingPointType
 from gearmeshing_ai.scheduler.checking_points.custom.email_alerts import EmailCheckingPoint
+from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
+from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 
 
 class TestEmailCheckingPoint:

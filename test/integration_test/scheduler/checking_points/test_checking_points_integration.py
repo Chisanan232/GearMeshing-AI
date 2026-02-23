@@ -6,8 +6,8 @@ from gearmeshing_ai.scheduler.checking_points.base import (
     CheckingPointType,
 )
 from gearmeshing_ai.scheduler.checking_points.clickup.base import ClickUpCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.slack.base import SlackCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.registry import CheckingPointRegistry
+from gearmeshing_ai.scheduler.checking_points.slack.base import SlackCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 

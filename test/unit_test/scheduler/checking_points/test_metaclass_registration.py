@@ -14,14 +14,13 @@ from gearmeshing_ai.scheduler.checking_points.base import (
     get_registry_summary,
     is_checking_point_registered,
 )
-from gearmeshing_ai.scheduler.checking_points.clickup.base import ClickUpCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.slack.base import SlackCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.custom.base import CustomCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.custom.email_alerts import EmailCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.assignment import SmartAssignmentCheckingPoint
+from gearmeshing_ai.scheduler.checking_points.clickup.base import ClickUpCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.overdue_tasks import OverdueTaskCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.urgent_tasks import UrgentTaskCheckingPoint
-from gearmeshing_ai.scheduler.checking_points.custom.email_alerts import EmailAlertCheckingPoint
+from gearmeshing_ai.scheduler.checking_points.custom.base import CustomCheckingPoint
+from gearmeshing_ai.scheduler.checking_points.custom.email_alerts import EmailAlertCheckingPoint, EmailCheckingPoint
+from gearmeshing_ai.scheduler.checking_points.slack.base import SlackCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData
 

@@ -1,15 +1,10 @@
 from abc import ABC
 from datetime import datetime
-from enum import Enum
 from typing import Any
 
-from clickup_mcp.models.dto.task import TaskListQuery, TaskResp
-
-from gearmeshing_ai.scheduler.models.monitoring import ClickUpTaskModel
-from gearmeshing_ai.scheduler.models.checking_point import CheckResult
 from gearmeshing_ai.scheduler.checking_points.base import CheckingPoint
+from gearmeshing_ai.scheduler.models.checking_point import CheckResult
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
-from gearmeshing_ai.scheduler.models.workflow import AIAction, AIActionType
 
 
 class SlackCheckingPoint(CheckingPoint, ABC):

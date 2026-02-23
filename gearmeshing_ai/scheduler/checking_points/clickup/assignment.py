@@ -10,7 +10,7 @@ from typing import Any
 
 from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
-from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, ClickUpTaskModel
+from gearmeshing_ai.scheduler.models.monitoring import ClickUpTaskModel, MonitoringData
 from gearmeshing_ai.scheduler.models.workflow import AIAction
 
 from .base import ClickUpCheckingPoint

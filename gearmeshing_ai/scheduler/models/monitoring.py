@@ -36,7 +36,7 @@ class MonitoringData(BaseSchedulerModel, Generic[T]):
 
     This model encapsulates data from various sources (ClickUp, Slack, etc.)
     in a consistent format that can be processed by checking points.
-    
+
     The generic type parameter T allows type-safe access to the data field,
     making it clear what structure of data is contained in each instance.
     """
@@ -193,7 +193,7 @@ class MonitoringData(BaseSchedulerModel, Generic[T]):
 # Pydantic model for ClickUp task data
 class ClickUpTaskModel(BaseSchedulerModel):
     """Structured model for ClickUp task data."""
-    
+
     id: str = Field(..., description="Task ID")
     name: str = Field(..., description="Task name")
     description: str | None = Field(None, description="Task description")
@@ -203,7 +203,7 @@ class ClickUpTaskModel(BaseSchedulerModel):
     due_date: int | None = Field(None, description="Due date in milliseconds")
     tags: list[dict[str, Any]] = Field(default_factory=list, description="Task tags")
     custom_fields: list[dict[str, Any]] = Field(default_factory=list, description="Custom field values")
-    
+
     @classmethod
     def from_task_resp(cls, task: Any) -> "ClickUpTaskModel":
         """Create from TaskResp object."""
@@ -216,14 +216,16 @@ class ClickUpTaskModel(BaseSchedulerModel):
             assignees=[{"id": a.id, "username": a.username} for a in task.assignees] if task.assignees else [],
             due_date=task.due_date,
             tags=[{"name": t.name} for t in task.tags] if task.tags else [],
-            custom_fields=[{"id": cf.id, "name": cf.name, "value": cf.value} for cf in task.custom_fields] if task.custom_fields else [],
+            custom_fields=[{"id": cf.id, "name": cf.name, "value": cf.value} for cf in task.custom_fields]
+            if task.custom_fields
+            else [],
         )
 
 
 # Pydantic model for Slack message data
 class SlackMessageModel(BaseSchedulerModel):
     """Structured model for Slack message data."""
-    
+
     user: str = Field(..., description="User ID")
     channel: str = Field(..., description="Channel ID")
     text: str = Field(..., description="Message text")
@@ -235,7 +237,7 @@ class SlackMessageModel(BaseSchedulerModel):
 # Pydantic model for email alert data
 class EmailAlertModel(BaseSchedulerModel):
     """Structured model for email alert data."""
-    
+
     sender: str = Field(..., description="Sender email")
     subject: str = Field(..., description="Email subject")
     body: str = Field(..., description="Email body")

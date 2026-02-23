@@ -5,15 +5,11 @@ must inherit from, ensuring consistent behavior and interface across the system.
 """
 
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from clickup_mcp.models.dto.task import TaskListQuery, TaskResp
-
-from gearmeshing_ai.scheduler.models.monitoring import ClickUpTaskModel
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult
-from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
+from gearmeshing_ai.scheduler.models.monitoring import MonitoringData
 from gearmeshing_ai.scheduler.models.workflow import AIAction, AIActionType
 
 # Global registry for all checking point classes
