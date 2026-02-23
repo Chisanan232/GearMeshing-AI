@@ -1,10 +1,12 @@
-"""Unit tests for Temporal client wrapper.
+"""Comprehensive unit tests for Temporal client wrapper.
 
 This module implements testing patterns recommended by Temporal documentation:
-- Proper mocking of Temporal client
+- Proper mocking of Temporal client operations
 - Error handling and edge cases
 - Connection lifecycle management
 - Workflow and schedule operations
+- WorkflowEnvironment integration for in-memory testing
+- Concurrent workflow operations
 """
 
 import asyncio

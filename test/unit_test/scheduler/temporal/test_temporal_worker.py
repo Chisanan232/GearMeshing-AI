@@ -1,4 +1,12 @@
-"""Unit tests for Temporal worker."""
+"""Comprehensive unit tests for Temporal worker.
+
+This module implements testing patterns recommended by Temporal documentation:
+- Worker lifecycle management
+- Sandbox restrictions configuration
+- Worker metrics and status
+- WorkerManager for multi-worker coordination
+- Error handling and graceful shutdown
+"""
 
 import pytest
 import asyncio
@@ -31,7 +39,7 @@ class TestTemporalWorker:
         return TemporalWorker(temporal_config)
 
     def test_worker_initialization(self, worker, temporal_config):
-        """Test worker initialization."""
+        """Test worker initializes with correct configuration."""
         assert worker.config == temporal_config
         assert worker._worker is None
         assert worker._client is None
@@ -57,6 +65,9 @@ class TestTemporalWorker:
         assert "workflows" in info
         assert "activities" in info
         assert "config" in info
+        assert "SmartMonitoringWorkflow" in info["workflows"]
+        assert "AIWorkflowExecutor" in info["workflows"]
+        assert "fetch_monitoring_data" in info["activities"]
 
     @pytest.mark.asyncio
     async def test_get_worker_metrics_not_running(self, worker):
@@ -71,15 +82,9 @@ class TestTemporalWorker:
 
         assert restrictions is not None
         assert hasattr(restrictions, 'passthrough_modules')
-
-    def test_sandbox_restrictions_network_addresses(self, worker):
-        """Test that sandbox restrictions are created successfully."""
-        restrictions = worker._create_sandbox_restrictions()
-
-        assert restrictions is not None
         assert isinstance(restrictions.passthrough_modules, set)
 
-    def test_sandbox_restrictions_modules(self, worker):
+    def test_sandbox_restrictions_includes_required_modules(self, worker):
         """Test that sandbox restrictions include required modules."""
         restrictions = worker._create_sandbox_restrictions()
 
@@ -88,15 +93,8 @@ class TestTemporalWorker:
         assert "json" in restrictions.passthrough_modules
         assert "pydantic" in restrictions.passthrough_modules
         assert "gearmeshing_ai" in restrictions.passthrough_modules
-
-    def test_sandbox_restrictions_env_vars(self, worker):
-        """Test that sandbox restrictions are properly configured."""
-        restrictions = worker._create_sandbox_restrictions()
-
-        assert restrictions is not None
-        assert hasattr(restrictions, 'passthrough_modules')
-        assert isinstance(restrictions.passthrough_modules, set)
-        assert len(restrictions.passthrough_modules) > 0
+        assert "os" in restrictions.passthrough_modules
+        assert "sys" in restrictions.passthrough_modules
 
     def test_setup_signal_handlers(self, worker):
         """Test setting up signal handlers."""
@@ -115,7 +113,7 @@ class TestTemporalWorker:
 
 
 class TestWorkerManager:
-    """Test WorkerManager class."""
+    """Test WorkerManager class for multi-worker coordination."""
 
     @pytest.fixture
     def temporal_config(self):
@@ -141,7 +139,7 @@ class TestWorkerManager:
         return TemporalWorker(temporal_config)
 
     def test_manager_initialization(self, manager):
-        """Test manager initialization."""
+        """Test manager initializes correctly."""
         assert manager._workers == {}
         assert manager.is_running() is False
 
