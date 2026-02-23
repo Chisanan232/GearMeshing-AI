@@ -122,48 +122,33 @@ class TemporalWorker:
         Returns:
             Sandbox restrictions or None if disabled
         """
+        from temporalio.worker.workflow_sandbox import SandboxMatcher
+        
         # For production, you might want stricter restrictions
         # For development, we'll allow more permissive settings
         
+        # Define allowed modules for workflow execution
+        passthrough_modules = {
+            "datetime",
+            "json",
+            "os",
+            "sys",
+            "time",
+            "uuid",
+            "re",
+            "hashlib",
+            "hmac",
+            "base64",
+            "urllib.parse",
+            "httpx",
+            "pydantic",
+            "gearmeshing_ai",
+        }
+        
         restrictions = SandboxRestrictions(
-            # Allow network access for external API calls
-            network_addresses=[
-                "localhost",
-                "127.0.0.1",
-                # Add your external service domains here
-                "api.clickup.com",
-                "slack.com",
-                "hooks.slack.com",
-            ],
-            # Allow specific modules
-            modules=[
-                "datetime",
-                "json",
-                "os",
-                "sys",
-                "time",
-                "uuid",
-                "re",
-                "hashlib",
-                "hmac",
-                "base64",
-                "urllib.parse",
-                "httpx",
-                "pydantic",
-                "gearmeshing_ai",
-            ],
-            # Allow specific environment variables
-            env_vars=[
-                "PATH",
-                "HOME",
-                "PYTHONPATH",
-                # Add your API keys and other env vars here
-                "OPENAI_API_KEY",
-                "ANTHROPIC_API_KEY",
-                "GOOGLE_API_KEY",
-                "SLACK_BOT_TOKEN",
-                "CLICKUP_API_TOKEN",
-            ],
+            passthrough_modules=passthrough_modules,
+            invalid_modules=SandboxMatcher(),
+            invalid_module_members=SandboxMatcher(),
         )
         
         return restrictions
