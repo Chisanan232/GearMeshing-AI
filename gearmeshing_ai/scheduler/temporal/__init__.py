@@ -10,11 +10,11 @@ Key Components:
 """
 
 from .client import TemporalClient
-from .worker import TemporalWorker
 from .schedules import ScheduleManager
+from .worker import TemporalWorker
 
 __all__ = [
+    "ScheduleManager",
     "TemporalClient",
     "TemporalWorker",
-    "ScheduleManager",
 ]

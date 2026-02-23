@@ -8,12 +8,13 @@ This module implements testing patterns recommended by Temporal documentation:
 - Error handling for invalid configurations
 """
 
-import pytest
-from datetime import datetime, timedelta
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
+from datetime import timedelta
+from unittest.mock import AsyncMock
 
+import pytest
+
+from gearmeshing_ai.scheduler.models.config import MonitorConfig, SchedulerTemporalConfig
 from gearmeshing_ai.scheduler.temporal.schedules import ScheduleManager
-from gearmeshing_ai.scheduler.models.config import SchedulerTemporalConfig, MonitorConfig
 
 
 class TestScheduleManager:
@@ -99,7 +100,9 @@ class TestScheduleManager:
             )
 
     @pytest.mark.asyncio
-    async def test_create_monitoring_schedule_both_timing_raises_error(self, schedule_manager, monitor_config, mock_client):
+    async def test_create_monitoring_schedule_both_timing_raises_error(
+        self, schedule_manager, monitor_config, mock_client
+    ):
         """Test that creating schedule with both timing raises error."""
         with pytest.raises(RuntimeError, match="Cannot specify both cron_expression and interval_seconds"):
             await schedule_manager.create_monitoring_schedule(

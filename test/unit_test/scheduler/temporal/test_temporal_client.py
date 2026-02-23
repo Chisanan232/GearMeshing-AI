@@ -10,15 +10,14 @@ This module implements testing patterns recommended by Temporal documentation:
 """
 
 import asyncio
-import pytest
 from datetime import datetime, timedelta
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
-from typing import Any, Dict
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
+import pytest
 from temporalio.testing import WorkflowEnvironment
 
-from gearmeshing_ai.scheduler.temporal.client import TemporalClient
 from gearmeshing_ai.scheduler.models.config import SchedulerTemporalConfig
+from gearmeshing_ai.scheduler.temporal.client import TemporalClient
 
 
 class TestTemporalClient:
@@ -55,7 +54,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_connect_success(self, client):
         """Test successful connection to Temporal server."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_class.return_value = mock_client_instance
@@ -68,7 +67,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_connect_already_connected(self, client):
         """Test connecting when already connected."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_class.return_value = mock_client_instance
@@ -84,7 +83,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_connect_failure(self, client):
         """Test connection failure."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_class.side_effect = Exception("Connection failed")
 
             with pytest.raises(ConnectionError, match="Failed to connect to Temporal server"):
@@ -95,7 +94,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_disconnect(self, client):
         """Test disconnecting from Temporal server."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_class.return_value = mock_client_instance
@@ -122,7 +121,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_start_workflow_success(self, client):
         """Test successfully starting a workflow."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_workflow_handle = AsyncMock()
@@ -149,7 +148,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_get_workflow_result_success(self, client):
         """Test successfully getting workflow result."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.get_result = AsyncMock(return_value={"status": "completed"})
@@ -171,7 +170,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_list_workflows_success(self, client):
         """Test successfully listing workflows."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
 
@@ -205,7 +204,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_cancel_workflow_success(self, client):
         """Test successfully canceling a workflow."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.cancel_workflow = AsyncMock()
@@ -225,7 +224,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_terminate_workflow_success(self, client):
         """Test successfully terminating a workflow."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.terminate_workflow = AsyncMock()
@@ -245,7 +244,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_signal_workflow_success(self, client):
         """Test successfully signaling a workflow."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.signal_workflow = AsyncMock()
@@ -265,7 +264,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_query_workflow_success(self, client):
         """Test successfully querying a workflow."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.query_workflow = AsyncMock(return_value={"status": "running"})
@@ -286,7 +285,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_get_workflow_history_success(self, client):
         """Test successfully getting workflow history."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
 
@@ -317,7 +316,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_get_cluster_health_success(self, client):
         """Test successfully getting cluster health."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_class.return_value = mock_client_instance
@@ -338,7 +337,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_get_task_queue_stats_success(self, client):
         """Test successfully getting task queue stats."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_class.return_value = mock_client_instance
@@ -353,7 +352,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_context_manager(self, client):
         """Test using client as async context manager."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_class.return_value = mock_client_instance
@@ -373,7 +372,7 @@ class TestTemporalClient:
     @pytest.mark.asyncio
     async def test_get_client_success(self, client):
         """Test successfully getting underlying client."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_class.return_value = mock_client_instance
@@ -386,7 +385,7 @@ class TestTemporalClient:
 
 class TestTemporalClientWithWorkflowEnvironment:
     """Test TemporalClient integration with WorkflowEnvironment.
-    
+
     Following Temporal best practices for testing with in-memory server.
     """
 
@@ -406,7 +405,7 @@ class TestTemporalClientWithWorkflowEnvironment:
     @pytest.mark.asyncio
     async def test_client_with_test_environment(self, temporal_config):
         """Test TemporalClient with WorkflowEnvironment.
-        
+
         WorkflowEnvironment provides an in-memory Temporal server for testing.
         This allows testing client operations without external dependencies.
         """
@@ -415,7 +414,7 @@ class TestTemporalClientWithWorkflowEnvironment:
                 # Get client from test environment
                 test_client = env.client
                 assert test_client is not None
-                
+
                 # Verify client can be used for operations
                 health = await test_client.get_service_health()
                 assert health is not None
@@ -426,35 +425,35 @@ class TestTemporalClientWithWorkflowEnvironment:
     @pytest.mark.asyncio
     async def test_client_connection_state_transitions(self, temporal_config):
         """Test client connection state transitions.
-        
+
         Verifies proper state management through connection lifecycle.
         """
         client = TemporalClient(temporal_config)
-        
+
         # Initial state: not connected
         assert client.is_connected() is False
-        
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.close = AsyncMock()
             mock_client_class.return_value = mock_client_instance
-            
+
             # Connect
             await client.connect()
             assert client.is_connected() is True
-            
+
             # Disconnect
             await client.disconnect()
             assert client.is_connected() is False
-            
+
             # Verify close was called
             mock_client_instance.close.assert_called_once()
 
 
 class TestTemporalClientErrorHandling:
     """Test error handling patterns in TemporalClient.
-    
+
     Following Temporal best practices for robust error handling.
     """
 
@@ -474,12 +473,12 @@ class TestTemporalClientErrorHandling:
     @pytest.mark.asyncio
     async def test_operation_without_connection(self, temporal_config):
         """Test that operations fail gracefully without connection.
-        
+
         Ensures proper error messages when operations are attempted
         without establishing a connection first.
         """
         client = TemporalClient(temporal_config)
-        
+
         # All operations should raise RuntimeError when not connected
         operations = [
             lambda: client.start_workflow(Mock),
@@ -493,7 +492,7 @@ class TestTemporalClientErrorHandling:
             lambda: client.get_cluster_health(),
             lambda: client.get_task_queue_stats(),
         ]
-        
+
         for operation in operations:
             with pytest.raises(RuntimeError, match="Not connected to Temporal server"):
                 if asyncio.iscoroutinefunction(operation):
@@ -506,12 +505,12 @@ class TestTemporalClientErrorHandling:
     @pytest.mark.asyncio
     async def test_connection_retry_behavior(self, temporal_config):
         """Test connection retry behavior on transient failures.
-        
+
         Verifies that connection attempts handle transient failures appropriately.
         """
         client = TemporalClient(temporal_config)
-        
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             # First attempt fails, second succeeds
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
@@ -519,17 +518,17 @@ class TestTemporalClientErrorHandling:
                 Exception("Transient error"),
                 mock_client_instance,
             ]
-            
+
             # First connection attempt fails
             with pytest.raises(ConnectionError):
                 await client.connect()
-            
+
             assert client.is_connected() is False
 
 
 class TestTemporalClientWorkflowOperations:
     """Test workflow operation patterns in TemporalClient.
-    
+
     Following Temporal best practices for workflow management.
     """
 
@@ -549,45 +548,45 @@ class TestTemporalClientWorkflowOperations:
     @pytest.mark.asyncio
     async def test_workflow_lifecycle_operations(self, temporal_config):
         """Test complete workflow lifecycle operations.
-        
+
         Verifies start, query, signal, and cancel operations work correctly.
         """
         client = TemporalClient(temporal_config)
-        
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
-            
+
             # Setup workflow handle
             mock_workflow_handle = AsyncMock()
             mock_workflow_handle.id = "workflow_123"
             mock_client_instance.start_workflow = AsyncMock(return_value=mock_workflow_handle)
-            
+
             # Setup other operations
             mock_client_instance.query_workflow = AsyncMock(return_value={"status": "running"})
             mock_client_instance.signal_workflow = AsyncMock()
             mock_client_instance.cancel_workflow = AsyncMock()
-            
+
             mock_client_class.return_value = mock_client_instance
-            
+
             await client.connect()
-            
+
             # Create a proper workflow mock with run attribute
             mock_workflow = MagicMock()
             mock_workflow.run = MagicMock()
-            
+
             # Start workflow
             workflow_id = await client.start_workflow(mock_workflow)
             assert workflow_id == "workflow_123"
-            
+
             # Query workflow
             status = await client.query_workflow(workflow_id, "get_status")
             assert status["status"] == "running"
-            
+
             # Signal workflow
             await client.signal_workflow(workflow_id, "pause_signal")
             mock_client_instance.signal_workflow.assert_called_once()
-            
+
             # Cancel workflow
             await client.cancel_workflow(workflow_id)
             mock_client_instance.cancel_workflow.assert_called_once()
@@ -595,37 +594,38 @@ class TestTemporalClientWorkflowOperations:
     @pytest.mark.asyncio
     async def test_concurrent_workflow_operations(self, temporal_config):
         """Test concurrent workflow operations.
-        
+
         Verifies client handles multiple concurrent operations correctly.
         """
         client = TemporalClient(temporal_config)
-        
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
-            
+
             # Setup multiple workflow handles
             workflow_ids = []
+
             async def mock_start_workflow(*args, **kwargs):
                 handle = AsyncMock()
                 handle.id = f"workflow_{len(workflow_ids)}"
                 workflow_ids.append(handle.id)
                 return handle
-            
+
             mock_client_instance.start_workflow = mock_start_workflow
             mock_client_class.return_value = mock_client_instance
-            
+
             await client.connect()
-            
+
             # Create proper workflow mocks with run attribute
             mock_workflows = [MagicMock() for _ in range(5)]
             for mock_workflow in mock_workflows:
                 mock_workflow.run = MagicMock()
-            
+
             # Start multiple workflows concurrently
             tasks = [client.start_workflow(mock_workflow) for mock_workflow in mock_workflows]
             results = await asyncio.gather(*tasks)
-            
+
             # Verify all workflows were started
             assert len(results) == 5
             assert all(isinstance(wf_id, str) for wf_id in results)

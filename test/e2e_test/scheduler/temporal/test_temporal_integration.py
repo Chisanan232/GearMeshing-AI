@@ -9,15 +9,15 @@ verifying all core features work together correctly:
 - Integration: All components working together
 """
 
-import pytest
-import asyncio
 from datetime import datetime, timedelta
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, Mock, patch
 
+import pytest
+
+from gearmeshing_ai.scheduler.models.config import MonitorConfig, SchedulerTemporalConfig
 from gearmeshing_ai.scheduler.temporal.client import TemporalClient
-from gearmeshing_ai.scheduler.temporal.worker import TemporalWorker, WorkerManager
 from gearmeshing_ai.scheduler.temporal.schedules import ScheduleManager
-from gearmeshing_ai.scheduler.models.config import SchedulerTemporalConfig, MonitorConfig
+from gearmeshing_ai.scheduler.temporal.worker import TemporalWorker, WorkerManager
 
 
 class TestTemporalClientIntegration:
@@ -44,7 +44,7 @@ class TestTemporalClientIntegration:
     @pytest.mark.asyncio
     async def test_client_full_lifecycle(self, client):
         """Test complete client lifecycle: connect, use, disconnect."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.close = AsyncMock()
@@ -65,7 +65,7 @@ class TestTemporalClientIntegration:
     @pytest.mark.asyncio
     async def test_workflow_lifecycle(self, client):
         """Test complete workflow lifecycle: start, query, cancel."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
 
@@ -98,11 +98,12 @@ class TestTemporalClientIntegration:
     @pytest.mark.asyncio
     async def test_multiple_workflows_management(self, client):
         """Test managing multiple workflows concurrently."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
 
             workflow_ids = []
+
             async def mock_start_workflow(*args, **kwargs):
                 handle = AsyncMock()
                 handle.id = f"workflow_{len(workflow_ids)}"
@@ -131,7 +132,7 @@ class TestTemporalClientIntegration:
     @pytest.mark.asyncio
     async def test_workflow_result_retrieval(self, client):
         """Test retrieving workflow execution results."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.get_result = AsyncMock(return_value={"result": "success", "data": "test_data"})
@@ -149,7 +150,7 @@ class TestTemporalClientIntegration:
     @pytest.mark.asyncio
     async def test_list_workflows(self, client):
         """Test listing all workflows."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
 
@@ -180,7 +181,7 @@ class TestTemporalClientIntegration:
     @pytest.mark.asyncio
     async def test_client_context_manager(self, client):
         """Test using client as async context manager."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.close = AsyncMock()
@@ -196,7 +197,7 @@ class TestTemporalClientIntegration:
     @pytest.mark.asyncio
     async def test_task_queue_stats(self, client):
         """Test retrieving task queue statistics."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_class.return_value = mock_client_instance
@@ -437,7 +438,7 @@ class TestWorkerIntegration:
 
         # Verify sandbox restrictions are created
         assert restrictions is not None
-        assert hasattr(restrictions, 'passthrough_modules')
+        assert hasattr(restrictions, "passthrough_modules")
 
         # Verify modules are in passthrough_modules
         assert "datetime" in restrictions.passthrough_modules
@@ -456,8 +457,8 @@ class TestWorkerIntegration:
     def test_worker_context_manager(self, worker):
         """Test using worker as async context manager."""
         # Verify context manager methods exist
-        assert hasattr(worker, '__aenter__')
-        assert hasattr(worker, '__aexit__')
+        assert hasattr(worker, "__aenter__")
+        assert hasattr(worker, "__aexit__")
 
     def test_worker_signal_handler_setup(self, worker):
         """Test signal handler setup for graceful shutdown."""
@@ -597,7 +598,7 @@ class TestTemporalComponentsIntegration:
     @pytest.mark.asyncio
     async def test_complete_temporal_workflow(self, temporal_config, monitor_config):
         """Test complete workflow with client, worker, and schedules."""
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_instance = AsyncMock()
             mock_client_instance.get_service_health = AsyncMock(return_value=True)
             mock_client_instance.close = AsyncMock()
@@ -648,7 +649,7 @@ class TestTemporalComponentsIntegration:
         # Test client connection error
         client = TemporalClient(temporal_config)
 
-        with patch('gearmeshing_ai.scheduler.temporal.client.Client') as mock_client_class:
+        with patch("gearmeshing_ai.scheduler.temporal.client.Client") as mock_client_class:
             mock_client_class.side_effect = Exception("Connection failed")
 
             with pytest.raises(ConnectionError):

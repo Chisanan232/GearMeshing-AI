@@ -8,13 +8,13 @@ This module implements testing patterns recommended by Temporal documentation:
 - Error handling and graceful shutdown
 """
 
-import pytest
-import asyncio
 from datetime import timedelta
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, patch
 
-from gearmeshing_ai.scheduler.temporal.worker import TemporalWorker, WorkerManager
+import pytest
+
 from gearmeshing_ai.scheduler.models.config import SchedulerTemporalConfig
+from gearmeshing_ai.scheduler.temporal.worker import TemporalWorker, WorkerManager
 
 
 class TestTemporalWorker:
@@ -81,7 +81,7 @@ class TestTemporalWorker:
         restrictions = worker._create_sandbox_restrictions()
 
         assert restrictions is not None
-        assert hasattr(restrictions, 'passthrough_modules')
+        assert hasattr(restrictions, "passthrough_modules")
         assert isinstance(restrictions.passthrough_modules, set)
 
     def test_sandbox_restrictions_includes_required_modules(self, worker):
@@ -104,8 +104,8 @@ class TestTemporalWorker:
     @pytest.mark.asyncio
     async def test_context_manager(self, worker):
         """Test using worker as async context manager."""
-        with patch.object(worker, 'start', new_callable=AsyncMock):
-            with patch.object(worker, 'stop', new_callable=AsyncMock):
+        with patch.object(worker, "start", new_callable=AsyncMock):
+            with patch.object(worker, "stop", new_callable=AsyncMock):
                 async with worker as w:
                     assert w is worker
                     worker.start.assert_called_once()
@@ -209,14 +209,14 @@ class TestWorkerManager:
     @pytest.mark.asyncio
     async def test_run_worker_with_error_handling(self, manager, worker):
         """Test running worker with error handling."""
-        with patch.object(worker, 'run_until_shutdown', new_callable=AsyncMock):
+        with patch.object(worker, "run_until_shutdown", new_callable=AsyncMock):
             await manager._run_worker_with_error_handling("worker_1", worker)
             worker.run_until_shutdown.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_run_worker_with_error_handling_exception(self, manager, worker):
         """Test running worker with error handling when exception occurs."""
-        with patch.object(worker, 'run_until_shutdown', new_callable=AsyncMock) as mock_run:
+        with patch.object(worker, "run_until_shutdown", new_callable=AsyncMock) as mock_run:
             mock_run.side_effect = RuntimeError("Test error")
             # Should not raise an error
             await manager._run_worker_with_error_handling("worker_1", worker)
@@ -224,14 +224,14 @@ class TestWorkerManager:
     @pytest.mark.asyncio
     async def test_stop_worker_with_error_handling(self, manager, worker):
         """Test stopping worker with error handling."""
-        with patch.object(worker, 'stop', new_callable=AsyncMock):
+        with patch.object(worker, "stop", new_callable=AsyncMock):
             await manager._stop_worker_with_error_handling("worker_1", worker)
             worker.stop.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_stop_worker_with_error_handling_exception(self, manager, worker):
         """Test stopping worker with error handling when exception occurs."""
-        with patch.object(worker, 'stop', new_callable=AsyncMock) as mock_stop:
+        with patch.object(worker, "stop", new_callable=AsyncMock) as mock_stop:
             mock_stop.side_effect = RuntimeError("Test error")
             # Should not raise an error
             await manager._stop_worker_with_error_handling("worker_1", worker)
