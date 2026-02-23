@@ -1,11 +1,9 @@
 """Unit tests for base activity classes."""
 
-import pytest
 from datetime import datetime, timedelta
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from gearmeshing_ai.scheduler.activities.base import BaseActivity
-from gearmeshing_ai.scheduler.models.config import MonitorConfig
 
 
 class TestBaseActivity:
@@ -53,6 +51,7 @@ class TestBaseActivity:
         activity = BaseActivity()
         start_time = datetime.utcnow()
         import time
+
         time.sleep(0.01)
         duration = activity.measure_execution_time(start_time)
         assert duration.total_seconds() > 0
@@ -82,7 +81,7 @@ class TestBaseActivity:
         activity = BaseActivity()
         config = Mock()
         config.test_key = "test_value"
-        
+
         value = activity.get_config_value(config, "test_key", "default")
         assert value == "test_value"
 
@@ -90,7 +89,7 @@ class TestBaseActivity:
         """Test get_config_value returns default for missing attribute."""
         activity = BaseActivity()
         config = Mock(spec=[])  # Empty spec means no attributes
-        
+
         value = activity.get_config_value(config, "nonexistent", "default")
         assert value == "default"
 
@@ -142,6 +141,7 @@ class TestBaseActivity:
         activity = BaseActivity()
         start = datetime.utcnow()
         import time
+
         time.sleep(0.01)
         duration = activity.measure_execution_time(start)
         assert isinstance(duration, timedelta)
