@@ -7,7 +7,7 @@ name = "gearmeshing-ai"
 version = "0.0.0"
 description = "🤖 Enterprise AI bases development team."
 authors = [{ name = "Chisanan232", email = "chi10211201@cycu.org.tw" }]
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.13,<4.0"
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = [
@@ -55,6 +55,9 @@ dependencies = [
     "langgraph>=1.0.7",
     # Scheduler framework as a workflow engine
     "temporalio>=1.20.0",
+    # Extranal service operations
+    "clickup-mcp-server>=0.1.0",
+    "slack-mcp>=0.1.0",
 ]
 
 [project.scripts]
