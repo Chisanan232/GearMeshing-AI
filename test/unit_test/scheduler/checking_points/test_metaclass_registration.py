@@ -6,7 +6,6 @@ from gearmeshing_ai.scheduler.checking_points.base import (
     CheckingPoint,
     CheckingPointMeta,
     CheckingPointType,
-    EmailCheckingPoint,
     get_all_checking_point_classes,
     get_checking_point_class,
     get_checking_point_classes_by_filter,
@@ -18,6 +17,7 @@ from gearmeshing_ai.scheduler.checking_points.base import (
 from gearmeshing_ai.scheduler.checking_points.clickup.base import ClickUpCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.slack.base import SlackCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.custom.base import CustomCheckingPoint
+from gearmeshing_ai.scheduler.checking_points.custom.email_alerts import EmailCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.assignment import SmartAssignmentCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.overdue_tasks import OverdueTaskCheckingPoint
 from gearmeshing_ai.scheduler.checking_points.clickup.urgent_tasks import UrgentTaskCheckingPoint

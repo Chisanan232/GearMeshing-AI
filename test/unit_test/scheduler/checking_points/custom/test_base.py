@@ -1,7 +1,6 @@
 from gearmeshing_ai.scheduler.checking_points.base import (
     CheckingPoint,
     CheckingPointType,
-    EmailCheckingPoint,
 )
 from gearmeshing_ai.scheduler.checking_points.custom.base import CustomCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult

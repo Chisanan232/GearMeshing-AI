@@ -4,6 +4,69 @@ from unittest.mock import Mock, patch
 
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
+from gearmeshing_ai.scheduler import CheckingPointType
+from gearmeshing_ai.scheduler.checking_points.custom.email_alerts import EmailCheckingPoint
+
+
+class TestEmailCheckingPoint:
+    """Test EmailCheckingPoint base class."""
+
+    class ConcreteEmailCP(EmailCheckingPoint):
+        """Concrete email checking point for testing."""
+
+        name = "email_test"
+        type = CheckingPointType.EMAIL_ALERT_CP
+
+        async def fetch_data(self, **kwargs) -> list[MonitoringData]:
+            """Fetch test email data."""
+            return [
+                MonitoringData(
+                    id="email_789",
+                    type=MonitoringDataType.EMAIL_ALERT,
+                    source="email",
+                    data={"from": "alerts@example.com", "subject": "Test Alert"},
+                )
+            ]
+
+        async def evaluate(self, data: MonitoringData) -> CheckResult:
+            return CheckResult(should_act=True, reason="test", confidence=0.9)
+
+    def test_can_handle_email_alert(self):
+        """Test can_handle accepts email alert data."""
+        cp = self.ConcreteEmailCP()
+        data = MonitoringData(id="email_789", type=MonitoringDataType.EMAIL_ALERT, source="email")
+        assert cp.can_handle(data) is True
+
+    def test_prompt_variables_include_email_fields(self):
+        """Test that prompt variables include email fields."""
+        cp = self.ConcreteEmailCP()
+        data = MonitoringData(
+            id="email_789",
+            type=MonitoringDataType.EMAIL_ALERT,
+            source="email",
+            data={
+                "from": "alerts@example.com",
+                "subject": "Critical Alert",
+                "body": "System down",
+                "priority": "critical",
+                "recipients": ["admin@example.com"],
+                "attachments": [],
+            },
+        )
+        from gearmeshing_ai.scheduler.models.checking_point import CheckResultType
+
+        result = CheckResult(
+            checking_point_name="email_test",
+            checking_point_type="email_alert_cp",
+            result_type=CheckResultType.MATCH,
+            should_act=True,
+            reason="test",
+            confidence=0.9,
+        )
+        variables = cp._get_prompt_variables(data, result)
+
+        assert variables["sender"] == "alerts@example.com"
+        assert variables["subject"] == "Critical Alert"
 
 
 class TestEmailAlertCheckingPoint:
