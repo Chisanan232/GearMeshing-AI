@@ -7,9 +7,11 @@ workflows to ensure they receive proper attention and resolution.
 from datetime import datetime
 from typing import Any
 
+from clickup_mcp.models.dto.task import TaskResp
+
 from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType, ClickUpCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
-from gearmeshing_ai.scheduler.models.monitoring import MonitoringData
+from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, ClickUpTaskModel
 from gearmeshing_ai.scheduler.models.workflow import AIAction
 
 
@@ -82,7 +84,7 @@ class OverdueTaskCheckingPoint(ClickUpCheckingPoint):
             ],
         )
 
-    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData[dict[str, Any]]]:
+    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData[ClickUpTaskModel]]:
         """Fetch overdue tasks - different logic than urgent tasks.
 
         This method implements specific logic for overdue tasks:
@@ -95,7 +97,7 @@ class OverdueTaskCheckingPoint(ClickUpCheckingPoint):
             list_ids: Optional list of ClickUp list IDs to fetch from
 
         Returns:
-            List of MonitoringData objects containing overdue tasks
+            List of MonitoringData objects containing ClickUpTaskModel data
 
         """
         list_ids = list_ids or self.config.get("list_ids", [])
@@ -112,10 +114,10 @@ class OverdueTaskCheckingPoint(ClickUpCheckingPoint):
         # Filter overdue tasks locally (different filtering logic)
         overdue_tasks = self._filter_overdue_tasks(all_tasks)
 
-        # Convert to monitoring data using parent's utility
+        # Convert to monitoring data using parent's utility with typed ClickUpTaskModel
         return self.convert_to_monitoring_data(overdue_tasks)
 
-    def _filter_overdue_tasks(self, tasks: list["TaskResp"]) -> list["TaskResp"]:
+    def _filter_overdue_tasks(self, tasks: list[TaskResp]) -> list[TaskResp]:
         """Filter tasks that are overdue (different from due-soon logic).
 
         Args:

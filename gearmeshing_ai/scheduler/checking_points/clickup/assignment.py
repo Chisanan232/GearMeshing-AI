@@ -10,7 +10,7 @@ from typing import Any
 
 from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType, ClickUpCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
-from gearmeshing_ai.scheduler.models.monitoring import MonitoringData
+from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, ClickUpTaskModel
 from gearmeshing_ai.scheduler.models.workflow import AIAction
 
 
@@ -93,7 +93,7 @@ class SmartAssignmentCheckingPoint(ClickUpCheckingPoint):
         self.notify_new_assignee = self.config.get("notify_new_assignee", True)
         self.notify_team_lead = self.config.get("notify_team_lead", True)
 
-    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData[dict[str, Any]]]:
+    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData[ClickUpTaskModel]]:
         """Fetch unassigned tasks from ClickUp workspace.
 
         This method fetches unassigned high-priority tasks that need smart assignment.
@@ -103,7 +103,7 @@ class SmartAssignmentCheckingPoint(ClickUpCheckingPoint):
             list_ids: Optional list of ClickUp list IDs to fetch tasks from
 
         Returns:
-            List of MonitoringData objects containing unassigned tasks
+            List of MonitoringData objects containing ClickUpTaskModel data for unassigned tasks
 
         """
         try:
@@ -113,7 +113,7 @@ class SmartAssignmentCheckingPoint(ClickUpCheckingPoint):
             # Filter for unassigned tasks (TaskResp objects have assignees as a list)
             unassigned_tasks = [task for task in tasks if not task.assignees]
 
-            # Convert to MonitoringData
+            # Convert to MonitoringData with typed ClickUpTaskModel
             return self.convert_to_monitoring_data(unassigned_tasks)
 
         except Exception as e:

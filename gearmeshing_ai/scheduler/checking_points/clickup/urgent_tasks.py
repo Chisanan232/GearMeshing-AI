@@ -9,7 +9,7 @@ from typing import Any
 
 from gearmeshing_ai.scheduler.checking_points.base import CheckingPointType, ClickUpCheckingPoint
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult, CheckResultType
-from gearmeshing_ai.scheduler.models.monitoring import MonitoringData
+from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, ClickUpTaskModel
 from gearmeshing_ai.scheduler.models.workflow import AIAction
 
 
@@ -74,7 +74,7 @@ class UrgentTaskCheckingPoint(ClickUpCheckingPoint):
         self.notify_assignee = self.config.get("notify_assignee", True)
         self.create_follow_up = self.config.get("create_follow_up", True)
 
-    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData[dict[str, Any]]]:
+    async def fetch_data(self, list_ids: list[str] | None = None) -> list[MonitoringData[ClickUpTaskModel]]:
         """Fetch urgent tasks using parent's initialized client.
 
         This method implements the specific data fetching logic for urgent tasks:
@@ -87,7 +87,7 @@ class UrgentTaskCheckingPoint(ClickUpCheckingPoint):
             list_ids: Optional list of ClickUp list IDs to fetch from
 
         Returns:
-            List of MonitoringData objects containing urgent tasks
+            List of MonitoringData objects containing ClickUpTaskModel data
 
         """
         list_ids = list_ids or self.config.get("list_ids", [])
@@ -113,7 +113,7 @@ class UrgentTaskCheckingPoint(ClickUpCheckingPoint):
             due_soon_tasks = self._filter_tasks_due_soon(due_soon_tasks)
             all_urgent_tasks.extend(due_soon_tasks)
 
-        # Convert to monitoring data using parent's utility
+        # Convert to monitoring data using parent's utility with typed ClickUpTaskModel
         return self.convert_to_monitoring_data(all_urgent_tasks)
 
     def _filter_tasks_due_soon(self, tasks: list["TaskResp"]) -> list["TaskResp"]:

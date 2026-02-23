@@ -9,6 +9,9 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
+from clickup_mcp.models.dto.task import TaskListQuery, TaskResp
+
+from gearmeshing_ai.scheduler.models.monitoring import ClickUpTaskModel
 from gearmeshing_ai.scheduler.models.checking_point import CheckResult
 from gearmeshing_ai.scheduler.models.monitoring import MonitoringData, MonitoringDataType
 from gearmeshing_ai.scheduler.models.workflow import AIAction, AIActionType
@@ -453,7 +456,7 @@ class ClickUpCheckingPoint(CheckingPoint):
         list_id: str | None = None,
         status: str | None = None,
         priority: str | None = None,
-    ) -> list["TaskResp"]:
+    ) -> list[TaskResp]:
         """Get tasks from ClickUp workspace using MCP server client with proper data models.
 
         Args:
@@ -465,8 +468,6 @@ class ClickUpCheckingPoint(CheckingPoint):
             List of TaskResp objects containing task data with proper typing
 
         """
-        from clickup_mcp.models.dto.task import TaskListQuery, TaskResp
-
         client = await self._get_client()  # Lazy initialization happens here
 
         if not list_id:
@@ -496,26 +497,26 @@ class ClickUpCheckingPoint(CheckingPoint):
 
         return filtered_tasks
 
-    def convert_to_monitoring_data(self, tasks: list["TaskResp"]) -> list[MonitoringData[dict[str, Any]]]:
-        """Convert ClickUp tasks to MonitoringData objects.
+    def convert_to_monitoring_data(self, tasks: list[TaskResp]) -> list[MonitoringData[ClickUpTaskModel]]:
+        """Convert ClickUp tasks to MonitoringData objects with typed task models.
 
         Args:
             tasks: List of TaskResp objects from ClickUp API
 
         Returns:
-            List of MonitoringData objects with typed task data
+            List of MonitoringData objects containing ClickUpTaskModel data
 
         """
-        data_items: list[MonitoringData[dict[str, Any]]] = []
+        data_items: list[MonitoringData[ClickUpTaskModel]] = []
         for task in tasks:
-            # Convert TaskResp to dict for MonitoringData storage
-            task_dict = task.model_dump()
+            # Convert TaskResp to ClickUpTaskModel for type-safe data handling
+            task_model = ClickUpTaskModel.from_task_resp(task)
             data_items.append(
                 MonitoringData(
                     id=f"clickup_{task.id}",
                     type=MonitoringDataType.CLICKUP_TASK,
                     source="clickup",
-                    data=task_dict,
+                    data=task_model,
                     timestamp=datetime.utcnow(),
                 )
             )

@@ -13,7 +13,7 @@ from pydantic import Field, field_validator
 from .base import BaseSchedulerModel
 
 # Generic type variable for monitoring data content
-T = TypeVar("T", bound=dict[str, Any])
+T = TypeVar("T")
 
 
 class MonitoringDataType(str, Enum):
@@ -190,8 +190,60 @@ class MonitoringData(BaseSchedulerModel, Generic[T]):
         return self.get_data_field("user") or self.get_data_field("user_id")
 
 
+# Pydantic model for ClickUp task data
+class ClickUpTaskModel(BaseSchedulerModel):
+    """Structured model for ClickUp task data."""
+    
+    id: str = Field(..., description="Task ID")
+    name: str = Field(..., description="Task name")
+    description: str | None = Field(None, description="Task description")
+    status: dict[str, Any] | None = Field(None, description="Task status info")
+    priority: dict[str, Any] | None = Field(None, description="Task priority info")
+    assignees: list[dict[str, Any]] = Field(default_factory=list, description="Assigned users")
+    due_date: int | None = Field(None, description="Due date in milliseconds")
+    tags: list[dict[str, Any]] = Field(default_factory=list, description="Task tags")
+    custom_fields: list[dict[str, Any]] = Field(default_factory=list, description="Custom field values")
+    
+    @classmethod
+    def from_task_resp(cls, task: Any) -> "ClickUpTaskModel":
+        """Create from TaskResp object."""
+        return cls(
+            id=task.id,
+            name=task.name,
+            description=task.description or task.text_content,
+            status={"status": task.status.status, "type": task.status.type} if task.status else None,
+            priority={"priority": task.priority.priority, "id": task.priority.id} if task.priority else None,
+            assignees=[{"id": a.id, "username": a.username} for a in task.assignees] if task.assignees else [],
+            due_date=task.due_date,
+            tags=[{"name": t.name} for t in task.tags] if task.tags else [],
+            custom_fields=[{"id": cf.id, "name": cf.name, "value": cf.value} for cf in task.custom_fields] if task.custom_fields else [],
+        )
+
+
+# Pydantic model for Slack message data
+class SlackMessageModel(BaseSchedulerModel):
+    """Structured model for Slack message data."""
+    
+    user: str = Field(..., description="User ID")
+    channel: str = Field(..., description="Channel ID")
+    text: str = Field(..., description="Message text")
+    timestamp: str | None = Field(None, description="Message timestamp")
+    thread_ts: str | None = Field(None, description="Thread timestamp")
+    bot_id: str | None = Field(None, description="Bot ID if from bot")
+
+
+# Pydantic model for email alert data
+class EmailAlertModel(BaseSchedulerModel):
+    """Structured model for email alert data."""
+    
+    sender: str = Field(..., description="Sender email")
+    subject: str = Field(..., description="Email subject")
+    body: str = Field(..., description="Email body")
+    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Email timestamp")
+
+
 # Type aliases for specific data types
-ClickUpTaskData = MonitoringData[dict[str, Any]]
-SlackMessageData = MonitoringData[dict[str, Any]]
-EmailAlertData = MonitoringData[dict[str, Any]]
+ClickUpTaskData = MonitoringData[ClickUpTaskModel]
+SlackMessageData = MonitoringData[SlackMessageModel]
+EmailAlertData = MonitoringData[EmailAlertModel]
 CustomData = MonitoringData[dict[str, Any]]
