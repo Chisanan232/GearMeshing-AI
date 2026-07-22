@@ -51,8 +51,8 @@ class FakeCodingExecutor(CodingExecutor):
     ) -> None:
         self._capabilities = capabilities
         self._result = result
-        self._events = events
-        self._artifacts = artifacts
+        self._events = tuple(events)
+        self._artifacts = tuple(artifacts)
         self.requests: list[CodingExecutionRequest] = []
 
     @property
