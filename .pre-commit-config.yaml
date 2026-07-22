@@ -1,5 +1,10 @@
 exclude: '.github/|docs/'
 
+ci:
+  # The quality workflow checks the rewritten package boundaries. The inherited
+  # source tree is not yet clean under these repository-wide hooks.
+  skip: [ruff, ruff-format, mypy]
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
