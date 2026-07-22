@@ -221,9 +221,7 @@ class WorkflowRunner:
         reason_code: str,
     ) -> WorkflowCheckpoint:
         terminal_state = (
-            WorkRunState.BLOCKED
-            if checkpoint.work_run.state is WorkRunState.APPROVED
-            else WorkRunState.FAILED
+            WorkRunState.BLOCKED if checkpoint.work_run.state is WorkRunState.APPROVED else WorkRunState.FAILED
         )
         failed_work_run = checkpoint.work_run.transition_to(terminal_state)
         return WorkflowCheckpoint(

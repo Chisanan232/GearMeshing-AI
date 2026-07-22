@@ -31,9 +31,7 @@ def test_runner_completes_the_mocked_golden_path_in_order() -> None:
     def record_stage(work_run: WorkRun, context: StageContext) -> WorkRun:
         observed_stages.append(context.stage)
         if context.stage is WorkflowStage.PUBLISH:
-            return work_run.associate_pull_request(
-                "https://github.com/Chisanan232/GearMeshing-AI/pull/13"
-            )
+            return work_run.associate_pull_request("https://github.com/Chisanan232/GearMeshing-AI/pull/13")
         return work_run
 
     actions = WorkflowActions(
@@ -50,10 +48,7 @@ def test_runner_completes_the_mocked_golden_path_in_order() -> None:
     assert tuple(observed_stages) == WORKFLOW_STAGE_ORDER
     assert result.completed_stages == WORKFLOW_STAGE_ORDER
     assert result.work_run.state is WorkRunState.COMPLETED
-    assert (
-        result.work_run.correlation.pull_request_url
-        == "https://github.com/Chisanan232/GearMeshing-AI/pull/13"
-    )
+    assert result.work_run.correlation.pull_request_url == "https://github.com/Chisanan232/GearMeshing-AI/pull/13"
     assert result.failure is None
 
 
