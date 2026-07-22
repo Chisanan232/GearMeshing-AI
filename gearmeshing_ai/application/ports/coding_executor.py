@@ -161,3 +161,29 @@ class ExecutionEvent:
         if not self.message.strip():
             message = "event message must not be empty"
             raise ValueError(message)
+
+
+@dataclass(frozen=True, slots=True)
+class ExecutionArtifact:
+    """Metadata reference to an artifact retained inside the worktree."""
+
+    name: str
+    relative_path: Path
+    media_type: str
+    size_bytes: int
+    sha256: str
+
+    def __post_init__(self) -> None:
+        """Reject artifact metadata that could reference external paths."""
+        if not self.name.strip() or not self.media_type.strip():
+            message = "artifact name and media type must not be empty"
+            raise ValueError(message)
+        if self.relative_path.is_absolute() or ".." in self.relative_path.parts:
+            message = "artifact path must remain relative to the worktree"
+            raise ValueError(message)
+        if self.size_bytes < 0:
+            message = "artifact size must not be negative"
+            raise ValueError(message)
+        if fullmatch(r"[0-9a-f]{64}", self.sha256) is None:
+            message = "artifact SHA-256 must be lowercase hexadecimal"
+            raise ValueError(message)
