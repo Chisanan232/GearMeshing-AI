@@ -5,6 +5,7 @@ from enum import StrEnum
 from os.path import abspath
 from pathlib import Path
 from re import fullmatch
+from typing import Awaitable, Callable, Protocol
 
 
 class ExecutionStatus(StrEnum):
@@ -275,3 +276,40 @@ class ExecutorCapabilities:
         if self.max_timeout_seconds <= 0:
             message = "maximum timeout must be positive"
             raise ValueError(message)
+
+
+type EventCallback = Callable[[ExecutionEvent], Awaitable[None]]
+type ArtifactCallback = Callable[[ExecutionArtifact], Awaitable[None]]
+
+
+class CancellationSignal(Protocol):
+    """Cooperative cancellation boundary supplied by orchestration."""
+
+    @property
+    def cancelled(self) -> bool:
+        """Return whether cancellation has been requested."""
+        ...
+
+    async def wait(self) -> None:
+        """Wait until cancellation is requested."""
+        ...
+
+
+class CodingExecutor(Protocol):
+    """Port implemented by Codex or any future coding provider adapter."""
+
+    @property
+    def capabilities(self) -> ExecutorCapabilities:
+        """Describe executor features without exposing provider internals."""
+        ...
+
+    async def execute(
+        self,
+        request: CodingExecutionRequest,
+        *,
+        on_event: EventCallback,
+        on_artifact: ArtifactCallback,
+        cancellation: CancellationSignal,
+    ) -> CodingExecutionResult:
+        """Execute approved work while streaming observable progress."""
+        ...
