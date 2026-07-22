@@ -6,7 +6,7 @@ import asyncio
 import re
 from collections.abc import Awaitable, Callable, Mapping, Sequence
 from dataclasses import dataclass, field
-from json import JSONDecodeError
+from json import JSONDecodeError, loads
 from math import isfinite
 from typing import Any, Final
 from urllib.parse import urlsplit
@@ -149,34 +149,41 @@ class JiraWorkManagementProvider(WorkManagementProvider):
     async def _request_json(self, method: str, path: str, *, json: object | None = None) -> Mapping[str, Any]:
         url = f"{self._config.site_url.rstrip('/')}{path}"
         for attempt in range(self._config.max_attempts):
+            retry_delay: float | None = None
             try:
-                response = await self._client.request(
+                async with self._client.stream(
                     method,
                     url,
                     json=json,
                     timeout=self._config.request_timeout_seconds,
                     follow_redirects=False,
-                )
+                ) as response:
+                    if response.status_code == 429 and attempt + 1 < self._config.max_attempts:
+                        retry_delay = self._retry_delay(response, attempt)
+                    else:
+                        self._raise_for_status(response)
+                        content = bytearray()
+                        async for chunk in response.aiter_bytes():
+                            if len(content) + len(chunk) > self._config.max_response_bytes:
+                                message = "Jira returned a response larger than the configured bound."
+                                raise JiraTransportError(message)
+                            content.extend(chunk)
+                        try:
+                            payload = loads(content)
+                        except (JSONDecodeError, UnicodeDecodeError, ValueError) as error:
+                            message = "Jira returned an invalid JSON response."
+                            raise JiraTransportError(message) from error
+                        if not isinstance(payload, Mapping):
+                            message = "Jira returned an unexpected JSON response shape."
+                            raise JiraTransportError(message)
+                        return payload
             except (httpx.TimeoutException, httpx.RequestError) as error:
                 message = "Jira could not be reached within the configured request bound."
                 raise JiraTransportError(message) from error
 
-            if response.status_code == 429 and attempt + 1 < self._config.max_attempts:
-                await self._sleep(self._retry_delay(response, attempt))
+            if retry_delay is not None:
+                await self._sleep(retry_delay)
                 continue
-            self._raise_for_status(response)
-            if len(response.content) > self._config.max_response_bytes:
-                message = "Jira returned a response larger than the configured bound."
-                raise JiraTransportError(message)
-            try:
-                payload = response.json()
-            except (JSONDecodeError, ValueError) as error:
-                message = "Jira returned an invalid JSON response."
-                raise JiraTransportError(message) from error
-            if not isinstance(payload, Mapping):
-                message = "Jira returned an unexpected JSON response shape."
-                raise JiraTransportError(message)
-            return payload
         message = "Jira rate limiting exceeded the configured retry bound."
         raise JiraRateLimitError(message)
 
