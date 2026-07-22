@@ -187,3 +187,22 @@ class ExecutionArtifact:
         if fullmatch(r"[0-9a-f]{64}", self.sha256) is None:
             message = "artifact SHA-256 must be lowercase hexadecimal"
             raise ValueError(message)
+
+
+@dataclass(frozen=True, slots=True)
+class ExecutionFailure:
+    """Sanitized, portable failure information safe for orchestration."""
+
+    kind: ExecutionFailureKind
+    code: str
+    safe_message: str = field(repr=False)
+    retryable: bool = False
+
+    def __post_init__(self) -> None:
+        """Require a stable machine code and non-empty operator message."""
+        if fullmatch(r"[A-Z][A-Z0-9_]{0,63}", self.code) is None:
+            message = "failure code must be an uppercase machine identifier"
+            raise ValueError(message)
+        if not self.safe_message.strip():
+            message = "failure message must not be empty"
+            raise ValueError(message)
