@@ -1,6 +1,7 @@
 """Contract tests for provider-neutral coding executors."""
 
 from pathlib import Path
+from typing import cast
 
 import pytest
 
@@ -113,6 +114,16 @@ def test_repository_context_rejects_identical_normalized_roots() -> None:
             worktree_root=Path("/workspace/other/../repository"),
             base_revision="main",
         )
+
+
+def test_constraints_snapshot_caller_writable_paths() -> None:
+    """Caller mutation cannot expand a frozen constraint boundary."""
+    caller_paths = [Path("src")]
+    constraints = ExecutionConstraints(writable_paths=cast("tuple[Path, ...]", caller_paths))
+
+    caller_paths.append(Path("secrets"))
+
+    assert constraints.writable_paths == (Path("src"),)
 
 
 def test_tool_permission_rejects_command_arguments() -> None:
