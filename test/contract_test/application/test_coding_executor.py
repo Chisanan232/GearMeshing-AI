@@ -184,6 +184,24 @@ def test_capabilities_snapshot_caller_collections() -> None:
     assert capabilities.supported_tools == frozenset({"filesystem.read"})
 
 
+def test_integer_limits_reject_boolean_values() -> None:
+    """Boolean values cannot masquerade as integer resource metadata."""
+    with pytest.raises(ValueError, match="positive integers"):
+        ExecutionConstraints(writable_paths=(Path("src"),), max_changed_files=True)
+
+    with pytest.raises(ValueError, match="non-negative integer"):
+        ExecutionEvent(sequence=False, kind=ExecutionEventKind.STARTED, message="Started.")
+
+    with pytest.raises(ValueError, match="non-negative integer"):
+        ExecutionArtifact(
+            name="report",
+            relative_path=Path("report.json"),
+            media_type="application/json",
+            size_bytes=False,
+            sha256="0" * 64,
+        )
+
+
 def test_tool_permission_rejects_command_arguments() -> None:
     """Tool grants cannot smuggle shell arguments into the contract."""
     with pytest.raises(ValueError, match="unsupported characters"):
