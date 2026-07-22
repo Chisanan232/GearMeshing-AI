@@ -71,7 +71,7 @@ jobs:
 #    name: For unit test, organize and generate the testing report and upload it to Codecov
     if: ${{
         contains(fromJSON('["pull_request","workflow_dispatch","schedule"]'), github.event_name) ||
-        (github.event_name == 'push' && github.ref_name == 'master')
+        (github.event_name == 'push' && github.ref_name == 'main')
       }}
     needs: run_unit-test
     uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_organize_test_cov_reports.yaml@master
@@ -82,7 +82,7 @@ jobs:
 #    name: For unit test, organize and generate the testing report and upload it to Codecov
     if: ${{
         contains(fromJSON('["pull_request","workflow_dispatch","schedule"]'), github.event_name) ||
-        (github.event_name == 'push' && github.ref_name == 'master')
+        (github.event_name == 'push' && github.ref_name == 'main')
       }}
     needs: run_integration-test
     uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_organize_test_cov_reports.yaml@master
@@ -93,7 +93,7 @@ jobs:
 #    name: For end-to-end test, organize and generate the testing report and upload it to Codecov
     if: ${{
         contains(fromJSON('["pull_request","workflow_dispatch","schedule"]'), github.event_name) ||
-        (github.event_name == 'push' && github.ref_name == 'master')
+        (github.event_name == 'push' && github.ref_name == 'main')
       }}
     needs: run_contract-test
     uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_organize_test_cov_reports.yaml@master
@@ -104,7 +104,7 @@ jobs:
 #    name: For end-to-end test, organize and generate the testing report and upload it to Codecov
     if: ${{
         contains(fromJSON('["pull_request","workflow_dispatch","schedule"]'), github.event_name) ||
-        (github.event_name == 'push' && github.ref_name == 'master')
+        (github.event_name == 'push' && github.ref_name == 'main')
       }}
     needs: run_e2e-test
     uses: Chisanan232/GitHub-Action_Reusable_Workflows-Python/.github/workflows/rw_organize_test_cov_reports.yaml@master
@@ -116,7 +116,7 @@ jobs:
     if: ${{
         (
             contains(fromJSON('["pull_request","workflow_dispatch","schedule"]'), github.event_name) ||
-            (github.event_name == 'push' && github.ref_name == 'master')
+            (github.event_name == 'push' && github.ref_name == 'main')
         )
       }}
     needs: [run_unit-test, run_integration-test, run_contract-test, run_e2e-test]

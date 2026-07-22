@@ -3,7 +3,7 @@ name: Docs-only auto-approve & automerge
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
-    branches: [master]
+    branches: [main]
 
 permissions:
   contents: write

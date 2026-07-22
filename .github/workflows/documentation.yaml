@@ -4,7 +4,7 @@ on:
   push:
     branches:
 #      - "develop/**"    # For development and testing
-      - "master"
+      - "main"
     paths:
 #     Documentation
 #     Doc - CI workflow
@@ -30,7 +30,7 @@ on:
   workflow_run:
     workflows: ["release"]
     types: [completed]
-    branches: ["master"]
+    branches: ["main"]
 
 permissions:
   contents: write
