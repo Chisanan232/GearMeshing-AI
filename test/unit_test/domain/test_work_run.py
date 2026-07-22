@@ -109,3 +109,13 @@ def test_work_run_supports_terminal_outcomes(
     assert terminal_work_run.state.is_terminal
     with pytest.raises(InvalidWorkRunTransition):
         terminal_work_run.transition_to(WorkRunState.EXECUTING)
+
+
+def test_work_run_requires_draft_pr_before_completion() -> None:
+    work_run = WorkRun(
+        correlation=make_work_run().correlation,
+        state=WorkRunState.PUBLISHING_DRAFT_PR,
+    )
+
+    with pytest.raises(InvalidWorkRunTransition, match="must reference its Draft PR"):
+        work_run.transition_to(WorkRunState.COMPLETED)
