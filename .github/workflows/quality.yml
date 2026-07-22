@@ -34,13 +34,23 @@ jobs:
         run: uv sync --locked
 
       - name: Check formatting
-        run: uv run ruff format --check gearmeshing_ai test
+        run: |
+          targets=(gearmeshing_ai/{domain,application,adapters,runtime,interfaces})
+          for path in test/unit_test/test_package_boundaries.py test/unit_test/{domain,application,adapters,runtime,interfaces}; do
+            [[ -e "$path" ]] && targets+=("$path")
+          done
+          uv run ruff format --check "${targets[@]}"
 
       - name: Run lint checks
-        run: uv run ruff check gearmeshing_ai test
+        run: |
+          targets=(gearmeshing_ai/{domain,application,adapters,runtime,interfaces})
+          for path in test/unit_test/test_package_boundaries.py test/unit_test/{domain,application,adapters,runtime,interfaces}; do
+            [[ -e "$path" ]] && targets+=("$path")
+          done
+          uv run ruff check "${targets[@]}"
 
       - name: Run type checks
-        run: uv run mypy gearmeshing_ai
+        run: uv run mypy gearmeshing_ai/{domain,application,adapters,runtime,interfaces}
 
       - name: Run unit tests
         run: uv run pytest test/unit_test
