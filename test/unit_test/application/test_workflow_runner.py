@@ -5,8 +5,10 @@ from gearmeshing_ai.application.workflow_runner import (
     StageContext,
     WorkflowActions,
     WorkflowCheckpoint,
+    WorkflowFailureKind,
     WorkflowRunner,
     WorkflowStage,
+    WorkflowStageError,
 )
 from gearmeshing_ai.domain.work_run import WorkRun, WorkRunCorrelation, WorkRunState
 
@@ -53,3 +55,36 @@ def test_runner_completes_the_mocked_golden_path_in_order() -> None:
         == "https://github.com/Chisanan232/GearMeshing-AI/pull/13"
     )
     assert result.failure is None
+
+
+def test_failed_stage_records_classification_and_stops_advancement() -> None:
+    observed_stages: list[WorkflowStage] = []
+
+    def fail_verification(work_run: WorkRun, context: StageContext) -> WorkRun:
+        observed_stages.append(context.stage)
+        if context.stage is WorkflowStage.VERIFY:
+            raise WorkflowStageError(WorkflowFailureKind.POLICY, "approval_missing")
+        return work_run
+
+    actions = WorkflowActions(
+        ingest=fail_verification,
+        execute=fail_verification,
+        verify=fail_verification,
+        remediate=fail_verification,
+        publish=fail_verification,
+        finish=fail_verification,
+    )
+
+    result = WorkflowRunner(actions).run(WorkflowCheckpoint(work_run=make_work_run()))
+
+    assert observed_stages == [
+        WorkflowStage.INGEST,
+        WorkflowStage.EXECUTE,
+        WorkflowStage.VERIFY,
+    ]
+    assert result.completed_stages == (WorkflowStage.INGEST, WorkflowStage.EXECUTE)
+    assert result.work_run.state is WorkRunState.FAILED
+    assert result.failure is not None
+    assert result.failure.stage is WorkflowStage.VERIFY
+    assert result.failure.kind is WorkflowFailureKind.POLICY
+    assert result.failure.reason_code == "approval_missing"
