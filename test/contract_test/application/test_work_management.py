@@ -131,3 +131,14 @@ async def test_publishes_blockers_through_the_normalized_contract() -> None:
 
     assert receipt == UpdateReceipt("WORK-42", UpdateKind.BLOCKER, "blocker-1")
     assert provider.calls == [("blocker", "WORK-42", update)]
+
+
+@pytest.mark.asyncio
+async def test_publishes_completion_through_the_normalized_contract() -> None:
+    provider = RecordingProvider()
+    update = CompletionUpdate("All acceptance criteria passed")
+
+    receipt = await provider.publish_completion("WORK-42", update)
+
+    assert receipt == UpdateReceipt("WORK-42", UpdateKind.COMPLETION, "completion-1")
+    assert provider.calls == [("completion", "WORK-42", update)]
