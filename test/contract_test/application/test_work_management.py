@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import operator
+from dataclasses import FrozenInstanceError
 from typing import Any
 
 import pytest
@@ -85,3 +87,14 @@ async def test_retrieves_a_normalized_work_item_by_external_key() -> None:
     assert item.specification == "Execute an approved specification."
     assert item.acceptance_criteria == ("Emit reviewable evidence.",)
     assert item.repository == WorkRepository("https://github.com/example/project", "main")
+
+
+def test_work_item_data_is_deeply_immutable() -> None:
+    item = make_work_item()
+
+    with pytest.raises(FrozenInstanceError):
+        setattr(item, "title", "Changed")
+    with pytest.raises(TypeError):
+        operator.setitem(item.metadata, "priority", "low")
+    with pytest.raises(TypeError):
+        operator.setitem(item.metadata["labels"], 0, "changed")
