@@ -29,6 +29,16 @@ WORKFLOW_STAGE_ORDER = (
     WorkflowStage.FINISH,
 )
 
+_WORKFLOW_STATE_AFTER_PREFIX = (
+    WorkRunState.APPROVED,
+    WorkRunState.EXECUTING,
+    WorkRunState.VERIFYING,
+    WorkRunState.REMEDIATING,
+    WorkRunState.VERIFYING,
+    WorkRunState.PUBLISHING_DRAFT_PR,
+    WorkRunState.COMPLETED,
+)
+
 
 class WorkflowFailureKind(StrEnum):
     """Stable classifications suitable for policy and retry decisions."""
@@ -130,8 +140,33 @@ class WorkflowCheckpoint:
         if self.completed_stages != expected_prefix:
             message = "completed_stages must be a canonical workflow prefix"
             raise ValueError(message)
-        if self.failure is not None and not self.work_run.state.is_terminal:
-            message = "a failed checkpoint must contain a terminal WorkRun"
+        if self.failure is None:
+            self._validate_active_progress()
+        else:
+            self._validate_failed_progress()
+
+    def _validate_active_progress(self) -> None:
+        expected_state = _WORKFLOW_STATE_AFTER_PREFIX[len(self.completed_stages)]
+        if self.work_run.state is not expected_state:
+            message = "WorkRun state does not match completed workflow stages"
+            raise ValueError(message)
+        if expected_state is WorkRunState.COMPLETED and self.work_run.correlation.pull_request_url is None:
+            message = "a completed workflow checkpoint must reference its Draft PR"
+            raise ValueError(message)
+
+    def _validate_failed_progress(self) -> None:
+        if len(self.completed_stages) == len(WORKFLOW_STAGE_ORDER):
+            message = "a completed workflow checkpoint cannot contain a failure"
+            raise ValueError(message)
+        expected_failed_stage = WORKFLOW_STAGE_ORDER[len(self.completed_stages)]
+        if self.failure is None or self.failure.stage is not expected_failed_stage:
+            message = "failure stage must immediately follow completed workflow stages"
+            raise ValueError(message)
+        expected_terminal_state = (
+            WorkRunState.BLOCKED if expected_failed_stage is WorkflowStage.INGEST else WorkRunState.FAILED
+        )
+        if self.work_run.state is not expected_terminal_state:
+            message = "failed workflow checkpoint has an invalid terminal WorkRun state"
             raise ValueError(message)
 
 
