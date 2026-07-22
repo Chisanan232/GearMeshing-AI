@@ -103,3 +103,27 @@ def test_fake_executor_exposes_provider_neutral_capabilities() -> None:
     executor = FakeCodingExecutor(capabilities=capabilities, result=build_result(ExecutionStatus.COMPLETED))
 
     assert executor.capabilities == capabilities
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", tuple(ExecutionStatus))
+async def test_fake_executor_returns_every_terminal_status(status: ExecutionStatus) -> None:
+    """The fake deterministically represents every terminal contract outcome."""
+    request = build_request()
+    expected = build_result(status)
+    executor = FakeCodingExecutor(capabilities=build_capabilities(), result=expected)
+
+    async def ignore_event(_event: object) -> None:
+        return None
+
+    async def ignore_artifact(_artifact: object) -> None:
+        return None
+
+    actual = await executor.execute(
+        request,
+        on_event=ignore_event,
+        on_artifact=ignore_artifact,
+        cancellation=FakeCancellationSignal(),
+    )
+
+    assert actual == expected
