@@ -1,6 +1,6 @@
 """Provider-neutral contract for executing approved coding work."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 from os.path import abspath
 from pathlib import Path
@@ -55,3 +55,20 @@ class RepositoryContext:
 
         object.__setattr__(self, "repository_root", repository_root)
         object.__setattr__(self, "worktree_root", worktree_root)
+
+
+@dataclass(frozen=True, slots=True)
+class ApprovedSpecification:
+    """Immutable snapshot of the specification approved for execution."""
+
+    identifier: str
+    revision: str
+    approval_reference: str
+    content: str = field(repr=False)
+
+    def __post_init__(self) -> None:
+        """Require explicit identity, approval, and executable content."""
+        required_values = (self.identifier, self.revision, self.approval_reference, self.content)
+        if any(not value.strip() for value in required_values):
+            message = "approved specification fields must not be empty"
+            raise ValueError(message)
