@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from gearmeshing_ai.application.ports.coding_executor import (
     ApprovedSpecification,
     CodingExecutionRequest,
@@ -70,3 +72,13 @@ def build_result(status: ExecutionStatus) -> CodingExecutionResult:
         summary=f"Execution reached {status.value}.",
         failure=failure,
     )
+
+
+def test_repository_context_rejects_worktree_escape() -> None:
+    """A worktree outside its repository cannot be passed to an adapter."""
+    with pytest.raises(ValueError, match="contained"):
+        RepositoryContext(
+            repository_root=Path("/workspace/repository"),
+            worktree_root=Path("/workspace/other"),
+            base_revision="main",
+        )
