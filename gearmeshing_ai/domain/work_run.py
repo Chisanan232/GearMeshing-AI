@@ -144,6 +144,14 @@ class WorkRun:
             raise TypeError("identity must be a WorkRunIdentity")
         if not isinstance(self.state, WorkRunState):
             raise TypeError("state must be a WorkRunState")
+        if not isinstance(self.artifact_references, tuple) or any(
+            not isinstance(reference, ArtifactReference) for reference in self.artifact_references
+        ):
+            raise TypeError("artifact_references must contain only ArtifactReference values")
+        if not isinstance(self.event_references, tuple) or any(
+            not isinstance(reference, EventReference) for reference in self.event_references
+        ):
+            raise TypeError("event_references must contain only EventReference values")
 
     def transition_to(self, target: WorkRunState) -> "WorkRun":
         """Return a new WorkRun in ``target`` when the transition is valid."""
