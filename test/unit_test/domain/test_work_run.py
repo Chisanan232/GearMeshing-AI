@@ -178,3 +178,21 @@ def test_work_run_references_reject_embedded_credentials() -> None:
             kind="test-report",
             uri="https://token@example.com/report.json",
         )
+
+
+def test_work_run_correlation_rejects_invalid_identifiers() -> None:
+    with pytest.raises(ValueError, match="PROJECT-123"):
+        WorkRunCorrelation(
+            jira_issue_key="not-a-key",
+            repository="https://github.com/example/repository",
+            branch="feature/safe-branch",
+            agent_assembly_correlation_id="assembly-run-42",
+        )
+
+    with pytest.raises(ValueError, match="must not contain whitespace"):
+        WorkRunCorrelation(
+            jira_issue_key="GMAI-11",
+            repository="https://github.com/example/repository",
+            branch="unsafe branch",
+            agent_assembly_correlation_id="assembly-run-42",
+        )
