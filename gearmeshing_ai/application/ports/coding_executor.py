@@ -111,8 +111,9 @@ class ExecutionConstraints:
         if any(path.is_absolute() or ".." in path.parts for path in writable_paths):
             message = "writable paths must be relative and must not traverse parents"
             raise ValueError(message)
-        if self.max_changed_files < 1 or self.max_output_bytes < 1:
-            message = "execution resource limits must be positive"
+        resource_limits = (self.max_changed_files, self.max_output_bytes)
+        if any(isinstance(limit, bool) or not isinstance(limit, int) or limit < 1 for limit in resource_limits):
+            message = "execution resource limits must be positive integers"
             raise ValueError(message)
 
         object.__setattr__(self, "writable_paths", writable_paths)
