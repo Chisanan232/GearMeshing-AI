@@ -7,7 +7,7 @@ import pytest
 from gearmeshing_ai.domain.work_run import (
     ArtifactReference,
     EventReference,
-    InvalidWorkRunTransition,
+    InvalidWorkRunTransitionError,
     WorkRun,
     WorkRunCorrelation,
     WorkRunState,
@@ -82,7 +82,7 @@ def test_work_run_rejects_invalid_transitions(
 ) -> None:
     work_run = WorkRun(correlation=make_work_run().correlation, state=source)
 
-    with pytest.raises(InvalidWorkRunTransition, match=f"cannot transition from {source} to {target}"):
+    with pytest.raises(InvalidWorkRunTransitionError, match=f"cannot transition from {source} to {target}"):
         work_run.transition_to(target)
 
 
@@ -109,7 +109,7 @@ def test_work_run_supports_terminal_outcomes(
     terminal_work_run = work_run.transition_to(outcome)
 
     assert terminal_work_run.state.is_terminal
-    with pytest.raises(InvalidWorkRunTransition):
+    with pytest.raises(InvalidWorkRunTransitionError):
         terminal_work_run.transition_to(WorkRunState.EXECUTING)
 
 
@@ -119,7 +119,7 @@ def test_work_run_requires_draft_pr_before_completion() -> None:
         state=WorkRunState.PUBLISHING_DRAFT_PR,
     )
 
-    with pytest.raises(InvalidWorkRunTransition, match="must reference its Draft PR"):
+    with pytest.raises(InvalidWorkRunTransitionError, match="must reference its Draft PR"):
         work_run.transition_to(WorkRunState.COMPLETED)
 
 

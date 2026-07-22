@@ -127,7 +127,7 @@ class WorkRunIdentity:
             raise TypeError("run_id must be a UUID")
 
 
-class InvalidWorkRunTransition(ValueError):
+class InvalidWorkRunTransitionError(ValueError):
     """Raised when a WorkRun lifecycle transition violates domain rules."""
 
 
@@ -239,9 +239,9 @@ class WorkRun:
         if not isinstance(target, WorkRunState):
             raise TypeError("target must be a WorkRunState")
         if target not in VALID_WORK_RUN_TRANSITIONS[self.state]:
-            raise InvalidWorkRunTransition(f"cannot transition from {self.state} to {target}")
+            raise InvalidWorkRunTransitionError(f"cannot transition from {self.state} to {target}")
         if target is WorkRunState.COMPLETED and self.correlation.pull_request_url is None:
-            raise InvalidWorkRunTransition("a completed WorkRun must reference its Draft PR")
+            raise InvalidWorkRunTransitionError("a completed WorkRun must reference its Draft PR")
         return replace(self, state=target)
 
     def associate_pull_request(self, pull_request_url: str) -> "WorkRun":
