@@ -38,6 +38,14 @@ class ExecutionEventKind(StrEnum):
     FINISHED = "finished"
 
 
+class ExecutorFeature(StrEnum):
+    """Discoverable behaviors that an executor adapter may support."""
+
+    EVENT_STREAMING = "event_streaming"
+    ARTIFACT_STREAMING = "artifact_streaming"
+    CANCELLATION = "cancellation"
+
+
 @dataclass(frozen=True, slots=True)
 class RepositoryContext:
     """Repository and isolated worktree selected for an execution."""
@@ -244,4 +252,26 @@ class CodingExecutionResult:
         }
         if self.failure.kind not in allowed_failure_kinds[self.status]:
             message = "result status does not match its failure classification"
+            raise ValueError(message)
+
+
+@dataclass(frozen=True, slots=True)
+class ExecutorCapabilities:
+    """Provider-neutral metadata used to select a compatible executor."""
+
+    executor_id: str
+    features: frozenset[ExecutorFeature]
+    supported_tools: frozenset[str]
+    max_timeout_seconds: float
+
+    def __post_init__(self) -> None:
+        """Validate advertised capability identifiers and resource limits."""
+        if not self.executor_id.strip():
+            message = "executor ID must not be empty"
+            raise ValueError(message)
+        if any(fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}", tool) is None for tool in self.supported_tools):
+            message = "supported tool identifier contains unsupported characters"
+            raise ValueError(message)
+        if self.max_timeout_seconds <= 0:
+            message = "maximum timeout must be positive"
             raise ValueError(message)
