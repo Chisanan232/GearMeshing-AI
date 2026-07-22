@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from os.path import abspath
 from pathlib import Path
+from re import fullmatch
 
 
 class ExecutionStatus(StrEnum):
@@ -93,4 +94,17 @@ class ExecutionConstraints:
             raise ValueError(message)
         if self.max_changed_files < 1 or self.max_output_bytes < 1:
             message = "execution resource limits must be positive"
+            raise ValueError(message)
+
+
+@dataclass(frozen=True, slots=True)
+class ToolPermission:
+    """Opaque tool capability granted to an executor, without command arguments."""
+
+    identifier: str
+
+    def __post_init__(self) -> None:
+        """Restrict permissions to auditable tool identifiers."""
+        if fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}", self.identifier) is None:
+            message = "tool identifier contains unsupported characters"
             raise ValueError(message)
