@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import httpx
 import pytest
 
@@ -221,3 +223,28 @@ def test_config_defensively_freezes_supported_issue_types() -> None:
     mutable_issue_types.add("Epic")
 
     assert config.supported_issue_types == frozenset({"Story"})
+
+
+@pytest.mark.parametrize(
+    ("field_name", "value", "message"),
+    [
+        ("request_timeout_seconds", float("nan"), "positive finite number"),
+        ("request_timeout_seconds", float("inf"), "positive finite number"),
+        ("request_timeout_seconds", True, "positive finite number"),
+        ("max_retry_delay_seconds", float("-inf"), "non-negative finite number"),
+        ("max_retry_delay_seconds", True, "non-negative finite number"),
+        ("max_attempts", True, "integer between one and five"),
+        ("max_attempts", 2.5, "integer between one and five"),
+        ("max_response_bytes", True, "positive integer"),
+        ("max_response_bytes", 1024.5, "positive integer"),
+    ],
+)
+def test_config_rejects_unsafe_numeric_bounds(field_name: str, value: object, message: str) -> None:
+    values: dict[str, Any] = {
+        "site_url": "https://mock.atlassian.net",
+        "repository_url_field": "customfield_12345",
+        field_name: value,
+    }
+
+    with pytest.raises(ValueError, match=message):
+        JiraWorkManagementConfig(**values)
