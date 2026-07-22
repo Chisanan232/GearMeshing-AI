@@ -109,3 +109,14 @@ async def test_returns_a_provider_neutral_readiness_result() -> None:
 
     assert result == ReadinessResult(ready=True)
     assert provider.calls == [("readiness", "WORK-42", None)]
+
+
+@pytest.mark.asyncio
+async def test_publishes_progress_through_the_normalized_contract() -> None:
+    provider = RecordingProvider()
+    update = ProgressUpdate("Implementation started", percent_complete=25)
+
+    receipt = await provider.publish_progress("WORK-42", update)
+
+    assert receipt == UpdateReceipt("WORK-42", UpdateKind.PROGRESS, "progress-1")
+    assert provider.calls == [("progress", "WORK-42", update)]
