@@ -119,3 +119,14 @@ def test_work_run_requires_draft_pr_before_completion() -> None:
 
     with pytest.raises(InvalidWorkRunTransition, match="must reference its Draft PR"):
         work_run.transition_to(WorkRunState.COMPLETED)
+
+
+def test_work_run_associates_a_draft_pr_without_mutation() -> None:
+    work_run = make_work_run()
+    pull_request_url = "https://github.com/Chisanan232/GearMeshing-AI/pull/42"
+
+    correlated = work_run.associate_pull_request(pull_request_url)
+
+    assert correlated.correlation.pull_request_url == pull_request_url
+    assert correlated.identity == work_run.identity
+    assert work_run.correlation.pull_request_url is None
