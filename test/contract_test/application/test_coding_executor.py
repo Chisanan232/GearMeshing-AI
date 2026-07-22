@@ -8,7 +8,10 @@ from gearmeshing_ai.application.ports.coding_executor import (
     ApprovedSpecification,
     CodingExecutionRequest,
     CodingExecutionResult,
+    ExecutionArtifact,
     ExecutionConstraints,
+    ExecutionEvent,
+    ExecutionEventKind,
     ExecutionFailure,
     ExecutionFailureKind,
     ExecutionStatus,
@@ -127,3 +130,43 @@ async def test_fake_executor_returns_every_terminal_status(status: ExecutionStat
     )
 
     assert actual == expected
+
+
+@pytest.mark.asyncio
+async def test_fake_executor_streams_events_and_artifacts_in_order() -> None:
+    """Callbacks receive the deterministic event and artifact script."""
+    events = (
+        ExecutionEvent(0, ExecutionEventKind.STARTED, "Started."),
+        ExecutionEvent(1, ExecutionEventKind.FINISHED, "Finished."),
+    )
+    artifact = ExecutionArtifact(
+        name="verification",
+        relative_path=Path("reports/verification.json"),
+        media_type="application/json",
+        size_bytes=2,
+        sha256="0" * 64,
+    )
+    executor = FakeCodingExecutor(
+        capabilities=build_capabilities(),
+        result=build_result(ExecutionStatus.COMPLETED),
+        events=events,
+        artifacts=(artifact,),
+    )
+    received_events: list[ExecutionEvent] = []
+    received_artifacts: list[ExecutionArtifact] = []
+
+    async def capture_event(event: ExecutionEvent) -> None:
+        received_events.append(event)
+
+    async def capture_artifact(item: ExecutionArtifact) -> None:
+        received_artifacts.append(item)
+
+    await executor.execute(
+        build_request(),
+        on_event=capture_event,
+        on_artifact=capture_artifact,
+        cancellation=FakeCancellationSignal(),
+    )
+
+    assert received_events == list(events)
+    assert received_artifacts == [artifact]
