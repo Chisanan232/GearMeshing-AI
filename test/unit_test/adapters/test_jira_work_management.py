@@ -5,7 +5,11 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from gearmeshing_ai.adapters.jira_errors import JiraAuthorizationError, JiraIssueValidationError
+from gearmeshing_ai.adapters.jira_errors import (
+    JiraAuthorizationError,
+    JiraIssueValidationError,
+    JiraRateLimitError,
+)
 from gearmeshing_ai.adapters.jira_work_management import (
     JiraWorkManagementConfig,
     JiraWorkManagementProvider,
@@ -156,3 +160,34 @@ async def test_issue_without_spec_ready_label_is_blocked() -> None:
 
     assert captured.value.readiness.problems[-1].code == "not_spec_ready"
     assert "spec-ready" in captured.value.readiness.problems[-1].message
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_retries_are_bounded() -> None:
+    attempts = 0
+    delays: list[float] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        return httpx.Response(429, headers={"Retry-After": "60"}, json={})
+
+    async def record_sleep(delay: float) -> None:
+        delays.append(delay)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+                max_attempts=2,
+                max_retry_delay_seconds=1.5,
+            ),
+            sleep=record_sleep,
+        )
+        with pytest.raises(JiraRateLimitError):
+            await provider.retrieve_work_item("GMAI-17")
+
+    assert attempts == 2
+    assert delays == [1.5]
