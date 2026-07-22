@@ -104,15 +104,18 @@ class ExecutionConstraints:
 
     def __post_init__(self) -> None:
         """Ensure writable paths cannot escape the selected worktree."""
-        if not self.writable_paths:
+        writable_paths = tuple(self.writable_paths)
+        if not writable_paths:
             message = "at least one writable path is required"
             raise ValueError(message)
-        if any(path.is_absolute() or ".." in path.parts for path in self.writable_paths):
+        if any(path.is_absolute() or ".." in path.parts for path in writable_paths):
             message = "writable paths must be relative and must not traverse parents"
             raise ValueError(message)
         if self.max_changed_files < 1 or self.max_output_bytes < 1:
             message = "execution resource limits must be positive"
             raise ValueError(message)
+
+        object.__setattr__(self, "writable_paths", writable_paths)
 
 
 @dataclass(frozen=True, slots=True)
