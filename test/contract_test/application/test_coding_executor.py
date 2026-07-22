@@ -88,3 +88,10 @@ def test_tool_permission_rejects_command_arguments() -> None:
     """Tool grants cannot smuggle shell arguments into the contract."""
     with pytest.raises(ValueError, match="unsupported characters"):
         ToolPermission("git status --porcelain")
+
+
+def test_approved_specification_repr_hides_content() -> None:
+    """Approved specification content is excluded from routine diagnostics."""
+    specification = build_request().specification
+
+    assert specification.content not in repr(specification)
