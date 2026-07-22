@@ -202,8 +202,8 @@ class ExecutionArtifact:
         if self.relative_path.is_absolute() or ".." in self.relative_path.parts:
             message = "artifact path must remain relative to the worktree"
             raise ValueError(message)
-        if self.size_bytes < 0:
-            message = "artifact size must not be negative"
+        if isinstance(self.size_bytes, bool) or not isinstance(self.size_bytes, int) or self.size_bytes < 0:
+            message = "artifact size must be a non-negative integer"
             raise ValueError(message)
         if fullmatch(r"[0-9a-f]{64}", self.sha256) is None:
             message = "artifact SHA-256 must be lowercase hexadecimal"
