@@ -196,3 +196,17 @@ def test_work_run_correlation_rejects_invalid_identifiers() -> None:
             branch="unsafe branch",
             agent_assembly_correlation_id="assembly-run-42",
         )
+
+
+def test_work_run_rejects_invalid_reference_collections() -> None:
+    with pytest.raises(TypeError, match="ArtifactReference"):
+        WorkRun(
+            correlation=make_work_run().correlation,
+            artifact_references=("not-an-artifact",),  # type: ignore[arg-type]
+        )
+
+    with pytest.raises(TypeError, match="EventReference"):
+        WorkRun(
+            correlation=make_work_run().correlation,
+            event_references=("not-an-event",),  # type: ignore[arg-type]
+        )
