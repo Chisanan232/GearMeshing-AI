@@ -3,6 +3,7 @@
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
+from math import isfinite
 from os.path import abspath
 from pathlib import Path
 from re import fullmatch
@@ -148,8 +149,13 @@ class CodingExecutionRequest:
         if not self.execution_id.strip():
             message = "execution ID must not be empty"
             raise ValueError(message)
-        if self.timeout_seconds <= 0:
-            message = "execution timeout must be positive"
+        if (
+            isinstance(self.timeout_seconds, bool)
+            or not isinstance(self.timeout_seconds, (int, float))
+            or not isfinite(self.timeout_seconds)
+            or self.timeout_seconds <= 0
+        ):
+            message = "execution timeout must be positive and finite"
             raise ValueError(message)
         allowed_tools = tuple(self.allowed_tools)
         tool_ids = tuple(tool.identifier for tool in allowed_tools)
