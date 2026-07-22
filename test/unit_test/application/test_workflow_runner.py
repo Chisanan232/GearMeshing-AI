@@ -15,7 +15,13 @@ from gearmeshing_ai.application.workflow_runner import (
     WorkflowStage,
     WorkflowStageError,
 )
-from gearmeshing_ai.domain.work_run import WorkRun, WorkRunCorrelation, WorkRunState
+from gearmeshing_ai.domain.work_run import (
+    ArtifactReference,
+    EventReference,
+    WorkRun,
+    WorkRunCorrelation,
+    WorkRunState,
+)
 
 
 def make_work_run() -> WorkRun:
@@ -271,3 +277,51 @@ def test_draft_pr_association_is_publish_only_and_write_once() -> None:
     assert overwrite_result.work_run.correlation.pull_request_url == first_pr
     assert overwrite_result.failure is not None
     assert overwrite_result.failure.stage is WorkflowStage.PUBLISH
+
+
+def test_stage_action_cannot_remove_or_replace_existing_evidence() -> None:
+    artifact = ArtifactReference(
+        artifact_id="specification",
+        kind="jira-specification",
+        uri="artifact://specifications/GMAI-13",
+    )
+    event = EventReference(event_id="approved-13", event_type="work.approved")
+    work_run = make_work_run().with_artifact_reference(artifact).with_event_reference(event)
+
+    def remove_artifact(work_run: WorkRun, context: StageContext) -> WorkRun:
+        del context
+        return replace(work_run, artifact_references=())
+
+    remove_actions = WorkflowActions(
+        ingest=remove_artifact,
+        execute=remove_artifact,
+        verify=remove_artifact,
+        remediate=remove_artifact,
+        publish=remove_artifact,
+        finish=remove_artifact,
+    )
+
+    removed_result = WorkflowRunner(remove_actions).run(WorkflowCheckpoint(work_run=work_run))
+
+    assert removed_result.failure is not None
+    assert removed_result.work_run.artifact_references == (artifact,)
+
+    replacement_event = EventReference(event_id="replacement-13", event_type="work.replaced")
+
+    def replace_event(work_run: WorkRun, context: StageContext) -> WorkRun:
+        del context
+        return replace(work_run, event_references=(replacement_event,))
+
+    replace_actions = WorkflowActions(
+        ingest=replace_event,
+        execute=replace_event,
+        verify=replace_event,
+        remediate=replace_event,
+        publish=replace_event,
+        finish=replace_event,
+    )
+
+    replaced_result = WorkflowRunner(replace_actions).run(WorkflowCheckpoint(work_run=work_run))
+
+    assert replaced_result.failure is not None
+    assert replaced_result.work_run.event_references == (event,)
