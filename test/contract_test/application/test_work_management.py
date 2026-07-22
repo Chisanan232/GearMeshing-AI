@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import operator
+from collections.abc import MutableMapping, MutableSequence
 from dataclasses import FrozenInstanceError, fields
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -92,13 +92,15 @@ async def test_retrieves_a_normalized_work_item_by_external_key() -> None:
 
 def test_work_item_data_is_deeply_immutable() -> None:
     item = make_work_item()
+    mutable_metadata = cast(MutableMapping[str, Any], item.metadata)
+    mutable_labels = cast(MutableSequence[str], item.metadata["labels"])
 
     with pytest.raises(FrozenInstanceError):
-        item.title = "Changed"  # type: ignore[misc]
+        type(item).__setattr__(item, "title", "Changed")
     with pytest.raises(TypeError):
-        operator.setitem(item.metadata, "priority", "low")
+        mutable_metadata["priority"] = "low"
     with pytest.raises(TypeError):
-        operator.setitem(item.metadata["labels"], 0, "changed")
+        mutable_labels[0] = "changed"
 
 
 @pytest.mark.asyncio
