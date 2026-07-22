@@ -105,6 +105,16 @@ def test_repository_context_rejects_relative_roots(repository_root: Path, worktr
         )
 
 
+def test_repository_context_rejects_identical_normalized_roots() -> None:
+    """Equivalent roots cannot blur the primary checkout and worktree."""
+    with pytest.raises(ValueError, match="must be distinct"):
+        RepositoryContext(
+            repository_root=Path("/workspace/repository"),
+            worktree_root=Path("/workspace/other/../repository"),
+            base_revision="main",
+        )
+
+
 def test_tool_permission_rejects_command_arguments() -> None:
     """Tool grants cannot smuggle shell arguments into the contract."""
     with pytest.raises(ValueError, match="unsupported characters"):
