@@ -241,9 +241,11 @@ class CodingExecutionResult:
 
     def __post_init__(self) -> None:
         """Keep status and failure classification internally consistent."""
+        artifacts = tuple(self.artifacts)
         if not self.execution_id.strip() or not self.summary.strip():
             message = "result identity and summary must not be empty"
             raise ValueError(message)
+        object.__setattr__(self, "artifacts", artifacts)
         if self.status is ExecutionStatus.COMPLETED:
             if self.failure is not None:
                 message = "completed results must not include a failure"
