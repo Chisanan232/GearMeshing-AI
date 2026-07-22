@@ -126,6 +126,24 @@ def test_constraints_snapshot_caller_writable_paths() -> None:
     assert constraints.writable_paths == (Path("src"),)
 
 
+def test_request_snapshots_caller_tool_permissions() -> None:
+    """Caller mutation cannot expand a frozen request's tool grants."""
+    template = build_request()
+    caller_tools = [ToolPermission("filesystem.read")]
+    request = CodingExecutionRequest(
+        execution_id=template.execution_id,
+        repository=template.repository,
+        specification=template.specification,
+        constraints=template.constraints,
+        allowed_tools=cast("tuple[ToolPermission, ...]", caller_tools),
+        timeout_seconds=template.timeout_seconds,
+    )
+
+    caller_tools.append(ToolPermission("filesystem.write"))
+
+    assert request.allowed_tools == (ToolPermission("filesystem.read"),)
+
+
 def test_tool_permission_rejects_command_arguments() -> None:
     """Tool grants cannot smuggle shell arguments into the contract."""
     with pytest.raises(ValueError, match="unsupported characters"):
