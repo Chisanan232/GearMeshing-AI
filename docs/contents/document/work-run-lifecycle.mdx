@@ -1,0 +1,56 @@
+---
+title: WorkRun lifecycle
+description: Domain states and transitions for one governed work execution.
+---
+
+# WorkRun lifecycle
+
+A `WorkRun` represents one approved Jira work item as it moves through governed
+execution. The model is immutable and independent of orchestration frameworks.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Approved
+    Approved --> Executing
+    Executing --> Verifying
+    Verifying --> Remediating
+    Remediating --> Executing
+    Remediating --> Verifying
+    Verifying --> PublishingDraftPR
+    PublishingDraftPR --> Completed
+
+    Approved --> Blocked
+    Approved --> Cancelled
+    Executing --> Failed
+    Executing --> Blocked
+    Executing --> Cancelled
+    Verifying --> Failed
+    Verifying --> Blocked
+    Verifying --> Cancelled
+    Remediating --> Failed
+    Remediating --> Blocked
+    Remediating --> Cancelled
+    PublishingDraftPR --> Failed
+    PublishingDraftPR --> Blocked
+    PublishingDraftPR --> Cancelled
+
+    Completed --> [*]
+    Failed --> [*]
+    Blocked --> [*]
+    Cancelled --> [*]
+```
+
+## Domain rules
+
+- `approved`, `executing`, `verifying`, `remediating`, and
+  `publishing_draft_pr` are active stages.
+- `completed`, `failed`, `blocked`, and `cancelled` are terminal outcomes. No
+  transition can leave a terminal outcome.
+- Completion is only valid after Draft PR publication and requires a correlated
+  HTTPS pull-request URL.
+- A remediation pass may return to execution when code changes are needed or
+  directly to verification when only verification inputs changed.
+- Identity, Jira issue, repository, branch, Agent Assembly correlation, artifact,
+  and event references survive every transition.
+- Reference URLs reject embedded credentials so persisted domain data cannot
+  accidentally retain URL-based secrets.
