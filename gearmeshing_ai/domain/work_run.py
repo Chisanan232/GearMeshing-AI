@@ -2,11 +2,13 @@
 
 from dataclasses import dataclass
 from enum import StrEnum
+import re
 from urllib.parse import urlsplit
 
 
 _MAX_IDENTIFIER_LENGTH = 255
 _MAX_URI_LENGTH = 2048
+_JIRA_ISSUE_KEY_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]*-[1-9][0-9]*$")
 
 
 def _require_bounded_text(value: str, field_name: str) -> str:
@@ -32,6 +34,23 @@ def _require_safe_uri(value: str, field_name: str) -> str:
         raise ValueError(f"{field_name} must be an absolute URI")
     if parsed.username is not None or parsed.password is not None:
         raise ValueError(f"{field_name} must not contain credentials")
+    return normalized
+
+
+def _require_jira_issue_key(value: str) -> str:
+    """Validate a canonical Jira issue key."""
+    normalized = value.strip().upper()
+    if not _JIRA_ISSUE_KEY_PATTERN.fullmatch(normalized):
+        raise ValueError("jira_issue_key must use the PROJECT-123 format")
+    return normalized
+
+
+def _require_https_url(value: str, field_name: str) -> str:
+    """Validate an HTTPS URL suitable for cross-system correlation."""
+    normalized = _require_safe_uri(value, field_name)
+    parsed = urlsplit(normalized)
+    if parsed.scheme != "https" or not parsed.hostname:
+        raise ValueError(f"{field_name} must be an HTTPS URL")
     return normalized
 
 
