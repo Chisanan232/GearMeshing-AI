@@ -127,64 +127,6 @@ class WorkRunIdentity:
             raise TypeError("run_id must be a UUID")
 
 
-@dataclass(frozen=True, slots=True)
-class WorkRun:
-    """Immutable aggregate describing one governed work execution."""
-
-    correlation: WorkRunCorrelation
-    identity: WorkRunIdentity = field(default_factory=WorkRunIdentity.new)
-    state: WorkRunState = WorkRunState.APPROVED
-    artifact_references: tuple[ArtifactReference, ...] = ()
-    event_references: tuple[EventReference, ...] = ()
-
-    def __post_init__(self) -> None:
-        if not isinstance(self.correlation, WorkRunCorrelation):
-            raise TypeError("correlation must be a WorkRunCorrelation")
-        if not isinstance(self.identity, WorkRunIdentity):
-            raise TypeError("identity must be a WorkRunIdentity")
-        if not isinstance(self.state, WorkRunState):
-            raise TypeError("state must be a WorkRunState")
-        if not isinstance(self.artifact_references, tuple) or any(
-            not isinstance(reference, ArtifactReference) for reference in self.artifact_references
-        ):
-            raise TypeError("artifact_references must contain only ArtifactReference values")
-        if not isinstance(self.event_references, tuple) or any(
-            not isinstance(reference, EventReference) for reference in self.event_references
-        ):
-            raise TypeError("event_references must contain only EventReference values")
-
-    def transition_to(self, target: WorkRunState) -> "WorkRun":
-        """Return a new WorkRun in ``target`` when the transition is valid."""
-        if not isinstance(target, WorkRunState):
-            raise TypeError("target must be a WorkRunState")
-        if target not in VALID_WORK_RUN_TRANSITIONS[self.state]:
-            raise InvalidWorkRunTransition(f"cannot transition from {self.state} to {target}")
-        if target is WorkRunState.COMPLETED and self.correlation.pull_request_url is None:
-            raise InvalidWorkRunTransition("a completed WorkRun must reference its Draft PR")
-        return replace(self, state=target)
-
-    def associate_pull_request(self, pull_request_url: str) -> "WorkRun":
-        """Return a new WorkRun correlated with its Draft pull request."""
-        correlation = replace(self.correlation, pull_request_url=pull_request_url)
-        return replace(self, correlation=correlation)
-
-    def with_artifact_reference(self, reference: ArtifactReference) -> "WorkRun":
-        """Return a new WorkRun containing one additional artifact reference."""
-        if not isinstance(reference, ArtifactReference):
-            raise TypeError("reference must be an ArtifactReference")
-        if reference in self.artifact_references:
-            return self
-        return replace(self, artifact_references=(*self.artifact_references, reference))
-
-    def with_event_reference(self, reference: EventReference) -> "WorkRun":
-        """Return a new WorkRun containing one additional event reference."""
-        if not isinstance(reference, EventReference):
-            raise TypeError("reference must be an EventReference")
-        if reference in self.event_references:
-            return self
-        return replace(self, event_references=(*self.event_references, reference))
-
-
 class InvalidWorkRunTransition(ValueError):
     """Raised when a WorkRun lifecycle transition violates domain rules."""
 
@@ -264,3 +206,61 @@ VALID_WORK_RUN_TRANSITIONS: dict[WorkRunState, frozenset[WorkRunState]] = {
     WorkRunState.BLOCKED: frozenset(),
     WorkRunState.CANCELLED: frozenset(),
 }
+
+
+@dataclass(frozen=True, slots=True)
+class WorkRun:
+    """Immutable aggregate describing one governed work execution."""
+
+    correlation: WorkRunCorrelation
+    identity: WorkRunIdentity = field(default_factory=WorkRunIdentity.new)
+    state: WorkRunState = WorkRunState.APPROVED
+    artifact_references: tuple[ArtifactReference, ...] = ()
+    event_references: tuple[EventReference, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.correlation, WorkRunCorrelation):
+            raise TypeError("correlation must be a WorkRunCorrelation")
+        if not isinstance(self.identity, WorkRunIdentity):
+            raise TypeError("identity must be a WorkRunIdentity")
+        if not isinstance(self.state, WorkRunState):
+            raise TypeError("state must be a WorkRunState")
+        if not isinstance(self.artifact_references, tuple) or any(
+            not isinstance(reference, ArtifactReference) for reference in self.artifact_references
+        ):
+            raise TypeError("artifact_references must contain only ArtifactReference values")
+        if not isinstance(self.event_references, tuple) or any(
+            not isinstance(reference, EventReference) for reference in self.event_references
+        ):
+            raise TypeError("event_references must contain only EventReference values")
+
+    def transition_to(self, target: WorkRunState) -> "WorkRun":
+        """Return a new WorkRun in ``target`` when the transition is valid."""
+        if not isinstance(target, WorkRunState):
+            raise TypeError("target must be a WorkRunState")
+        if target not in VALID_WORK_RUN_TRANSITIONS[self.state]:
+            raise InvalidWorkRunTransition(f"cannot transition from {self.state} to {target}")
+        if target is WorkRunState.COMPLETED and self.correlation.pull_request_url is None:
+            raise InvalidWorkRunTransition("a completed WorkRun must reference its Draft PR")
+        return replace(self, state=target)
+
+    def associate_pull_request(self, pull_request_url: str) -> "WorkRun":
+        """Return a new WorkRun correlated with its Draft pull request."""
+        correlation = replace(self.correlation, pull_request_url=pull_request_url)
+        return replace(self, correlation=correlation)
+
+    def with_artifact_reference(self, reference: ArtifactReference) -> "WorkRun":
+        """Return a new WorkRun containing one additional artifact reference."""
+        if not isinstance(reference, ArtifactReference):
+            raise TypeError("reference must be an ArtifactReference")
+        if reference in self.artifact_references:
+            return self
+        return replace(self, artifact_references=(*self.artifact_references, reference))
+
+    def with_event_reference(self, reference: EventReference) -> "WorkRun":
+        """Return a new WorkRun containing one additional event reference."""
+        if not isinstance(reference, EventReference):
+            raise TypeError("reference must be an EventReference")
+        if reference in self.event_references:
+            return self
+        return replace(self, event_references=(*self.event_references, reference))
