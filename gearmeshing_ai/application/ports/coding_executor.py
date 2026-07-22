@@ -1,11 +1,12 @@
 """Provider-neutral contract for executing approved coding work."""
 
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
 from os.path import abspath
 from pathlib import Path
 from re import fullmatch
-from typing import Awaitable, Callable, Protocol
+from typing import Protocol
 
 
 class ExecutionStatus(StrEnum):
