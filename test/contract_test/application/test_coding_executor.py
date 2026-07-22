@@ -82,3 +82,9 @@ def test_repository_context_rejects_worktree_escape() -> None:
             worktree_root=Path("/workspace/other"),
             base_revision="main",
         )
+
+
+def test_tool_permission_rejects_command_arguments() -> None:
+    """Tool grants cannot smuggle shell arguments into the contract."""
+    with pytest.raises(ValueError, match="unsupported characters"):
+        ToolPermission("git status --porcelain")
