@@ -2,6 +2,8 @@
 
 from uuid import UUID
 
+import pytest
+
 from gearmeshing_ai.domain.work_run import WorkRun, WorkRunCorrelation, WorkRunState
 
 
@@ -27,3 +29,33 @@ def test_work_run_starts_approved_with_cross_system_correlation() -> None:
     assert work_run.correlation.repository == "https://github.com/Chisanan232/GearMeshing-AI"
     assert work_run.correlation.branch == "mvp1/GMAI-11/workrun_state_model"
     assert work_run.correlation.agent_assembly_correlation_id == "assembly-run-42"
+
+
+@pytest.mark.parametrize(
+    ("source", "target"),
+    [
+        (WorkRunState.APPROVED, WorkRunState.EXECUTING),
+        (WorkRunState.EXECUTING, WorkRunState.VERIFYING),
+        (WorkRunState.VERIFYING, WorkRunState.REMEDIATING),
+        (WorkRunState.REMEDIATING, WorkRunState.EXECUTING),
+        (WorkRunState.REMEDIATING, WorkRunState.VERIFYING),
+        (WorkRunState.VERIFYING, WorkRunState.PUBLISHING_DRAFT_PR),
+        (WorkRunState.PUBLISHING_DRAFT_PR, WorkRunState.COMPLETED),
+    ],
+)
+def test_work_run_accepts_happy_path_and_remediation_transitions(
+    source: WorkRunState,
+    target: WorkRunState,
+) -> None:
+    work_run = WorkRun(
+        correlation=make_work_run(
+            pull_request_url="https://github.com/Chisanan232/GearMeshing-AI/pull/42"
+        ).correlation,
+        state=source,
+    )
+
+    transitioned = work_run.transition_to(target)
+
+    assert transitioned.state is target
+    assert transitioned.identity == work_run.identity
+    assert work_run.state is source
