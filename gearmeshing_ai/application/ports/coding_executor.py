@@ -151,10 +151,13 @@ class CodingExecutionRequest:
         if self.timeout_seconds <= 0:
             message = "execution timeout must be positive"
             raise ValueError(message)
-        tool_ids = tuple(tool.identifier for tool in self.allowed_tools)
+        allowed_tools = tuple(self.allowed_tools)
+        tool_ids = tuple(tool.identifier for tool in allowed_tools)
         if len(tool_ids) != len(set(tool_ids)):
             message = "allowed tool permissions must be unique"
             raise ValueError(message)
+
+        object.__setattr__(self, "allowed_tools", allowed_tools)
 
 
 @dataclass(frozen=True, slots=True)
