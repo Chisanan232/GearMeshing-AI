@@ -49,6 +49,18 @@ class ArtifactReference:
         object.__setattr__(self, "uri", _require_safe_uri(self.uri, "uri"))
 
 
+@dataclass(frozen=True, slots=True)
+class EventReference:
+    """Stable identifier for an event associated with a WorkRun."""
+
+    event_id: str
+    event_type: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "event_id", _require_bounded_text(self.event_id, "event_id"))
+        object.__setattr__(self, "event_type", _require_bounded_text(self.event_type, "event_type"))
+
+
 class InvalidWorkRunTransition(ValueError):
     """Raised when a WorkRun lifecycle transition violates domain rules."""
 
