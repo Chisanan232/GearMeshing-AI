@@ -77,14 +77,15 @@ def build_result(status: ExecutionStatus) -> CodingExecutionResult:
     )
 
 
-def test_repository_context_rejects_worktree_escape() -> None:
-    """A worktree outside its repository cannot be passed to an adapter."""
-    with pytest.raises(ValueError, match="contained"):
-        RepositoryContext(
-            repository_root=Path("/workspace/repository"),
-            worktree_root=Path("/workspace/other"),
-            base_revision="main",
-        )
+def test_repository_context_accepts_sibling_worktree() -> None:
+    """A standard sibling worktree is a valid isolated execution root."""
+    context = RepositoryContext(
+        repository_root=Path("/workspace/GearMeshing-AI/gearmeshing-ai"),
+        worktree_root=Path("/workspace/GearMeshing-AI/.worktrees/GMAI-20"),
+        base_revision="main",
+    )
+
+    assert context.worktree_root == Path("/workspace/GearMeshing-AI/.worktrees/GMAI-20")
 
 
 def test_tool_permission_rejects_command_arguments() -> None:
