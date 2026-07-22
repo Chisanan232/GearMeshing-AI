@@ -144,6 +144,28 @@ def test_request_snapshots_caller_tool_permissions() -> None:
     assert request.allowed_tools == (ToolPermission("filesystem.read"),)
 
 
+def test_result_snapshots_caller_artifacts() -> None:
+    """Caller mutation cannot change a frozen execution result."""
+    artifact = ExecutionArtifact(
+        name="report",
+        relative_path=Path("report.json"),
+        media_type="application/json",
+        size_bytes=2,
+        sha256="0" * 64,
+    )
+    caller_artifacts = [artifact]
+    result = CodingExecutionResult(
+        execution_id="execution-1",
+        status=ExecutionStatus.COMPLETED,
+        summary="Complete.",
+        artifacts=cast("tuple[ExecutionArtifact, ...]", caller_artifacts),
+    )
+
+    caller_artifacts.clear()
+
+    assert result.artifacts == (artifact,)
+
+
 def test_tool_permission_rejects_command_arguments() -> None:
     """Tool grants cannot smuggle shell arguments into the contract."""
     with pytest.raises(ValueError, match="unsupported characters"):
