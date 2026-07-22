@@ -44,7 +44,7 @@ jobs:
     with:
       operation: test
       node-version: '22'
-      working-directory: docs_with_docusarus
+      working-directory: docs
       upload-artifacts: true
 
   validate_build:
@@ -56,11 +56,11 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: documentation-build
-          path: docs_with_docusarus/build
+          path: docs/build
 
       - name: Validate build quality
         run: |
-          cd docs_with_docusarus/build
+          cd docs/build
           
           # Count HTML files
           HTML_COUNT=$(find . -name "*.html" | wc -l)
