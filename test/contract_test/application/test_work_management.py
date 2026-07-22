@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from gearmeshing_ai.application.ports.work_management import (
     ArtifactUpdate,
     BlockerUpdate,
@@ -70,3 +72,16 @@ class RecordingProvider(WorkManagementProvider):
     async def _publish_artifact(self, external_key: str, update: ArtifactUpdate) -> UpdateReceipt:
         self.calls.append(("artifact", external_key, update))
         return UpdateReceipt(external_key, UpdateKind.ARTIFACT, "artifact-1")
+
+
+@pytest.mark.asyncio
+async def test_retrieves_a_normalized_work_item_by_external_key() -> None:
+    provider = RecordingProvider()
+
+    item = await provider.retrieve_work_item("  WORK-42  ")
+
+    assert provider.calls == [("retrieve", "WORK-42", None)]
+    assert item.title == "Implement guarded execution"
+    assert item.specification == "Execute an approved specification."
+    assert item.acceptance_criteria == ("Emit reviewable evidence.",)
+    assert item.repository == WorkRepository("https://github.com/example/project", "main")
