@@ -64,3 +64,24 @@ async def test_incomplete_issue_reports_missing_criteria_and_repository() -> Non
     assert "no criteria will be inferred" in problems["missing_acceptance_criteria"]
     assert "missing_repository" in problems
     assert "customfield_12345" in problems["missing_repository"]
+
+
+@pytest.mark.asyncio
+async def test_unsupported_issue_type_is_blocked() -> None:
+    payload = jira_issue_payload(issue_type="Epic")
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(lambda request: httpx.Response(200, json=payload))
+    ) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+            ),
+        )
+        with pytest.raises(JiraIssueValidationError) as captured:
+            await provider.retrieve_work_item("GMAI-17")
+
+    assert captured.value.readiness.problems[0].code == "unsupported_issue_type"
+    assert "Story, Task" in captured.value.readiness.problems[0].message
