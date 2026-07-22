@@ -339,3 +339,23 @@ def test_config_rejects_invalid_jira_site_ports(site_url: str) -> None:
             site_url=site_url,
             repository_url_field="customfield_12345",
         )
+
+
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
+async def test_httpx_invalid_url_maps_to_typed_transport_error() -> None:
+    def handler(_request: httpx.Request) -> httpx.Response:
+        message = "synthetic invalid URL"
+        raise httpx.InvalidURL(message)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+            ),
+        )
+        with pytest.raises(JiraTransportError, match="configured request bound") as captured:
+            await provider.retrieve_work_item("GMAI-17")
+
+    assert isinstance(captured.value.__cause__, httpx.InvalidURL)
