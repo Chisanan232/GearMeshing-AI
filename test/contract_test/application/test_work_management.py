@@ -20,6 +20,7 @@ from gearmeshing_ai.application.ports.work_management import (
     UpdateKind,
     UpdateReceipt,
     WorkItem,
+    WorkManagementContractError,
     WorkManagementProvider,
     WorkRepository,
 )
@@ -165,3 +166,21 @@ async def test_unsupported_provider_features_fail_explicitly() -> None:
 
     assert error.value.capability is ProviderCapability.PUBLISH_PROGRESS
     assert provider.calls == []
+
+
+def test_rejects_unsafe_identifiers_urls_and_metadata() -> None:
+    with pytest.raises(WorkManagementContractError):
+        WorkRepository("http://github.com/example/project")
+    with pytest.raises(WorkManagementContractError):
+        WorkItem(
+            external_key="WORK 42",
+            title="Title",
+            specification="Specification",
+            acceptance_criteria=("Criterion",),
+            repository=WorkRepository("https://github.com/example/project"),
+        )
+
+    secret = "not-for-error-output"
+    with pytest.raises(WorkManagementContractError) as error:
+        ProgressUpdate("Started", metadata={"api_token": secret})
+    assert secret not in str(error.value)
