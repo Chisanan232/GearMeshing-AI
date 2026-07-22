@@ -9,6 +9,7 @@ from uuid import UUID, uuid4
 _MAX_IDENTIFIER_LENGTH = 255
 _MAX_URI_LENGTH = 2048
 _JIRA_ISSUE_KEY_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]*-[1-9][0-9]*$")
+_SUPPORTED_REFERENCE_URI_SCHEMES = frozenset({"artifact", "https"})
 
 
 def _require_bounded_text(value: str, field_name: str) -> str:
@@ -36,6 +37,9 @@ def _require_safe_uri(value: str, field_name: str) -> str:
     parsed = urlsplit(normalized)
     if not parsed.scheme:
         message = f"{field_name} must be an absolute URI"
+        raise ValueError(message)
+    if parsed.scheme not in _SUPPORTED_REFERENCE_URI_SCHEMES:
+        message = f"{field_name} must use a supported URI scheme"
         raise ValueError(message)
     if parsed.username is not None or parsed.password is not None:
         message = f"{field_name} must not contain credentials"
