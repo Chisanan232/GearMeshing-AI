@@ -1,11 +1,10 @@
 """Framework-independent domain model for governed work execution."""
 
+import re
 from dataclasses import dataclass, field, replace
 from enum import StrEnum
-import re
 from urllib.parse import urlsplit
 from uuid import UUID, uuid4
-
 
 _MAX_IDENTIFIER_LENGTH = 255
 _MAX_URI_LENGTH = 2048

@@ -55,9 +55,7 @@ def test_work_run_accepts_happy_path_and_remediation_transitions(
     target: WorkRunState,
 ) -> None:
     work_run = WorkRun(
-        correlation=make_work_run(
-            pull_request_url="https://github.com/Chisanan232/GearMeshing-AI/pull/42"
-        ).correlation,
+        correlation=make_work_run(pull_request_url="https://github.com/Chisanan232/GearMeshing-AI/pull/42").correlation,
         state=source,
     )
 
@@ -100,9 +98,7 @@ def test_work_run_supports_terminal_outcomes(
     outcome: WorkRunState,
 ) -> None:
     work_run = WorkRun(
-        correlation=make_work_run(
-            pull_request_url="https://github.com/Chisanan232/GearMeshing-AI/pull/42"
-        ).correlation,
+        correlation=make_work_run(pull_request_url="https://github.com/Chisanan232/GearMeshing-AI/pull/42").correlation,
         state=source,
     )
 
