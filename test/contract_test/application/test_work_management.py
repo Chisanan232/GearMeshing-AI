@@ -98,3 +98,14 @@ def test_work_item_data_is_deeply_immutable() -> None:
         operator.setitem(item.metadata, "priority", "low")
     with pytest.raises(TypeError):
         operator.setitem(item.metadata["labels"], 0, "changed")
+
+
+@pytest.mark.asyncio
+async def test_returns_a_provider_neutral_readiness_result() -> None:
+    provider = RecordingProvider()
+    item = make_work_item()
+
+    result = await provider.validate_readiness(item)
+
+    assert result == ReadinessResult(ready=True)
+    assert provider.calls == [("readiness", "WORK-42", None)]
