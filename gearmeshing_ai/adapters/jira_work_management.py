@@ -181,9 +181,11 @@ class JiraWorkManagementProvider(WorkManagementProvider):
         retry_after = response.headers.get("Retry-After", "")
         try:
             requested = float(retry_after)
-        except ValueError:
+            if not isfinite(requested) or requested < 0:
+                raise ValueError
+        except (OverflowError, ValueError):
             requested = float(2**attempt)
-        return min(max(requested, 0.0), self._config.max_retry_delay_seconds)
+        return min(requested, self._config.max_retry_delay_seconds)
 
     @staticmethod
     def _raise_for_status(response: httpx.Response) -> None:
