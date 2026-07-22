@@ -219,7 +219,7 @@ class WorkflowRunner:
 
         try:
             updated_work_run = self._actions.for_stage(stage)(work_run, context)
-            self._validate_action_result(work_run, updated_work_run)
+            self._validate_action_result(work_run, updated_work_run, stage)
             transitioned_work_run = updated_work_run.transition_to(target_state)
         except WorkflowStageError as error:
             return self._failed_checkpoint(checkpoint, stage, error.kind, error.reason_code)
@@ -237,7 +237,11 @@ class WorkflowRunner:
         )
 
     @staticmethod
-    def _validate_action_result(original: WorkRun, updated: WorkRun) -> None:
+    def _validate_action_result(
+        original: WorkRun,
+        updated: WorkRun,
+        stage: WorkflowStage,
+    ) -> None:
         if not isinstance(updated, WorkRun):
             message = "stage action must return a WorkRun"
             raise TypeError(message)
@@ -246,6 +250,46 @@ class WorkflowRunner:
             raise ValueError(message)
         if updated.state is not original.state:
             message = "stage action must not change WorkRun state"
+            raise ValueError(message)
+        original_stable_correlation = (
+            original.correlation.jira_issue_key,
+            original.correlation.repository,
+            original.correlation.branch,
+            original.correlation.agent_assembly_correlation_id,
+        )
+        updated_stable_correlation = (
+            updated.correlation.jira_issue_key,
+            updated.correlation.repository,
+            updated.correlation.branch,
+            updated.correlation.agent_assembly_correlation_id,
+        )
+        if updated_stable_correlation != original_stable_correlation:
+            message = "stage action must preserve stable WorkRun correlation"
+            raise ValueError(message)
+
+        original_pull_request = original.correlation.pull_request_url
+        updated_pull_request = updated.correlation.pull_request_url
+        if stage is not WorkflowStage.PUBLISH and updated_pull_request != original_pull_request:
+            message = "only the publish stage may associate a Draft PR"
+            raise ValueError(message)
+        if (
+            stage is WorkflowStage.PUBLISH
+            and original_pull_request is not None
+            and updated_pull_request != original_pull_request
+        ):
+            message = "the publish stage must not overwrite an existing Draft PR"
+            raise ValueError(message)
+        if stage is WorkflowStage.PUBLISH and updated_pull_request is None:
+            message = "the publish stage must associate a Draft PR"
+            raise ValueError(message)
+
+        artifact_count = len(original.artifact_references)
+        if updated.artifact_references[:artifact_count] != original.artifact_references:
+            message = "stage action must preserve existing artifact evidence"
+            raise ValueError(message)
+        event_count = len(original.event_references)
+        if updated.event_references[:event_count] != original.event_references:
+            message = "stage action must preserve existing event evidence"
             raise ValueError(message)
 
     @staticmethod
