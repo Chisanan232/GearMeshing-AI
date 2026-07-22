@@ -226,3 +226,48 @@ def test_stage_action_cannot_change_stable_correlation() -> None:
     assert result.work_run.state is WorkRunState.BLOCKED
     assert result.failure is not None
     assert result.failure.kind is WorkflowFailureKind.INTERNAL
+
+
+def test_draft_pr_association_is_publish_only_and_write_once() -> None:
+    first_pr = "https://github.com/Chisanan232/GearMeshing-AI/pull/13"
+    replacement_pr = "https://github.com/Chisanan232/GearMeshing-AI/pull/99"
+
+    def associate_early(work_run: WorkRun, context: StageContext) -> WorkRun:
+        del context
+        return work_run.associate_pull_request(first_pr)
+
+    early_actions = WorkflowActions(
+        ingest=associate_early,
+        execute=associate_early,
+        verify=associate_early,
+        remediate=associate_early,
+        publish=associate_early,
+        finish=associate_early,
+    )
+
+    early_result = WorkflowRunner(early_actions).run(WorkflowCheckpoint(work_run=make_work_run()))
+
+    assert early_result.completed_stages == ()
+    assert early_result.failure is not None
+
+    def overwrite_at_publish(work_run: WorkRun, context: StageContext) -> WorkRun:
+        if context.stage is WorkflowStage.PUBLISH:
+            return work_run.associate_pull_request(replacement_pr)
+        return work_run
+
+    overwrite_actions = WorkflowActions(
+        ingest=overwrite_at_publish,
+        execute=overwrite_at_publish,
+        verify=overwrite_at_publish,
+        remediate=overwrite_at_publish,
+        publish=overwrite_at_publish,
+        finish=overwrite_at_publish,
+    )
+    existing_pr_run = make_work_run().associate_pull_request(first_pr)
+
+    overwrite_result = WorkflowRunner(overwrite_actions).run(WorkflowCheckpoint(work_run=existing_pr_run))
+
+    assert overwrite_result.completed_stages == WORKFLOW_STAGE_ORDER[:4]
+    assert overwrite_result.work_run.correlation.pull_request_url == first_pr
+    assert overwrite_result.failure is not None
+    assert overwrite_result.failure.stage is WorkflowStage.PUBLISH
