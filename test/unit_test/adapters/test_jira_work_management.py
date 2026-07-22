@@ -208,3 +208,16 @@ async def test_unsafe_issue_key_is_rejected_before_http_request() -> None:
         )
         with pytest.raises(ValueError, match="canonical Jira issue key"):
             await provider.retrieve_work_item("GMAI-17/../admin")
+
+
+def test_config_defensively_freezes_supported_issue_types() -> None:
+    mutable_issue_types = {"Story"}
+
+    config = JiraWorkManagementConfig(
+        site_url="https://mock.atlassian.net",
+        repository_url_field="customfield_12345",
+        supported_issue_types=mutable_issue_types,  # type: ignore[arg-type]
+    )
+    mutable_issue_types.add("Epic")
+
+    assert config.supported_issue_types == frozenset({"Story"})
