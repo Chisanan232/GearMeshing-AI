@@ -1,6 +1,6 @@
 """Framework-independent domain model for governed work execution."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import StrEnum
 import re
 from urllib.parse import urlsplit
@@ -144,6 +144,16 @@ class WorkRun:
             raise TypeError("identity must be a WorkRunIdentity")
         if not isinstance(self.state, WorkRunState):
             raise TypeError("state must be a WorkRunState")
+
+    def transition_to(self, target: WorkRunState) -> "WorkRun":
+        """Return a new WorkRun in ``target`` when the transition is valid."""
+        if not isinstance(target, WorkRunState):
+            raise TypeError("target must be a WorkRunState")
+        if target not in VALID_WORK_RUN_TRANSITIONS[self.state]:
+            raise InvalidWorkRunTransition(f"cannot transition from {self.state} to {target}")
+        if target is WorkRunState.COMPLETED and self.correlation.pull_request_url is None:
+            raise InvalidWorkRunTransition("a completed WorkRun must reference its Draft PR")
+        return replace(self, state=target)
 
 
 class InvalidWorkRunTransition(ValueError):
