@@ -90,10 +90,10 @@ def test_repository_context_accepts_sibling_worktree() -> None:
 
 @pytest.mark.parametrize(
     ("repository_root", "worktree_root"),
-    (
+    [
         (Path("repository"), Path("/workspace/worktree")),
         (Path("/workspace/repository"), Path("worktree")),
-    ),
+    ],
 )
 def test_repository_context_rejects_relative_roots(repository_root: Path, worktree_root: Path) -> None:
     """Relative roots cannot create an ambiguous execution boundary."""
