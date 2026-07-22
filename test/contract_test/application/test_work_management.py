@@ -16,6 +16,7 @@ from gearmeshing_ai.application.ports.work_management import (
     ProviderCapabilities,
     ProviderCapability,
     ReadinessResult,
+    UnsupportedProviderFeature,
     UpdateKind,
     UpdateReceipt,
     WorkItem,
@@ -153,3 +154,14 @@ async def test_publishes_artifacts_through_the_normalized_contract() -> None:
 
     assert receipt == UpdateReceipt("WORK-42", UpdateKind.ARTIFACT, "artifact-1")
     assert provider.calls == [("artifact", "WORK-42", update)]
+
+
+@pytest.mark.asyncio
+async def test_unsupported_provider_features_fail_explicitly() -> None:
+    provider = RecordingProvider(frozenset({ProviderCapability.RETRIEVE_WORK_ITEM}))
+
+    with pytest.raises(UnsupportedProviderFeature) as error:
+        await provider.publish_progress("WORK-42", ProgressUpdate("Started"))
+
+    assert error.value.capability is ProviderCapability.PUBLISH_PROGRESS
+    assert provider.calls == []
