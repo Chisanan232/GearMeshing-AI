@@ -6,6 +6,7 @@ import pytest
 
 from gearmeshing_ai.domain.work_run import (
     ArtifactReference,
+    EventReference,
     InvalidWorkRunTransition,
     WorkRun,
     WorkRunCorrelation,
@@ -146,3 +147,17 @@ def test_work_run_attaches_artifact_references_idempotently() -> None:
     assert with_artifact.artifact_references == (artifact,)
     assert with_artifact.with_artifact_reference(artifact) is with_artifact
     assert work_run.artifact_references == ()
+
+
+def test_work_run_attaches_event_references_idempotently() -> None:
+    work_run = make_work_run()
+    event = EventReference(
+        event_id="event-42",
+        event_type="verification.completed",
+    )
+
+    with_event = work_run.with_event_reference(event)
+
+    assert with_event.event_references == (event,)
+    assert with_event.with_event_reference(event) is with_event
+    assert work_run.event_references == ()
