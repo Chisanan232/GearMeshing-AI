@@ -202,6 +202,29 @@ def test_integer_limits_reject_boolean_values() -> None:
         )
 
 
+@pytest.mark.parametrize("timeout", [True, float("nan"), float("inf")])
+def test_timeout_limits_reject_non_finite_or_boolean_values(timeout: float) -> None:
+    """Timeouts must be real, finite duration limits."""
+    template = build_request()
+    with pytest.raises(ValueError, match="positive and finite"):
+        CodingExecutionRequest(
+            execution_id=template.execution_id,
+            repository=template.repository,
+            specification=template.specification,
+            constraints=template.constraints,
+            allowed_tools=template.allowed_tools,
+            timeout_seconds=timeout,
+        )
+
+    with pytest.raises(ValueError, match="positive and finite"):
+        ExecutorCapabilities(
+            executor_id="executor",
+            features=frozenset(),
+            supported_tools=frozenset(),
+            max_timeout_seconds=timeout,
+        )
+
+
 def test_tool_permission_rejects_command_arguments() -> None:
     """Tool grants cannot smuggle shell arguments into the contract."""
     with pytest.raises(ValueError, match="unsupported characters"):
