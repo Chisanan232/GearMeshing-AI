@@ -176,6 +176,15 @@ def test_work_run_references_reject_embedded_credentials() -> None:
         )
 
 
+def test_artifact_reference_rejects_javascript_uris() -> None:
+    with pytest.raises(ValueError, match="supported URI scheme"):
+        ArtifactReference(
+            artifact_id="malicious-report",
+            kind="test-report",
+            uri="javascript:alert('unsafe')",
+        )
+
+
 def test_work_run_correlation_rejects_invalid_identifiers() -> None:
     with pytest.raises(ValueError, match="PROJECT-123"):
         WorkRunCorrelation(
