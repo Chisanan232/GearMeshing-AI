@@ -168,6 +168,14 @@ class WorkRun:
             return self
         return replace(self, artifact_references=(*self.artifact_references, reference))
 
+    def with_event_reference(self, reference: EventReference) -> "WorkRun":
+        """Return a new WorkRun containing one additional event reference."""
+        if not isinstance(reference, EventReference):
+            raise TypeError("reference must be an EventReference")
+        if reference in self.event_references:
+            return self
+        return replace(self, event_references=(*self.event_references, reference))
+
 
 class InvalidWorkRunTransition(ValueError):
     """Raised when a WorkRun lifecycle transition violates domain rules."""
