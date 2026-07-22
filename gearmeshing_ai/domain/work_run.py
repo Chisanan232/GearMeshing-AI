@@ -16,11 +16,14 @@ def _require_bounded_text(value: str, field_name: str) -> str:
     """Validate and normalize a bounded, non-sensitive identifier."""
     normalized = value.strip()
     if not normalized:
-        raise ValueError(f"{field_name} must not be empty")
+        message = f"{field_name} must not be empty"
+        raise ValueError(message)
     if len(normalized) > _MAX_IDENTIFIER_LENGTH:
-        raise ValueError(f"{field_name} must not exceed {_MAX_IDENTIFIER_LENGTH} characters")
+        message = f"{field_name} must not exceed {_MAX_IDENTIFIER_LENGTH} characters"
+        raise ValueError(message)
     if any(character.isspace() or ord(character) < 32 for character in normalized):
-        raise ValueError(f"{field_name} must not contain whitespace or control characters")
+        message = f"{field_name} must not contain whitespace or control characters"
+        raise ValueError(message)
     return normalized
 
 
@@ -28,13 +31,16 @@ def _require_safe_uri(value: str, field_name: str) -> str:
     """Validate a URI without accepting embedded credentials."""
     normalized = value.strip()
     if not normalized or len(normalized) > _MAX_URI_LENGTH:
-        raise ValueError(f"{field_name} must be between 1 and {_MAX_URI_LENGTH} characters")
+        message = f"{field_name} must be between 1 and {_MAX_URI_LENGTH} characters"
+        raise ValueError(message)
 
     parsed = urlsplit(normalized)
     if not parsed.scheme:
-        raise ValueError(f"{field_name} must be an absolute URI")
+        message = f"{field_name} must be an absolute URI"
+        raise ValueError(message)
     if parsed.username is not None or parsed.password is not None:
-        raise ValueError(f"{field_name} must not contain credentials")
+        message = f"{field_name} must not contain credentials"
+        raise ValueError(message)
     return normalized
 
 
@@ -42,7 +48,8 @@ def _require_jira_issue_key(value: str) -> str:
     """Validate a canonical Jira issue key."""
     normalized = value.strip().upper()
     if not _JIRA_ISSUE_KEY_PATTERN.fullmatch(normalized):
-        raise ValueError("jira_issue_key must use the PROJECT-123 format")
+        message = "jira_issue_key must use the PROJECT-123 format"
+        raise ValueError(message)
     return normalized
 
 
@@ -51,7 +58,8 @@ def _require_https_url(value: str, field_name: str) -> str:
     normalized = _require_safe_uri(value, field_name)
     parsed = urlsplit(normalized)
     if parsed.scheme != "https" or not parsed.hostname:
-        raise ValueError(f"{field_name} must be an HTTPS URL")
+        message = f"{field_name} must be an HTTPS URL"
+        raise ValueError(message)
     return normalized
 
 
@@ -124,7 +132,8 @@ class WorkRunIdentity:
 
     def __post_init__(self) -> None:
         if not isinstance(self.run_id, UUID):
-            raise TypeError("run_id must be a UUID")
+            message = "run_id must be a UUID"
+            raise TypeError(message)
 
 
 class InvalidWorkRunTransitionError(ValueError):
@@ -220,28 +229,36 @@ class WorkRun:
 
     def __post_init__(self) -> None:
         if not isinstance(self.correlation, WorkRunCorrelation):
-            raise TypeError("correlation must be a WorkRunCorrelation")
+            message = "correlation must be a WorkRunCorrelation"
+            raise TypeError(message)
         if not isinstance(self.identity, WorkRunIdentity):
-            raise TypeError("identity must be a WorkRunIdentity")
+            message = "identity must be a WorkRunIdentity"
+            raise TypeError(message)
         if not isinstance(self.state, WorkRunState):
-            raise TypeError("state must be a WorkRunState")
+            message = "state must be a WorkRunState"
+            raise TypeError(message)
         if not isinstance(self.artifact_references, tuple) or any(
             not isinstance(reference, ArtifactReference) for reference in self.artifact_references
         ):
-            raise TypeError("artifact_references must contain only ArtifactReference values")
+            message = "artifact_references must contain only ArtifactReference values"
+            raise TypeError(message)
         if not isinstance(self.event_references, tuple) or any(
             not isinstance(reference, EventReference) for reference in self.event_references
         ):
-            raise TypeError("event_references must contain only EventReference values")
+            message = "event_references must contain only EventReference values"
+            raise TypeError(message)
 
     def transition_to(self, target: WorkRunState) -> "WorkRun":
         """Return a new WorkRun in ``target`` when the transition is valid."""
         if not isinstance(target, WorkRunState):
-            raise TypeError("target must be a WorkRunState")
+            message = "target must be a WorkRunState"
+            raise TypeError(message)
         if target not in VALID_WORK_RUN_TRANSITIONS[self.state]:
-            raise InvalidWorkRunTransitionError(f"cannot transition from {self.state} to {target}")
+            message = f"cannot transition from {self.state} to {target}"
+            raise InvalidWorkRunTransitionError(message)
         if target is WorkRunState.COMPLETED and self.correlation.pull_request_url is None:
-            raise InvalidWorkRunTransitionError("a completed WorkRun must reference its Draft PR")
+            message = "a completed WorkRun must reference its Draft PR"
+            raise InvalidWorkRunTransitionError(message)
         return replace(self, state=target)
 
     def associate_pull_request(self, pull_request_url: str) -> "WorkRun":
@@ -252,7 +269,8 @@ class WorkRun:
     def with_artifact_reference(self, reference: ArtifactReference) -> "WorkRun":
         """Return a new WorkRun containing one additional artifact reference."""
         if not isinstance(reference, ArtifactReference):
-            raise TypeError("reference must be an ArtifactReference")
+            message = "reference must be an ArtifactReference"
+            raise TypeError(message)
         if reference in self.artifact_references:
             return self
         return replace(self, artifact_references=(*self.artifact_references, reference))
@@ -260,7 +278,8 @@ class WorkRun:
     def with_event_reference(self, reference: EventReference) -> "WorkRun":
         """Return a new WorkRun containing one additional event reference."""
         if not isinstance(reference, EventReference):
-            raise TypeError("reference must be an EventReference")
+            message = "reference must be an EventReference"
+            raise TypeError(message)
         if reference in self.event_references:
             return self
         return replace(self, event_references=(*self.event_references, reference))
