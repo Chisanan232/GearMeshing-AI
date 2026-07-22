@@ -170,3 +170,31 @@ async def test_fake_executor_streams_events_and_artifacts_in_order() -> None:
 
     assert received_events == list(events)
     assert received_artifacts == [artifact]
+
+
+@pytest.mark.asyncio
+async def test_fake_executor_honors_cancellation_before_execution() -> None:
+    """A pre-cancelled request returns the canonical cancelled result."""
+    signal = FakeCancellationSignal()
+    signal.cancel()
+    executor = FakeCodingExecutor(
+        capabilities=build_capabilities(),
+        result=build_result(ExecutionStatus.COMPLETED),
+    )
+
+    async def ignore_event(_event: object) -> None:
+        return None
+
+    async def ignore_artifact(_artifact: object) -> None:
+        return None
+
+    result = await executor.execute(
+        build_request(),
+        on_event=ignore_event,
+        on_artifact=ignore_artifact,
+        cancellation=signal,
+    )
+
+    assert result.status is ExecutionStatus.CANCELLED
+    assert result.failure is not None
+    assert result.failure.kind is ExecutionFailureKind.CANCELLED
