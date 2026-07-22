@@ -5,6 +5,7 @@ from uuid import UUID
 import pytest
 
 from gearmeshing_ai.domain.work_run import (
+    ArtifactReference,
     InvalidWorkRunTransition,
     WorkRun,
     WorkRunCorrelation,
@@ -130,3 +131,18 @@ def test_work_run_associates_a_draft_pr_without_mutation() -> None:
     assert correlated.correlation.pull_request_url == pull_request_url
     assert correlated.identity == work_run.identity
     assert work_run.correlation.pull_request_url is None
+
+
+def test_work_run_attaches_artifact_references_idempotently() -> None:
+    work_run = make_work_run()
+    artifact = ArtifactReference(
+        artifact_id="verification-report",
+        kind="test-report",
+        uri="artifact://reports/verification.json",
+    )
+
+    with_artifact = work_run.with_artifact_reference(artifact)
+
+    assert with_artifact.artifact_references == (artifact,)
+    assert with_artifact.with_artifact_reference(artifact) is with_artifact
+    assert work_run.artifact_references == ()
