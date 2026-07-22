@@ -203,3 +203,26 @@ def test_unexpected_failure_does_not_expose_exception_details() -> None:
     assert result.failure.kind is WorkflowFailureKind.INTERNAL
     assert result.failure.reason_code == "unexpected_error"
     assert "do-not-record" not in repr(result)
+
+
+def test_stage_action_cannot_change_stable_correlation() -> None:
+    def alter_branch(work_run: WorkRun, context: StageContext) -> WorkRun:
+        del context
+        correlation = replace(work_run.correlation, branch="unauthorized/branch")
+        return replace(work_run, correlation=correlation)
+
+    actions = WorkflowActions(
+        ingest=alter_branch,
+        execute=alter_branch,
+        verify=alter_branch,
+        remediate=alter_branch,
+        publish=alter_branch,
+        finish=alter_branch,
+    )
+
+    result = WorkflowRunner(actions).run(WorkflowCheckpoint(work_run=make_work_run()))
+
+    assert result.completed_stages == ()
+    assert result.work_run.state is WorkRunState.BLOCKED
+    assert result.failure is not None
+    assert result.failure.kind is WorkflowFailureKind.INTERNAL
