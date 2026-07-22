@@ -166,6 +166,24 @@ def test_result_snapshots_caller_artifacts() -> None:
     assert result.artifacts == (artifact,)
 
 
+def test_capabilities_snapshot_caller_collections() -> None:
+    """Caller mutation cannot change frozen executor capabilities."""
+    caller_features = {ExecutorFeature.EVENT_STREAMING}
+    caller_tools = {"filesystem.read"}
+    capabilities = ExecutorCapabilities(
+        executor_id="executor",
+        features=cast("frozenset[ExecutorFeature]", caller_features),
+        supported_tools=cast("frozenset[str]", caller_tools),
+        max_timeout_seconds=60,
+    )
+
+    caller_features.add(ExecutorFeature.CANCELLATION)
+    caller_tools.add("filesystem.write")
+
+    assert capabilities.features == frozenset({ExecutorFeature.EVENT_STREAMING})
+    assert capabilities.supported_tools == frozenset({"filesystem.read"})
+
+
 def test_tool_permission_rejects_command_arguments() -> None:
     """Tool grants cannot smuggle shell arguments into the contract."""
     with pytest.raises(ValueError, match="unsupported characters"):
