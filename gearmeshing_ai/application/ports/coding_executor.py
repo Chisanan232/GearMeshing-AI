@@ -72,3 +72,25 @@ class ApprovedSpecification:
         if any(not value.strip() for value in required_values):
             message = "approved specification fields must not be empty"
             raise ValueError(message)
+
+
+@dataclass(frozen=True, slots=True)
+class ExecutionConstraints:
+    """Provider-neutral security and resource boundaries for an execution."""
+
+    writable_paths: tuple[Path, ...]
+    network_access: bool = False
+    max_changed_files: int = 100
+    max_output_bytes: int = 1_000_000
+
+    def __post_init__(self) -> None:
+        """Ensure writable paths cannot escape the selected worktree."""
+        if not self.writable_paths:
+            message = "at least one writable path is required"
+            raise ValueError(message)
+        if any(path.is_absolute() or ".." in path.parts for path in self.writable_paths):
+            message = "writable paths must be relative and must not traverse parents"
+            raise ValueError(message)
+        if self.max_changed_files < 1 or self.max_output_bytes < 1:
+            message = "execution resource limits must be positive"
+            raise ValueError(message)
