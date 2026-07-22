@@ -179,9 +179,7 @@ class JiraWorkManagementProvider(WorkManagementProvider):
 
     async def _retrieve_work_item(self, external_key: str) -> WorkItem:
         issue_key = self._issue_key(external_key)
-        fields = ",".join(
-            ("summary", "description", "issuetype", "labels", self._config.repository_url_field)
-        )
+        fields = ",".join(("summary", "description", "issuetype", "labels", self._config.repository_url_field))
         payload = await self._request_json("GET", f"/rest/api/3/issue/{issue_key}?fields={fields}")
         readiness = self._payload_readiness(payload)
         if not readiness.ready:

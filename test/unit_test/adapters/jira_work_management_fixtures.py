@@ -29,9 +29,7 @@ def jira_description(*criteria: str) -> dict[str, Any]:
                 "content": [
                     {
                         "type": "listItem",
-                        "content": [
-                            {"type": "paragraph", "content": [{"type": "text", "text": criterion}]}
-                        ],
+                        "content": [{"type": "paragraph", "content": [{"type": "text", "text": criterion}]}],
                     }
                     for criterion in criteria
                 ],
