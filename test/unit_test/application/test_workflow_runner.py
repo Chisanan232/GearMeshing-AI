@@ -88,3 +88,31 @@ def test_failed_stage_records_classification_and_stops_advancement() -> None:
     assert result.failure.stage is WorkflowStage.VERIFY
     assert result.failure.kind is WorkflowFailureKind.POLICY
     assert result.failure.reason_code == "approval_missing"
+
+
+def test_rerunning_a_completed_stage_skips_its_side_effect() -> None:
+    call_count = 0
+
+    def count_call(work_run: WorkRun, context: StageContext) -> WorkRun:
+        nonlocal call_count
+        del context
+        call_count += 1
+        return work_run
+
+    actions = WorkflowActions(
+        ingest=count_call,
+        execute=count_call,
+        verify=count_call,
+        remediate=count_call,
+        publish=count_call,
+        finish=count_call,
+    )
+    runner = WorkflowRunner(actions)
+    initial = WorkflowCheckpoint(work_run=make_work_run())
+
+    completed = runner.run_stage(initial, WorkflowStage.INGEST)
+    replayed = runner.run_stage(completed, WorkflowStage.INGEST)
+
+    assert call_count == 1
+    assert replayed is completed
+    assert replayed.completed_stages == (WorkflowStage.INGEST,)
