@@ -176,8 +176,8 @@ class ExecutionEvent:
 
     def __post_init__(self) -> None:
         """Require non-negative ordering and a useful safe message."""
-        if self.sequence < 0:
-            message = "event sequence must not be negative"
+        if isinstance(self.sequence, bool) or not isinstance(self.sequence, int) or self.sequence < 0:
+            message = "event sequence must be a non-negative integer"
             raise ValueError(message)
         if not self.message.strip():
             message = "event message must not be empty"
