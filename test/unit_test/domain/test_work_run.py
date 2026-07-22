@@ -82,3 +82,30 @@ def test_work_run_rejects_invalid_transitions(
 
     with pytest.raises(InvalidWorkRunTransition, match=f"cannot transition from {source} to {target}"):
         work_run.transition_to(target)
+
+
+@pytest.mark.parametrize(
+    ("source", "outcome"),
+    [
+        (WorkRunState.PUBLISHING_DRAFT_PR, WorkRunState.COMPLETED),
+        (WorkRunState.EXECUTING, WorkRunState.FAILED),
+        (WorkRunState.EXECUTING, WorkRunState.BLOCKED),
+        (WorkRunState.EXECUTING, WorkRunState.CANCELLED),
+    ],
+)
+def test_work_run_supports_terminal_outcomes(
+    source: WorkRunState,
+    outcome: WorkRunState,
+) -> None:
+    work_run = WorkRun(
+        correlation=make_work_run(
+            pull_request_url="https://github.com/Chisanan232/GearMeshing-AI/pull/42"
+        ).correlation,
+        state=source,
+    )
+
+    terminal_work_run = work_run.transition_to(outcome)
+
+    assert terminal_work_run.state.is_terminal
+    with pytest.raises(InvalidWorkRunTransition):
+        terminal_work_run.transition_to(WorkRunState.EXECUTING)
