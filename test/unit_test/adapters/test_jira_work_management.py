@@ -135,3 +135,24 @@ async def test_blocked_validation_is_publishable_as_jira_comment() -> None:
 
     assert receipt.kind is UpdateKind.BLOCKER
     assert receipt.provider_reference == "10042"
+
+
+@pytest.mark.asyncio
+async def test_issue_without_spec_ready_label_is_blocked() -> None:
+    payload = jira_issue_payload(labels=["mvp-1"])
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(lambda request: httpx.Response(200, json=payload))
+    ) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+            ),
+        )
+        with pytest.raises(JiraIssueValidationError) as captured:
+            await provider.retrieve_work_item("GMAI-17")
+
+    assert captured.value.readiness.problems[-1].code == "not_spec_ready"
+    assert "spec-ready" in captured.value.readiness.problems[-1].message
