@@ -116,3 +116,28 @@ def test_rerunning_a_completed_stage_skips_its_side_effect() -> None:
     assert call_count == 1
     assert replayed is completed
     assert replayed.completed_stages == (WorkflowStage.INGEST,)
+
+
+def test_unexpected_failure_does_not_expose_exception_details() -> None:
+    def expose_secret(work_run: WorkRun, context: StageContext) -> WorkRun:
+        if context.stage is WorkflowStage.INGEST:
+            sensitive_message = "token=do-not-record"
+            raise RuntimeError(sensitive_message)
+        return work_run
+
+    actions = WorkflowActions(
+        ingest=expose_secret,
+        execute=expose_secret,
+        verify=expose_secret,
+        remediate=expose_secret,
+        publish=expose_secret,
+        finish=expose_secret,
+    )
+
+    result = WorkflowRunner(actions).run(WorkflowCheckpoint(work_run=make_work_run()))
+
+    assert result.work_run.state is WorkRunState.BLOCKED
+    assert result.failure is not None
+    assert result.failure.kind is WorkflowFailureKind.INTERNAL
+    assert result.failure.reason_code == "unexpected_error"
+    assert "do-not-record" not in repr(result)
