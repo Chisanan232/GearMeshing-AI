@@ -57,18 +57,16 @@ class RepositoryContext:
     base_revision: str
 
     def __post_init__(self) -> None:
-        """Reject ambiguous or out-of-repository execution paths."""
+        """Reject ambiguous repository or worktree execution paths."""
         if not self.repository_root.is_absolute() or not self.worktree_root.is_absolute():
             message = "repository and worktree paths must be absolute"
             raise ValueError(message)
 
         repository_root = Path(abspath(self.repository_root))
         worktree_root = Path(abspath(self.worktree_root))
-        try:
-            worktree_root.relative_to(repository_root)
-        except ValueError as error:
-            message = "worktree path must be contained by the repository root"
-            raise ValueError(message) from error
+        if repository_root == worktree_root:
+            message = "repository and worktree paths must be distinct"
+            raise ValueError(message)
 
         if not self.base_revision.strip():
             message = "base revision must not be empty"
