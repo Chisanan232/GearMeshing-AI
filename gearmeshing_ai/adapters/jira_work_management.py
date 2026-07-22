@@ -182,7 +182,7 @@ class JiraWorkManagementProvider(WorkManagementProvider):
                             message = "Jira returned an unexpected JSON response shape."
                             raise JiraTransportError(message)
                         return payload
-            except (httpx.TimeoutException, httpx.RequestError) as error:
+            except (httpx.InvalidURL, httpx.TimeoutException, httpx.RequestError) as error:
                 message = "Jira could not be reached within the configured request bound."
                 raise JiraTransportError(message) from error
 
