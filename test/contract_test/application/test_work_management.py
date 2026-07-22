@@ -142,3 +142,14 @@ async def test_publishes_completion_through_the_normalized_contract() -> None:
 
     assert receipt == UpdateReceipt("WORK-42", UpdateKind.COMPLETION, "completion-1")
     assert provider.calls == [("completion", "WORK-42", update)]
+
+
+@pytest.mark.asyncio
+async def test_publishes_artifacts_through_the_normalized_contract() -> None:
+    provider = RecordingProvider()
+    update = ArtifactUpdate("Draft pull request", "https://github.com/example/project/pull/1", "text/html")
+
+    receipt = await provider.publish_artifact("WORK-42", update)
+
+    assert receipt == UpdateReceipt("WORK-42", UpdateKind.ARTIFACT, "artifact-1")
+    assert provider.calls == [("artifact", "WORK-42", update)]
