@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from typing import Any
 
 import httpx
@@ -11,6 +12,7 @@ from gearmeshing_ai.adapters.jira_errors import (
     JiraAuthorizationError,
     JiraIssueValidationError,
     JiraRateLimitError,
+    JiraTransportError,
 )
 from gearmeshing_ai.adapters.jira_work_management import (
     JiraWorkManagementConfig,
@@ -291,3 +293,37 @@ def test_config_rejects_text_as_issue_type_collection() -> None:
             repository_url_field="customfield_12345",
             supported_issue_types="Story",  # type: ignore[arg-type]
         )
+
+
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
+async def test_oversized_stream_is_stopped_and_closed_at_response_bound() -> None:
+    class TrackedStream(httpx.AsyncByteStream):
+        def __init__(self) -> None:
+            self.chunks_read = 0
+            self.closed = False
+
+        async def __aiter__(self) -> AsyncIterator[bytes]:
+            for chunk in (b'{"ok":', b'"0123456789"', b"}"):
+                self.chunks_read += 1
+                yield chunk
+
+        async def aclose(self) -> None:
+            self.closed = True
+
+    stream = TrackedStream()
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(lambda request: httpx.Response(200, stream=stream))
+    ) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+                max_response_bytes=10,
+            ),
+        )
+        with pytest.raises(JiraTransportError, match="larger than the configured bound"):
+            await provider.retrieve_work_item("GMAI-17")
+
+    assert stream.chunks_read == 2
+    assert stream.closed is True
