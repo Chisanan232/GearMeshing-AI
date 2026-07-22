@@ -191,3 +191,20 @@ async def test_rate_limit_retries_are_bounded() -> None:
 
     assert attempts == 2
     assert delays == [1.5]
+
+
+@pytest.mark.asyncio
+async def test_unsafe_issue_key_is_rejected_before_http_request() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        pytest.fail(f"Unexpected request: {request.url}")
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+            ),
+        )
+        with pytest.raises(ValueError, match="canonical Jira issue key"):
+            await provider.retrieve_work_item("GMAI-17/../admin")
