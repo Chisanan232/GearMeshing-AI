@@ -161,3 +161,20 @@ def test_work_run_attaches_event_references_idempotently() -> None:
     assert with_event.event_references == (event,)
     assert with_event.with_event_reference(event) is with_event
     assert work_run.event_references == ()
+
+
+def test_work_run_references_reject_embedded_credentials() -> None:
+    with pytest.raises(ValueError, match="must not contain credentials"):
+        WorkRunCorrelation(
+            jira_issue_key="GMAI-11",
+            repository="https://token@example.com/repository",
+            branch="feature/safe-branch",
+            agent_assembly_correlation_id="assembly-run-42",
+        )
+
+    with pytest.raises(ValueError, match="must not contain credentials"):
+        ArtifactReference(
+            artifact_id="verification-report",
+            kind="test-report",
+            uri="https://token@example.com/report.json",
+        )
