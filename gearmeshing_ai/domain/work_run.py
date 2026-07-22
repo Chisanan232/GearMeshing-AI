@@ -1,5 +1,6 @@
 """Framework-independent domain model for governed work execution."""
 
+from dataclasses import dataclass
 from enum import StrEnum
 from urllib.parse import urlsplit
 
@@ -32,6 +33,20 @@ def _require_safe_uri(value: str, field_name: str) -> str:
     if parsed.username is not None or parsed.password is not None:
         raise ValueError(f"{field_name} must not contain credentials")
     return normalized
+
+
+@dataclass(frozen=True, slots=True)
+class ArtifactReference:
+    """Stable pointer to an artifact produced or consumed by a WorkRun."""
+
+    artifact_id: str
+    kind: str
+    uri: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "artifact_id", _require_bounded_text(self.artifact_id, "artifact_id"))
+        object.__setattr__(self, "kind", _require_bounded_text(self.kind, "kind"))
+        object.__setattr__(self, "uri", _require_safe_uri(self.uri, "uri"))
 
 
 class InvalidWorkRunTransition(ValueError):
