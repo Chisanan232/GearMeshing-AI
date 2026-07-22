@@ -280,3 +280,12 @@ async def test_non_finite_retry_after_uses_bounded_exponential_delay(retry_after
 
     assert work_item.external_key == "GMAI-17"
     assert delays == [1.0, 1.5]
+
+
+def test_config_rejects_text_as_issue_type_collection() -> None:
+    with pytest.raises(ValueError, match="must be a collection"):
+        JiraWorkManagementConfig(
+            site_url="https://mock.atlassian.net",
+            repository_url_field="customfield_12345",
+            supported_issue_types="Story",  # type: ignore[arg-type]
+        )
