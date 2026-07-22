@@ -16,7 +16,7 @@ from gearmeshing_ai.application.ports.work_management import (
     ProviderCapabilities,
     ProviderCapability,
     ReadinessResult,
-    UnsupportedProviderFeature,
+    UnsupportedProviderFeatureError,
     UpdateKind,
     UpdateReceipt,
     WorkItem,
@@ -24,7 +24,6 @@ from gearmeshing_ai.application.ports.work_management import (
     WorkManagementProvider,
     WorkRepository,
 )
-
 
 ALL_CAPABILITIES = frozenset(ProviderCapability)
 
@@ -95,7 +94,7 @@ def test_work_item_data_is_deeply_immutable() -> None:
     item = make_work_item()
 
     with pytest.raises(FrozenInstanceError):
-        setattr(item, "title", "Changed")
+        item.title = "Changed"  # type: ignore[misc]
     with pytest.raises(TypeError):
         operator.setitem(item.metadata, "priority", "low")
     with pytest.raises(TypeError):
@@ -161,7 +160,7 @@ async def test_publishes_artifacts_through_the_normalized_contract() -> None:
 async def test_unsupported_provider_features_fail_explicitly() -> None:
     provider = RecordingProvider(frozenset({ProviderCapability.RETRIEVE_WORK_ITEM}))
 
-    with pytest.raises(UnsupportedProviderFeature) as error:
+    with pytest.raises(UnsupportedProviderFeatureError) as error:
         await provider.publish_progress("WORK-42", ProgressUpdate("Started"))
 
     assert error.value.capability is ProviderCapability.PUBLISH_PROGRESS

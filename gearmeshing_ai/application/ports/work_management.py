@@ -5,11 +5,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from types import MappingProxyType
-from typing import Any, Final, final
+from typing import Any, Final, Never, final
 from urllib.parse import urlsplit
-
 
 _MAX_IDENTIFIER_LENGTH: Final = 255
 _MAX_TEXT_LENGTH: Final = 100_000
@@ -32,7 +31,7 @@ class WorkManagementContractError(ValueError):
     """Base error raised before unsafe data reaches a provider adapter."""
 
 
-class UnsupportedProviderFeature(WorkManagementContractError):
+class UnsupportedProviderFeatureError(WorkManagementContractError):
     """Raised when an adapter does not declare a requested capability."""
 
     def __init__(self, provider_name: str, capability: ProviderCapability) -> None:
@@ -41,7 +40,7 @@ class UnsupportedProviderFeature(WorkManagementContractError):
         self.capability = capability
 
 
-class ProviderCapability(str, Enum):
+class ProviderCapability(StrEnum):
     """Operations that a work-management provider may support."""
 
     RETRIEVE_WORK_ITEM = "retrieve_work_item"
@@ -52,7 +51,7 @@ class ProviderCapability(str, Enum):
     PUBLISH_ARTIFACT = "publish_artifact"
 
 
-class UpdateKind(str, Enum):
+class UpdateKind(StrEnum):
     """Provider-neutral update categories."""
 
     PROGRESS = "progress"
@@ -61,23 +60,27 @@ class UpdateKind(str, Enum):
     ARTIFACT = "artifact"
 
 
+def _invalid(message: str) -> Never:
+    raise WorkManagementContractError(message)
+
+
 def _normalize_text(value: str, field_name: str, *, max_length: int = _MAX_TEXT_LENGTH) -> str:
     if not isinstance(value, str):
-        raise WorkManagementContractError(f"{field_name} must be a string.")
+        _invalid(f"{field_name} must be a string.")
     normalized = value.strip()
     if not normalized:
-        raise WorkManagementContractError(f"{field_name} must not be empty.")
+        _invalid(f"{field_name} must not be empty.")
     if len(normalized) > max_length:
-        raise WorkManagementContractError(f"{field_name} exceeds its maximum length.")
+        _invalid(f"{field_name} exceeds its maximum length.")
     if any(ord(character) < 32 and character not in "\n\t" for character in normalized):
-        raise WorkManagementContractError(f"{field_name} contains control characters.")
+        _invalid(f"{field_name} contains control characters.")
     return normalized
 
 
 def _normalize_identifier(value: str, field_name: str = "external_key") -> str:
     normalized = _normalize_text(value, field_name, max_length=_MAX_IDENTIFIER_LENGTH)
     if any(character.isspace() for character in normalized):
-        raise WorkManagementContractError(f"{field_name} must not contain whitespace.")
+        _invalid(f"{field_name} must not contain whitespace.")
     return normalized
 
 
@@ -85,11 +88,11 @@ def _normalize_url(value: str, field_name: str, *, schemes: frozenset[str]) -> s
     normalized = _normalize_text(value, field_name, max_length=2_048)
     parsed = urlsplit(normalized)
     if parsed.scheme.lower() not in schemes:
-        raise WorkManagementContractError(f"{field_name} uses an unsupported URL scheme.")
+        _invalid(f"{field_name} uses an unsupported URL scheme.")
     if parsed.scheme.lower() == "https" and not parsed.hostname:
-        raise WorkManagementContractError(f"{field_name} must include a host.")
+        _invalid(f"{field_name} must include a host.")
     if parsed.username is not None or parsed.password is not None:
-        raise WorkManagementContractError(f"{field_name} must not contain credentials.")
+        _invalid(f"{field_name} must not contain credentials.")
     return normalized
 
 
@@ -98,17 +101,17 @@ def _freeze_metadata(value: Any, *, path: str = "metadata") -> Any:
         frozen: dict[str, Any] = {}
         for key, item in value.items():
             if not isinstance(key, str):
-                raise WorkManagementContractError(f"{path} keys must be strings.")
+                _invalid(f"{path} keys must be strings.")
             normalized_key = _normalize_text(key, f"{path} key", max_length=128)
             if normalized_key.lower() in _SENSITIVE_METADATA_KEYS:
-                raise WorkManagementContractError(f"{path} contains a sensitive key: {normalized_key!r}.")
+                _invalid(f"{path} contains a sensitive key: {normalized_key!r}.")
             frozen[normalized_key] = _freeze_metadata(item, path=f"{path}.{normalized_key}")
         return MappingProxyType(frozen)
     if isinstance(value, (list, tuple)):
         return tuple(_freeze_metadata(item, path=path) for item in value)
     if value is None or isinstance(value, (bool, int, float, str)):
         return value
-    raise WorkManagementContractError(f"{path} contains an unsupported value type.")
+    _invalid(f"{path} contains an unsupported value type.")
 
 
 @dataclass(frozen=True, slots=True)
@@ -122,13 +125,12 @@ class ProviderCapabilities:
         object.__setattr__(self, "provider_name", _normalize_identifier(self.provider_name, "provider_name"))
         object.__setattr__(self, "supported", frozenset(self.supported))
         if not all(isinstance(capability, ProviderCapability) for capability in self.supported):
-            raise WorkManagementContractError("supported must contain ProviderCapability values.")
+            _invalid("supported must contain ProviderCapability values.")
 
     def require(self, capability: ProviderCapability) -> None:
         """Raise explicitly when the provider does not support an operation."""
-
         if capability not in self.supported:
-            raise UnsupportedProviderFeature(self.provider_name, capability)
+            raise UnsupportedProviderFeatureError(self.provider_name, capability)
 
 
 @dataclass(frozen=True, slots=True)
@@ -167,10 +169,10 @@ class WorkItem:
             for criterion in self.acceptance_criteria
         )
         if not criteria:
-            raise WorkManagementContractError("acceptance_criteria must not be empty.")
+            _invalid("acceptance_criteria must not be empty.")
         object.__setattr__(self, "acceptance_criteria", criteria)
         if not isinstance(self.repository, WorkRepository):
-            raise WorkManagementContractError("repository must be a WorkRepository.")
+            _invalid("repository must be a WorkRepository.")
         object.__setattr__(self, "metadata", _freeze_metadata(self.metadata))
 
 
@@ -196,9 +198,9 @@ class ReadinessResult:
     def __post_init__(self) -> None:
         object.__setattr__(self, "problems", tuple(self.problems))
         if self.ready and self.problems:
-            raise WorkManagementContractError("A ready result must not contain problems.")
+            _invalid("A ready result must not contain problems.")
         if not self.ready and not self.problems:
-            raise WorkManagementContractError("A non-ready result must contain at least one problem.")
+            _invalid("A non-ready result must contain at least one problem.")
 
 
 @dataclass(frozen=True, slots=True)
@@ -212,7 +214,7 @@ class ProgressUpdate:
     def __post_init__(self) -> None:
         object.__setattr__(self, "message", _normalize_text(self.message, "progress.message", max_length=10_000))
         if self.percent_complete is not None and not 0 <= self.percent_complete <= 100:
-            raise WorkManagementContractError("percent_complete must be between 0 and 100.")
+            _invalid("percent_complete must be between 0 and 100.")
         object.__setattr__(self, "metadata", _freeze_metadata(self.metadata))
 
 
@@ -284,7 +286,6 @@ class WorkManagementProvider(ABC):
     @final
     async def retrieve_work_item(self, external_key: str) -> WorkItem:
         """Retrieve one approved work item by its provider-neutral external key."""
-
         self.capabilities.require(ProviderCapability.RETRIEVE_WORK_ITEM)
         return await self._retrieve_work_item(_normalize_identifier(external_key))
 
@@ -295,49 +296,44 @@ class WorkManagementProvider(ABC):
     @final
     async def validate_readiness(self, work_item: WorkItem) -> ReadinessResult:
         """Validate whether a normalized work item is ready for execution."""
-
         self.capabilities.require(ProviderCapability.VALIDATE_READINESS)
         return await self._validate_readiness(work_item)
 
     async def _validate_readiness(self, work_item: WorkItem) -> ReadinessResult:
-        raise UnsupportedProviderFeature(self.capabilities.provider_name, ProviderCapability.VALIDATE_READINESS)
+        raise UnsupportedProviderFeatureError(self.capabilities.provider_name, ProviderCapability.VALIDATE_READINESS)
 
     @final
     async def publish_progress(self, external_key: str, update: ProgressUpdate) -> UpdateReceipt:
         """Publish a progress update."""
-
         self.capabilities.require(ProviderCapability.PUBLISH_PROGRESS)
         return await self._publish_progress(_normalize_identifier(external_key), update)
 
     async def _publish_progress(self, external_key: str, update: ProgressUpdate) -> UpdateReceipt:
-        raise UnsupportedProviderFeature(self.capabilities.provider_name, ProviderCapability.PUBLISH_PROGRESS)
+        raise UnsupportedProviderFeatureError(self.capabilities.provider_name, ProviderCapability.PUBLISH_PROGRESS)
 
     @final
     async def publish_blocker(self, external_key: str, update: BlockerUpdate) -> UpdateReceipt:
         """Publish a blocker update."""
-
         self.capabilities.require(ProviderCapability.PUBLISH_BLOCKER)
         return await self._publish_blocker(_normalize_identifier(external_key), update)
 
     async def _publish_blocker(self, external_key: str, update: BlockerUpdate) -> UpdateReceipt:
-        raise UnsupportedProviderFeature(self.capabilities.provider_name, ProviderCapability.PUBLISH_BLOCKER)
+        raise UnsupportedProviderFeatureError(self.capabilities.provider_name, ProviderCapability.PUBLISH_BLOCKER)
 
     @final
     async def publish_completion(self, external_key: str, update: CompletionUpdate) -> UpdateReceipt:
         """Publish a completion update."""
-
         self.capabilities.require(ProviderCapability.PUBLISH_COMPLETION)
         return await self._publish_completion(_normalize_identifier(external_key), update)
 
     async def _publish_completion(self, external_key: str, update: CompletionUpdate) -> UpdateReceipt:
-        raise UnsupportedProviderFeature(self.capabilities.provider_name, ProviderCapability.PUBLISH_COMPLETION)
+        raise UnsupportedProviderFeatureError(self.capabilities.provider_name, ProviderCapability.PUBLISH_COMPLETION)
 
     @final
     async def publish_artifact(self, external_key: str, update: ArtifactUpdate) -> UpdateReceipt:
         """Publish a reviewable artifact."""
-
         self.capabilities.require(ProviderCapability.PUBLISH_ARTIFACT)
         return await self._publish_artifact(_normalize_identifier(external_key), update)
 
     async def _publish_artifact(self, external_key: str, update: ArtifactUpdate) -> UpdateReceipt:
-        raise UnsupportedProviderFeature(self.capabilities.provider_name, ProviderCapability.PUBLISH_ARTIFACT)
+        raise UnsupportedProviderFeatureError(self.capabilities.provider_name, ProviderCapability.PUBLISH_ARTIFACT)
