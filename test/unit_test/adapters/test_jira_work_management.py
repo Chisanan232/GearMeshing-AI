@@ -10,6 +10,7 @@ from gearmeshing_ai.adapters.jira_work_management import (
     JiraWorkManagementConfig,
     JiraWorkManagementProvider,
 )
+from gearmeshing_ai.application.ports.work_management import ReadinessProblem, ReadinessResult, UpdateKind
 from test.unit_test.adapters.jira_work_management_fixtures import jira_issue_payload
 
 
@@ -106,3 +107,31 @@ async def test_inaccessible_issue_maps_to_safe_authorization_error() -> None:
 
     assert secret not in str(captured.value)
     assert "not permitted" in str(captured.value)
+
+
+@pytest.mark.asyncio
+async def test_blocked_validation_is_publishable_as_jira_comment() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.method == "POST"
+        assert request.url.path == "/rest/api/3/issue/GMAI-17/comment"
+        assert b"missing_repository" in request.content
+        return httpx.Response(201, json={"id": "10042"})
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+            ),
+        )
+        receipt = await provider.publish_readiness(
+            "GMAI-17",
+            ReadinessResult(
+                ready=False,
+                problems=(ReadinessProblem("missing_repository", "Set the approved repository URL."),),
+            ),
+        )
+
+    assert receipt.kind is UpdateKind.BLOCKER
+    assert receipt.provider_reference == "10042"
