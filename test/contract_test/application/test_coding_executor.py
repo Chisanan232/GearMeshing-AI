@@ -225,6 +225,41 @@ def test_timeout_limits_reject_non_finite_or_boolean_values(timeout: float) -> N
         )
 
 
+@pytest.mark.asyncio
+async def test_fake_executor_snapshots_caller_scripts() -> None:
+    """Caller mutation cannot change a deterministic replay script."""
+    event = ExecutionEvent(0, ExecutionEventKind.STARTED, "Started.")
+    artifact = ExecutionArtifact("report", Path("report.json"), "application/json", 2, "0" * 64)
+    caller_events = [event]
+    caller_artifacts = [artifact]
+    executor = FakeCodingExecutor(
+        capabilities=build_capabilities(),
+        result=build_result(ExecutionStatus.COMPLETED),
+        events=cast("tuple[ExecutionEvent, ...]", caller_events),
+        artifacts=cast("tuple[ExecutionArtifact, ...]", caller_artifacts),
+    )
+    caller_events.clear()
+    caller_artifacts.clear()
+    received_events: list[ExecutionEvent] = []
+    received_artifacts: list[ExecutionArtifact] = []
+
+    async def capture_event(item: ExecutionEvent) -> None:
+        received_events.append(item)
+
+    async def capture_artifact(item: ExecutionArtifact) -> None:
+        received_artifacts.append(item)
+
+    await executor.execute(
+        build_request(),
+        on_event=capture_event,
+        on_artifact=capture_artifact,
+        cancellation=FakeCancellationSignal(),
+    )
+
+    assert received_events == [event]
+    assert received_artifacts == [artifact]
+
+
 def test_tool_permission_rejects_command_arguments() -> None:
     """Tool grants cannot smuggle shell arguments into the contract."""
     with pytest.raises(ValueError, match="unsupported characters"):
