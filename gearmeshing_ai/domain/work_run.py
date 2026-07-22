@@ -155,6 +155,11 @@ class WorkRun:
             raise InvalidWorkRunTransition("a completed WorkRun must reference its Draft PR")
         return replace(self, state=target)
 
+    def associate_pull_request(self, pull_request_url: str) -> "WorkRun":
+        """Return a new WorkRun correlated with its Draft pull request."""
+        correlation = replace(self.correlation, pull_request_url=pull_request_url)
+        return replace(self, correlation=correlation)
+
 
 class InvalidWorkRunTransition(ValueError):
     """Raised when a WorkRun lifecycle transition violates domain rules."""
