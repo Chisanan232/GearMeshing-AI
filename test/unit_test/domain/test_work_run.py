@@ -185,6 +185,15 @@ def test_artifact_reference_rejects_javascript_uris() -> None:
         )
 
 
+def test_artifact_reference_rejects_file_uris() -> None:
+    with pytest.raises(ValueError, match="supported URI scheme"):
+        ArtifactReference(
+            artifact_id="local-secret",
+            kind="test-report",
+            uri="file:///etc/passwd",
+        )
+
+
 def test_work_run_correlation_rejects_invalid_identifiers() -> None:
     with pytest.raises(ValueError, match="PROJECT-123"):
         WorkRunCorrelation(
