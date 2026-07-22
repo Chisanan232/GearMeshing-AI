@@ -281,15 +281,20 @@ class ExecutorCapabilities:
 
     def __post_init__(self) -> None:
         """Validate advertised capability identifiers and resource limits."""
+        features = frozenset(self.features)
+        supported_tools = frozenset(self.supported_tools)
         if not self.executor_id.strip():
             message = "executor ID must not be empty"
             raise ValueError(message)
-        if any(fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}", tool) is None for tool in self.supported_tools):
+        if any(fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}", tool) is None for tool in supported_tools):
             message = "supported tool identifier contains unsupported characters"
             raise ValueError(message)
         if self.max_timeout_seconds <= 0:
             message = "maximum timeout must be positive"
             raise ValueError(message)
+
+        object.__setattr__(self, "features", features)
+        object.__setattr__(self, "supported_tools", supported_tools)
 
 
 type EventCallback = Callable[[ExecutionEvent], Awaitable[None]]
