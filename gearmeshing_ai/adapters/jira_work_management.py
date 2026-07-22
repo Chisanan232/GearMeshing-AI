@@ -7,6 +7,7 @@ import re
 from collections.abc import Awaitable, Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from json import JSONDecodeError
+from math import isfinite
 from typing import Any, Final
 from urllib.parse import urlsplit
 
@@ -80,11 +81,35 @@ class JiraWorkManagementConfig:
         ):
             message = "supported_issue_types must contain non-empty strings."
             raise ValueError(message)
-        if self.request_timeout_seconds <= 0 or not 1 <= self.max_attempts <= 5:
-            message = "HTTP bounds must be positive and max_attempts must not exceed five."
+        if (
+            isinstance(self.request_timeout_seconds, bool)
+            or not isinstance(self.request_timeout_seconds, (int, float))
+            or not isfinite(self.request_timeout_seconds)
+            or self.request_timeout_seconds <= 0
+        ):
+            message = "request_timeout_seconds must be a positive finite number."
             raise ValueError(message)
-        if self.max_retry_delay_seconds < 0 or self.max_response_bytes <= 0:
-            message = "HTTP response bounds must be positive."
+        if (
+            isinstance(self.max_attempts, bool)
+            or not isinstance(self.max_attempts, int)
+            or not 1 <= self.max_attempts <= 5
+        ):
+            message = "max_attempts must be an integer between one and five."
+            raise ValueError(message)
+        if (
+            isinstance(self.max_retry_delay_seconds, bool)
+            or not isinstance(self.max_retry_delay_seconds, (int, float))
+            or not isfinite(self.max_retry_delay_seconds)
+            or self.max_retry_delay_seconds < 0
+        ):
+            message = "max_retry_delay_seconds must be a non-negative finite number."
+            raise ValueError(message)
+        if (
+            isinstance(self.max_response_bytes, bool)
+            or not isinstance(self.max_response_bytes, int)
+            or self.max_response_bytes <= 0
+        ):
+            message = "max_response_bytes must be a positive integer."
             raise ValueError(message)
         WorkRepository("https://validation.invalid/repository", self.repository_default_branch)
 
