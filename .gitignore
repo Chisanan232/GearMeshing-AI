@@ -6,7 +6,6 @@ __pycache__
 ## UV
 .venv/
 ## PyEnv
-.python-version
 ## PyTest
 .pytest_cache/
 ## PyLint
