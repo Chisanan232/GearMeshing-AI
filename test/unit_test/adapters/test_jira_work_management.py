@@ -248,3 +248,35 @@ def test_config_rejects_unsafe_numeric_bounds(field_name: str, value: object, me
 
     with pytest.raises(ValueError, match=message):
         JiraWorkManagementConfig(**values)
+
+
+@pytest.mark.parametrize("retry_after", ["nan", "inf", "-inf"])
+@pytest.mark.asyncio
+async def test_non_finite_retry_after_uses_bounded_exponential_delay(retry_after: str) -> None:
+    attempts = 0
+    delays: list[float] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        if attempts < 3:
+            return httpx.Response(429, headers={"Retry-After": retry_after}, json={})
+        return httpx.Response(200, json=jira_issue_payload())
+
+    async def record_sleep(delay: float) -> None:
+        delays.append(delay)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+                max_retry_delay_seconds=1.5,
+            ),
+            sleep=record_sleep,
+        )
+        work_item = await provider.retrieve_work_item("GMAI-17")
+
+    assert work_item.external_key == "GMAI-17"
+    assert delays == [1.0, 1.5]
