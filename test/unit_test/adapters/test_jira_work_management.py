@@ -5,6 +5,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
+from gearmeshing_ai.adapters.jira_errors import JiraIssueValidationError
 from gearmeshing_ai.adapters.jira_work_management import (
     JiraWorkManagementConfig,
     JiraWorkManagementProvider,
@@ -39,3 +40,27 @@ async def test_ready_issue_is_normalized_without_inventing_requirements() -> Non
     assert work_item.repository.default_branch == "main"
     assert work_item.metadata["labels"] == ("mvp-1", "spec-ready")
     assert readiness.ready is True
+
+
+@pytest.mark.asyncio
+async def test_incomplete_issue_reports_missing_criteria_and_repository() -> None:
+    payload = jira_issue_payload(criteria=(), repository_url=None)
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(lambda request: httpx.Response(200, json=payload))
+    ) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+            ),
+        )
+        with pytest.raises(JiraIssueValidationError) as captured:
+            await provider.retrieve_work_item("GMAI-17")
+
+    problems = {problem.code: problem.message for problem in captured.value.readiness.problems}
+    assert "missing_acceptance_criteria" in problems
+    assert "no criteria will be inferred" in problems["missing_acceptance_criteria"]
+    assert "missing_repository" in problems
+    assert "customfield_12345" in problems["missing_repository"]
