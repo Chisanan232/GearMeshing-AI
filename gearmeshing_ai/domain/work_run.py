@@ -1,6 +1,6 @@
 """Framework-independent domain model for governed work execution."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 import re
 from urllib.parse import urlsplit
@@ -125,6 +125,25 @@ class WorkRunIdentity:
     def __post_init__(self) -> None:
         if not isinstance(self.run_id, UUID):
             raise TypeError("run_id must be a UUID")
+
+
+@dataclass(frozen=True, slots=True)
+class WorkRun:
+    """Immutable aggregate describing one governed work execution."""
+
+    correlation: WorkRunCorrelation
+    identity: WorkRunIdentity = field(default_factory=WorkRunIdentity.new)
+    state: WorkRunState = WorkRunState.APPROVED
+    artifact_references: tuple[ArtifactReference, ...] = ()
+    event_references: tuple[EventReference, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.correlation, WorkRunCorrelation):
+            raise TypeError("correlation must be a WorkRunCorrelation")
+        if not isinstance(self.identity, WorkRunIdentity):
+            raise TypeError("identity must be a WorkRunIdentity")
+        if not isinstance(self.state, WorkRunState):
+            raise TypeError("state must be a WorkRunState")
 
 
 class InvalidWorkRunTransition(ValueError):
