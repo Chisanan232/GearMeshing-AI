@@ -7,6 +7,7 @@ import pytest
 from gearmeshing_ai.application.workflow_runner import (
     WORKFLOW_STAGE_ORDER,
     StageContext,
+    StageFailure,
     WorkflowActions,
     WorkflowCheckpoint,
     WorkflowFailureKind,
@@ -59,6 +60,36 @@ def test_checkpoint_enforces_workrun_state_for_every_completed_prefix() -> None:
                 work_run=replace(work_run, state=invalid_state),
                 completed_stages=completed_stages,
             )
+
+
+def test_failed_checkpoint_enforces_stage_and_terminal_state() -> None:
+    completed_stages = (WorkflowStage.INGEST, WorkflowStage.EXECUTE)
+    failed_work_run = replace(make_work_run(), state=WorkRunState.FAILED)
+    failure = StageFailure(
+        stage=WorkflowStage.VERIFY,
+        kind=WorkflowFailureKind.POLICY,
+        reason_code="approval_missing",
+    )
+
+    checkpoint = WorkflowCheckpoint(
+        work_run=failed_work_run,
+        completed_stages=completed_stages,
+        failure=failure,
+    )
+
+    assert checkpoint.failure is failure
+    with pytest.raises(ValueError, match="immediately follow"):
+        WorkflowCheckpoint(
+            work_run=failed_work_run,
+            completed_stages=completed_stages,
+            failure=replace(failure, stage=WorkflowStage.REMEDIATE),
+        )
+    with pytest.raises(ValueError, match="invalid terminal"):
+        WorkflowCheckpoint(
+            work_run=replace(failed_work_run, state=WorkRunState.BLOCKED),
+            completed_stages=completed_stages,
+            failure=failure,
+        )
 
 
 def test_runner_completes_the_mocked_golden_path_in_order() -> None:
