@@ -66,7 +66,12 @@ class JiraWorkManagementConfig:
             raise ValueError(message) from error
         object.__setattr__(self, "supported_issue_types", supported_issue_types)
 
-        parsed = urlsplit(self.site_url)
+        try:
+            parsed = urlsplit(self.site_url)
+            _ = parsed.port
+        except (TypeError, ValueError) as error:
+            message = "site_url must contain a valid host and port."
+            raise ValueError(message) from error
         if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
             message = "site_url must be an HTTPS URL without credentials."
             raise ValueError(message)
