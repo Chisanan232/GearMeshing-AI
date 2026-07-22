@@ -160,6 +160,14 @@ class WorkRun:
         correlation = replace(self.correlation, pull_request_url=pull_request_url)
         return replace(self, correlation=correlation)
 
+    def with_artifact_reference(self, reference: ArtifactReference) -> "WorkRun":
+        """Return a new WorkRun containing one additional artifact reference."""
+        if not isinstance(reference, ArtifactReference):
+            raise TypeError("reference must be an ArtifactReference")
+        if reference in self.artifact_references:
+            return self
+        return replace(self, artifact_references=(*self.artifact_references, reference))
+
 
 class InvalidWorkRunTransition(ValueError):
     """Raised when a WorkRun lifecycle transition violates domain rules."""
