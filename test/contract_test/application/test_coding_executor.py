@@ -198,3 +198,20 @@ async def test_fake_executor_honors_cancellation_before_execution() -> None:
     assert result.status is ExecutionStatus.CANCELLED
     assert result.failure is not None
     assert result.failure.kind is ExecutionFailureKind.CANCELLED
+
+
+def test_result_rejects_mismatched_failure_classification() -> None:
+    """Timeouts cannot be reported with a provider-failure classification."""
+    failure = ExecutionFailure(
+        kind=ExecutionFailureKind.PROVIDER,
+        code="PROVIDER_ERROR",
+        safe_message="Provider unavailable.",
+    )
+
+    with pytest.raises(ValueError, match="does not match"):
+        CodingExecutionResult(
+            execution_id="execution-1",
+            status=ExecutionStatus.TIMED_OUT,
+            summary="Execution timed out.",
+            failure=failure,
+        )
