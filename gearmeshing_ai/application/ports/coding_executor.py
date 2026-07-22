@@ -108,3 +108,28 @@ class ToolPermission:
         if fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}", self.identifier) is None:
             message = "tool identifier contains unsupported characters"
             raise ValueError(message)
+
+
+@dataclass(frozen=True, slots=True)
+class CodingExecutionRequest:
+    """Complete, approved input for one isolated coding execution."""
+
+    execution_id: str
+    repository: RepositoryContext
+    specification: ApprovedSpecification
+    constraints: ExecutionConstraints
+    allowed_tools: tuple[ToolPermission, ...]
+    timeout_seconds: float
+
+    def __post_init__(self) -> None:
+        """Reject ambiguous execution identity, timeout, or tool grants."""
+        if not self.execution_id.strip():
+            message = "execution ID must not be empty"
+            raise ValueError(message)
+        if self.timeout_seconds <= 0:
+            message = "execution timeout must be positive"
+            raise ValueError(message)
+        tool_ids = tuple(tool.identifier for tool in self.allowed_tools)
+        if len(tool_ids) != len(set(tool_ids)):
+            message = "allowed tool permissions must be unique"
+            raise ValueError(message)
