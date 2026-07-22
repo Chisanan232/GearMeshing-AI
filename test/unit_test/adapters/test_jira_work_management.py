@@ -20,7 +20,7 @@ from gearmeshing_ai.application.ports.work_management import ReadinessProblem, R
 from test.unit_test.adapters.jira_work_management_fixtures import jira_issue_payload
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
 async def test_ready_issue_is_normalized_without_inventing_requirements() -> None:
     payload = jira_issue_payload(criteria=("First approved outcome.", "Second approved outcome."))
 
@@ -49,7 +49,7 @@ async def test_ready_issue_is_normalized_without_inventing_requirements() -> Non
     assert readiness.ready is True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
 async def test_incomplete_issue_reports_missing_criteria_and_repository() -> None:
     payload = jira_issue_payload(criteria=(), repository_url=None)
 
@@ -73,7 +73,7 @@ async def test_incomplete_issue_reports_missing_criteria_and_repository() -> Non
     assert "customfield_12345" in problems["missing_repository"]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
 async def test_unsupported_issue_type_is_blocked() -> None:
     payload = jira_issue_payload(issue_type="Epic")
 
@@ -94,7 +94,7 @@ async def test_unsupported_issue_type_is_blocked() -> None:
     assert "Story, Task" in captured.value.readiness.problems[0].message
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
 async def test_inaccessible_issue_maps_to_safe_authorization_error() -> None:
     secret = "not-a-real-token"
     async with httpx.AsyncClient(
@@ -115,7 +115,7 @@ async def test_inaccessible_issue_maps_to_safe_authorization_error() -> None:
     assert "not permitted" in str(captured.value)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
 async def test_blocked_validation_is_publishable_as_jira_comment() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.method == "POST"
@@ -143,7 +143,7 @@ async def test_blocked_validation_is_publishable_as_jira_comment() -> None:
     assert receipt.provider_reference == "10042"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
 async def test_issue_without_spec_ready_label_is_blocked() -> None:
     payload = jira_issue_payload(labels=["mvp-1"])
 
@@ -164,7 +164,7 @@ async def test_issue_without_spec_ready_label_is_blocked() -> None:
     assert "spec-ready" in captured.value.readiness.problems[-1].message
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
 async def test_rate_limit_retries_are_bounded() -> None:
     attempts = 0
     delays: list[float] = []
@@ -195,7 +195,7 @@ async def test_rate_limit_retries_are_bounded() -> None:
     assert delays == [1.5]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
 async def test_unsafe_issue_key_is_rejected_before_http_request() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         pytest.fail(f"Unexpected request: {request.url}")
@@ -225,7 +225,7 @@ def test_config_defensively_freezes_supported_issue_types() -> None:
     assert config.supported_issue_types == frozenset({"Story"})
 
 
-@pytest.mark.parametrize(
+@pytest.mark.parametrize(  # type: ignore[untyped-decorator, unused-ignore]
     ("field_name", "value", "message"),
     [
         ("request_timeout_seconds", float("nan"), "positive finite number"),
@@ -250,8 +250,10 @@ def test_config_rejects_unsafe_numeric_bounds(field_name: str, value: object, me
         JiraWorkManagementConfig(**values)
 
 
-@pytest.mark.parametrize("retry_after", ["nan", "inf", "-inf"])
-@pytest.mark.asyncio
+@pytest.mark.parametrize(  # type: ignore[untyped-decorator, unused-ignore]
+    "retry_after", ["nan", "inf", "-inf"]
+)
+@pytest.mark.asyncio  # type: ignore[untyped-decorator, unused-ignore]
 async def test_non_finite_retry_after_uses_bounded_exponential_delay(retry_after: str) -> None:
     attempts = 0
     delays: list[float] = []
