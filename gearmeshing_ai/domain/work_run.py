@@ -80,6 +80,36 @@ class EventReference:
         object.__setattr__(self, "event_type", _require_bounded_text(self.event_type, "event_type"))
 
 
+@dataclass(frozen=True, slots=True)
+class WorkRunCorrelation:
+    """Identifiers used to correlate a WorkRun across governed systems."""
+
+    jira_issue_key: str
+    repository: str
+    branch: str
+    agent_assembly_correlation_id: str
+    pull_request_url: str | None = None
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "jira_issue_key", _require_jira_issue_key(self.jira_issue_key))
+        object.__setattr__(self, "repository", _require_https_url(self.repository, "repository"))
+        object.__setattr__(self, "branch", _require_bounded_text(self.branch, "branch"))
+        object.__setattr__(
+            self,
+            "agent_assembly_correlation_id",
+            _require_bounded_text(
+                self.agent_assembly_correlation_id,
+                "agent_assembly_correlation_id",
+            ),
+        )
+        if self.pull_request_url is not None:
+            object.__setattr__(
+                self,
+                "pull_request_url",
+                _require_https_url(self.pull_request_url, "pull_request_url"),
+            )
+
+
 class InvalidWorkRunTransition(ValueError):
     """Raised when a WorkRun lifecycle transition violates domain rules."""
 
