@@ -327,3 +327,15 @@ async def test_oversized_stream_is_stopped_and_closed_at_response_bound() -> Non
 
     assert stream.chunks_read == 2
     assert stream.closed is True
+
+
+@pytest.mark.parametrize(  # type: ignore[untyped-decorator, unused-ignore]
+    "site_url",
+    ["https://mock.atlassian.net:not-a-port", "https://mock.atlassian.net:99999"],
+)
+def test_config_rejects_invalid_jira_site_ports(site_url: str) -> None:
+    with pytest.raises(ValueError, match="valid host and port"):
+        JiraWorkManagementConfig(
+            site_url=site_url,
+            repository_url_field="customfield_12345",
+        )
