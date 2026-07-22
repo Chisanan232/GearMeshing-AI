@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import operator
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, fields
 from typing import Any
 
 import pytest
@@ -184,3 +184,15 @@ def test_rejects_unsafe_identifiers_urls_and_metadata() -> None:
     with pytest.raises(WorkManagementContractError) as error:
         ProgressUpdate("Started", metadata={"api_token": secret})
     assert secret not in str(error.value)
+
+
+def test_contract_has_no_jira_specific_fields_or_provider_identity() -> None:
+    public_names = {
+        *(field.name for field in fields(WorkItem)),
+        *(field.name for field in fields(ProgressUpdate)),
+        *(name for name in dir(WorkManagementProvider) if not name.startswith("_")),
+    }
+
+    assert not any("jira" in name.lower() for name in public_names)
+    assert ProviderCapabilities("clickup", ALL_CAPABILITIES).provider_name == "clickup"
+    assert ProviderCapabilities("github-issues", ALL_CAPABILITIES).provider_name == "github-issues"
