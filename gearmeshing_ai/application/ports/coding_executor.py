@@ -289,8 +289,13 @@ class ExecutorCapabilities:
         if any(fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,63}", tool) is None for tool in supported_tools):
             message = "supported tool identifier contains unsupported characters"
             raise ValueError(message)
-        if self.max_timeout_seconds <= 0:
-            message = "maximum timeout must be positive"
+        if (
+            isinstance(self.max_timeout_seconds, bool)
+            or not isinstance(self.max_timeout_seconds, (int, float))
+            or not isfinite(self.max_timeout_seconds)
+            or self.max_timeout_seconds <= 0
+        ):
+            message = "maximum timeout must be positive and finite"
             raise ValueError(message)
 
         object.__setattr__(self, "features", features)
