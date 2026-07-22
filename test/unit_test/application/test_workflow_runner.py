@@ -1,5 +1,9 @@
 """Unit tests for the lightweight workflow runner."""
 
+from dataclasses import replace
+
+import pytest
+
 from gearmeshing_ai.application.workflow_runner import (
     WORKFLOW_STAGE_ORDER,
     StageContext,
@@ -23,6 +27,38 @@ def make_work_run() -> WorkRun:
             agent_assembly_correlation_id="assembly-run-13",
         )
     )
+
+
+def test_checkpoint_enforces_workrun_state_for_every_completed_prefix() -> None:
+    states_after_prefix = (
+        WorkRunState.APPROVED,
+        WorkRunState.EXECUTING,
+        WorkRunState.VERIFYING,
+        WorkRunState.REMEDIATING,
+        WorkRunState.VERIFYING,
+        WorkRunState.PUBLISHING_DRAFT_PR,
+        WorkRunState.COMPLETED,
+    )
+
+    for prefix_length, expected_state in enumerate(states_after_prefix):
+        work_run = make_work_run()
+        if expected_state is WorkRunState.COMPLETED:
+            work_run = work_run.associate_pull_request("https://github.com/Chisanan232/GearMeshing-AI/pull/13")
+        work_run = replace(work_run, state=expected_state)
+        completed_stages = WORKFLOW_STAGE_ORDER[:prefix_length]
+
+        checkpoint = WorkflowCheckpoint(
+            work_run=work_run,
+            completed_stages=completed_stages,
+        )
+
+        assert checkpoint.work_run.state is expected_state
+        invalid_state = WorkRunState.EXECUTING if expected_state is WorkRunState.APPROVED else WorkRunState.APPROVED
+        with pytest.raises(ValueError, match="does not match"):
+            WorkflowCheckpoint(
+                work_run=replace(work_run, state=invalid_state),
+                completed_stages=completed_stages,
+            )
 
 
 def test_runner_completes_the_mocked_golden_path_in_order() -> None:
