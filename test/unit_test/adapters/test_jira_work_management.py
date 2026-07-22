@@ -5,7 +5,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from gearmeshing_ai.adapters.jira_errors import JiraIssueValidationError
+from gearmeshing_ai.adapters.jira_errors import JiraAuthorizationError, JiraIssueValidationError
 from gearmeshing_ai.adapters.jira_work_management import (
     JiraWorkManagementConfig,
     JiraWorkManagementProvider,
@@ -85,3 +85,24 @@ async def test_unsupported_issue_type_is_blocked() -> None:
 
     assert captured.value.readiness.problems[0].code == "unsupported_issue_type"
     assert "Story, Task" in captured.value.readiness.problems[0].message
+
+
+@pytest.mark.asyncio
+async def test_inaccessible_issue_maps_to_safe_authorization_error() -> None:
+    secret = "not-a-real-token"
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(lambda request: httpx.Response(403, json={"errorMessages": [secret]})),
+        headers={"Authorization": f"Basic {secret}"},
+    ) as client:
+        provider = JiraWorkManagementProvider(
+            client,
+            JiraWorkManagementConfig(
+                site_url="https://mock.atlassian.net",
+                repository_url_field="customfield_12345",
+            ),
+        )
+        with pytest.raises(JiraAuthorizationError) as captured:
+            await provider.retrieve_work_item("GMAI-17")
+
+    assert secret not in str(captured.value)
+    assert "not permitted" in str(captured.value)
