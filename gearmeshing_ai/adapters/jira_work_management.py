@@ -56,6 +56,9 @@ class JiraWorkManagementConfig:
     max_response_bytes: int = 1_000_000
 
     def __post_init__(self) -> None:
+        if isinstance(self.supported_issue_types, (str, bytes)):
+            message = "supported_issue_types must be a collection, not text."
+            raise ValueError(message)
         try:
             supported_issue_types = frozenset(self.supported_issue_types)
         except TypeError as error:
