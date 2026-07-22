@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 import re
 from urllib.parse import urlsplit
+from uuid import UUID, uuid4
 
 
 _MAX_IDENTIFIER_LENGTH = 255
@@ -108,6 +109,22 @@ class WorkRunCorrelation:
                 "pull_request_url",
                 _require_https_url(self.pull_request_url, "pull_request_url"),
             )
+
+
+@dataclass(frozen=True, slots=True)
+class WorkRunIdentity:
+    """Stable internal identity for one WorkRun."""
+
+    run_id: UUID
+
+    @classmethod
+    def new(cls) -> "WorkRunIdentity":
+        """Create a WorkRun identity using a random, non-semantic identifier."""
+        return cls(run_id=uuid4())
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.run_id, UUID):
+            raise TypeError("run_id must be a UUID")
 
 
 class InvalidWorkRunTransition(ValueError):
