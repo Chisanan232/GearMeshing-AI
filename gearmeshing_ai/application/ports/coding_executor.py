@@ -28,6 +28,16 @@ class ExecutionFailureKind(StrEnum):
     INTERNAL = "internal"
 
 
+class ExecutionEventKind(StrEnum):
+    """Portable event categories emitted during execution."""
+
+    STARTED = "started"
+    PROGRESS = "progress"
+    TOOL_STARTED = "tool_started"
+    TOOL_FINISHED = "tool_finished"
+    FINISHED = "finished"
+
+
 @dataclass(frozen=True, slots=True)
 class RepositoryContext:
     """Repository and isolated worktree selected for an execution."""
@@ -132,4 +142,22 @@ class CodingExecutionRequest:
         tool_ids = tuple(tool.identifier for tool in self.allowed_tools)
         if len(tool_ids) != len(set(tool_ids)):
             message = "allowed tool permissions must be unique"
+            raise ValueError(message)
+
+
+@dataclass(frozen=True, slots=True)
+class ExecutionEvent:
+    """Ordered progress notification emitted by an executor."""
+
+    sequence: int
+    kind: ExecutionEventKind
+    message: str = field(repr=False)
+
+    def __post_init__(self) -> None:
+        """Require non-negative ordering and a useful safe message."""
+        if self.sequence < 0:
+            message = "event sequence must not be negative"
+            raise ValueError(message)
+        if not self.message.strip():
+            message = "event message must not be empty"
             raise ValueError(message)
