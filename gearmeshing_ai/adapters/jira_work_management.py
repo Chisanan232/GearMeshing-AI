@@ -55,6 +55,13 @@ class JiraWorkManagementConfig:
     max_response_bytes: int = 1_000_000
 
     def __post_init__(self) -> None:
+        try:
+            supported_issue_types = frozenset(self.supported_issue_types)
+        except TypeError as error:
+            message = "supported_issue_types must be an iterable of strings."
+            raise ValueError(message) from error
+        object.__setattr__(self, "supported_issue_types", supported_issue_types)
+
         parsed = urlsplit(self.site_url)
         if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
             message = "site_url must be an HTTPS URL without credentials."
@@ -68,8 +75,10 @@ class JiraWorkManagementConfig:
         if not self.ready_label.strip() or any(character.isspace() for character in self.ready_label):
             message = "ready_label must be a non-empty Jira label."
             raise ValueError(message)
-        if not self.supported_issue_types or any(not value.strip() for value in self.supported_issue_types):
-            message = "supported_issue_types must not be empty."
+        if not self.supported_issue_types or any(
+            not isinstance(value, str) or not value.strip() for value in self.supported_issue_types
+        ):
+            message = "supported_issue_types must contain non-empty strings."
             raise ValueError(message)
         if self.request_timeout_seconds <= 0 or not 1 <= self.max_attempts <= 5:
             message = "HTTP bounds must be positive and max_attempts must not exceed five."
