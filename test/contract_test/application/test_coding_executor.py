@@ -88,6 +88,23 @@ def test_repository_context_accepts_sibling_worktree() -> None:
     assert context.worktree_root == Path("/workspace/GearMeshing-AI/.worktrees/GMAI-20")
 
 
+@pytest.mark.parametrize(
+    ("repository_root", "worktree_root"),
+    (
+        (Path("repository"), Path("/workspace/worktree")),
+        (Path("/workspace/repository"), Path("worktree")),
+    ),
+)
+def test_repository_context_rejects_relative_roots(repository_root: Path, worktree_root: Path) -> None:
+    """Relative roots cannot create an ambiguous execution boundary."""
+    with pytest.raises(ValueError, match="must be absolute"):
+        RepositoryContext(
+            repository_root=repository_root,
+            worktree_root=worktree_root,
+            base_revision="main",
+        )
+
+
 def test_tool_permission_rejects_command_arguments() -> None:
     """Tool grants cannot smuggle shell arguments into the contract."""
     with pytest.raises(ValueError, match="unsupported characters"):
