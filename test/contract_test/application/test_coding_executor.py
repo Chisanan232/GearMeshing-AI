@@ -95,3 +95,11 @@ def test_approved_specification_repr_hides_content() -> None:
     specification = build_request().specification
 
     assert specification.content not in repr(specification)
+
+
+def test_fake_executor_exposes_provider_neutral_capabilities() -> None:
+    """Orchestration can select an executor without provider-specific types."""
+    capabilities = build_capabilities()
+    executor = FakeCodingExecutor(capabilities=capabilities, result=build_result(ExecutionStatus.COMPLETED))
+
+    assert executor.capabilities == capabilities
