@@ -206,3 +206,42 @@ class ExecutionFailure:
         if not self.safe_message.strip():
             message = "failure message must not be empty"
             raise ValueError(message)
+
+
+@dataclass(frozen=True, slots=True)
+class CodingExecutionResult:
+    """Terminal outcome of one coding execution."""
+
+    execution_id: str
+    status: ExecutionStatus
+    summary: str = field(repr=False)
+    artifacts: tuple[ExecutionArtifact, ...] = ()
+    failure: ExecutionFailure | None = None
+
+    def __post_init__(self) -> None:
+        """Keep status and failure classification internally consistent."""
+        if not self.execution_id.strip() or not self.summary.strip():
+            message = "result identity and summary must not be empty"
+            raise ValueError(message)
+        if self.status is ExecutionStatus.COMPLETED:
+            if self.failure is not None:
+                message = "completed results must not include a failure"
+                raise ValueError(message)
+            return
+        if self.failure is None:
+            message = "non-completed results must include a classified failure"
+            raise ValueError(message)
+
+        allowed_failure_kinds = {
+            ExecutionStatus.BLOCKED: {ExecutionFailureKind.BLOCKED, ExecutionFailureKind.POLICY},
+            ExecutionStatus.CANCELLED: {ExecutionFailureKind.CANCELLED},
+            ExecutionStatus.TIMED_OUT: {ExecutionFailureKind.TIMEOUT},
+            ExecutionStatus.FAILED: {
+                ExecutionFailureKind.INTERNAL,
+                ExecutionFailureKind.POLICY,
+                ExecutionFailureKind.PROVIDER,
+            },
+        }
+        if self.failure.kind not in allowed_failure_kinds[self.status]:
+            message = "result status does not match its failure classification"
+            raise ValueError(message)
