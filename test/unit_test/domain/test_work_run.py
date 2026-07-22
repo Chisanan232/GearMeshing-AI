@@ -4,7 +4,12 @@ from uuid import UUID
 
 import pytest
 
-from gearmeshing_ai.domain.work_run import WorkRun, WorkRunCorrelation, WorkRunState
+from gearmeshing_ai.domain.work_run import (
+    InvalidWorkRunTransition,
+    WorkRun,
+    WorkRunCorrelation,
+    WorkRunState,
+)
 
 
 def make_work_run(*, pull_request_url: str | None = None) -> WorkRun:
@@ -59,3 +64,21 @@ def test_work_run_accepts_happy_path_and_remediation_transitions(
     assert transitioned.state is target
     assert transitioned.identity == work_run.identity
     assert work_run.state is source
+
+
+@pytest.mark.parametrize(
+    ("source", "target"),
+    [
+        (WorkRunState.APPROVED, WorkRunState.VERIFYING),
+        (WorkRunState.EXECUTING, WorkRunState.COMPLETED),
+        (WorkRunState.VERIFYING, WorkRunState.VERIFYING),
+    ],
+)
+def test_work_run_rejects_invalid_transitions(
+    source: WorkRunState,
+    target: WorkRunState,
+) -> None:
+    work_run = WorkRun(correlation=make_work_run().correlation, state=source)
+
+    with pytest.raises(InvalidWorkRunTransition, match=f"cannot transition from {source} to {target}"):
+        work_run.transition_to(target)
